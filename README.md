@@ -25,13 +25,14 @@ mv vegeta ~/bin
 
 Make sure that the `vegeta` executable is in your `$PATH`.
 
-## Benchmark
+## Run Benchmark 
 
 ```shell
 ./benchmark-all.sh 
 ```
 
-Output:
+### Results
+
 ```
 Starting server with loom approach
 
@@ -88,11 +89,16 @@ Error Set:
 Stopping server
 ```
 
-### Results 
+### Latencies over Time 
 
-The following diagrams were exported from the HTML results in the `results` folder which were produced by the benchmark run above. 
+The following diagrams show the latencies over time. They were exported from the HTML results in the `results` folder which were produced by the benchmark run above. 
+
+#### Loom
 
 ![Loom](results/loom.png "Loom")
+
+#### Webflux
+
 ![Webflux](results/webflux.png "Webflux")
 
 ### Test Environment
