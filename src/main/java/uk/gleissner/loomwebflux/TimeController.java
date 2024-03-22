@@ -13,14 +13,14 @@ public class TimeController {
 
     @GetMapping("/loom")
     @ResponseBody
-    public Long epochMillisLoom(@RequestParam(required = false, defaultValue = "" + DEFAULT_DELAY_MILLIS) Long delayMillis) throws InterruptedException {
+    public Long epochMillisLoom(@RequestParam(defaultValue = "" + DEFAULT_DELAY_MILLIS) Long delayMillis) throws InterruptedException {
         Thread.sleep(delayMillis);
         return System.currentTimeMillis();
     }
 
     @GetMapping("/webflux")
     @ResponseBody
-    public Mono<Long> epochMillisWebflux(@RequestParam(required = false, defaultValue = "" + DEFAULT_DELAY_MILLIS) Long delayMillis) {
+    public Mono<Long> epochMillisWebflux(@RequestParam(defaultValue = "" + DEFAULT_DELAY_MILLIS) Long delayMillis) {
         return Mono.just(System.currentTimeMillis())
                 .delayElement(Duration.ofMillis(delayMillis));
     }

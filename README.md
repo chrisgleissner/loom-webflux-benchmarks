@@ -2,7 +2,7 @@
 
 This project benchmarks a simple Spring Boot 3.2.* REST endpoint, comparing Java 21 Virtual Threads (Project Loom) with Webflux:
 * The benchmark repeatedly issues HTTP GET requests to http://localhost:8080/epoch-millis/$approach?delayMillis=100 via the `vegeta` load tester, using a configurable number of connections (default: 10,000) as well as a configurable request rate (default: 10,000) across all connections. These settings can be changed in `./benchmark.sh`. 
-* The implementation of this endpoint is the same for both approaches: it first waits $delayMillis (default if not specified: `50`), using the wait approach which is idiomatic for the respective framework. It then returns the millis since epoch.
+* The implementation of this endpoint is the same for both approaches: it first waits $delayMillis (default: `100`), using the wait approach which is idiomatic for the respective framework. It then returns the millis since epoch.
 * The value of `$approach` in the URL is either `loom` or `webflux`.
 
 ## Setup 
