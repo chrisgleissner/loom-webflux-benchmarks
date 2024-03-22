@@ -7,6 +7,8 @@ This project benchmarks a simple Spring Boot 3.2.* REST endpoint, comparing Java
 
 ## Setup 
 
+The following instructions assume you are using a Debian-based Linux such as Ubuntu 22.04. 
+
 ### Increase Open File Limit
 
 ```shell
