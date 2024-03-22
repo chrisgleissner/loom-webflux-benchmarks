@@ -1,10 +1,10 @@
 # Loom vs Webflux
 
-This project benchmarks a simple Spring Boot web REST endpoint, comparing Virtual Threads (Project Loom) with Webflux.
+This project benchmarks a simple Spring Boot 3.2.* REST endpoint, comparing Java 21 Virtual Threads (Project Loom) with Webflux.
 
-The REST endpoint is invoked via GET, waits a configurable amount of time (default: 50ms) and then returns the millis since epoch.
+The REST endpoint http://localhost:8080/epoch-millis/$approach?delayMillis=100 is invoked via GET, waits a configurable amount of time (default: 50ms) and then returns the millis since epoch.
 
-## Preparation
+## Setup 
 
 ### Increase Open File Limit
 
@@ -25,7 +25,7 @@ mv vegeta ~/bin
 
 Make sure that the `vegeta` executable is in your `$PATH`.
 
-## Run Benchmarks
+## Benchmark
 
 ```shell
 ./benchmark-all.sh 
@@ -88,16 +88,16 @@ Error Set:
 Stopping server
 ```
 
-### Diagrams
+### Results 
 
 The following diagrams were exported from the HTML results in the `results` folder which were produced by the benchmark run above. 
 
 ![Loom](results/loom.png "Loom")
 ![Webflux](results/webflux.png "Webflux")
 
-### Environment
+### Test Environment
 
-The benchmarks found in the `results` folder were created by the second of two runs using the following commands.
+The benchmark was performed on the following environment:
 
 ```shell
 printf "Java:\t" && java --version | grep "Server" && printf "OS:\t" && cat /etc/os-release | grep "PRETTY" && printf "Kernel:\t" && uname -r && printf "CPU:\t" && lscpu | grep "Model name" && printf "Cores:\t" && cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l
@@ -111,3 +111,4 @@ Kernel: 5.15.86-051586-generic
 CPU:    Model name:                      Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz
 Cores:  8
 ```
+
