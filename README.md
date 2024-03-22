@@ -2,7 +2,7 @@
 
 This project benchmarks a simple Spring Boot 3.2.* REST endpoint, comparing Java 21 Virtual Threads (Project Loom) with Webflux.
 
-The REST endpoint http://localhost:8080/epoch-millis/$approach?delayMillis=100 is invoked via GET, waits a configurable amount of time (default: 50ms) and then returns the millis since epoch.
+The REST endpoint http://localhost:8080/epoch-millis/$approach?delayMillis=100 is invoked via GET, waits a configurable amount of time (default: 50ms) and then returns the millis since epoch. The value of `$approach` is either `loom` or `webflux`.
 
 ## Setup 
 
