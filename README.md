@@ -1,4 +1,4 @@
-# Loom vs Webflux
+# Java 21 Virtual Threads (Project Loom) vs Webflux
 
 This project benchmarks a simple Spring Boot 3.2.* REST endpoint, comparing Java 21 Virtual Threads (Project Loom) with Webflux:
 * The benchmark repeatedly issues HTTP GET requests to http://localhost:8080/epoch-millis/$approach?delayMillis=100 via the `vegeta` load tester, using a configurable number of connections (default: 10,000) as well as a configurable request rate (default: 10,000) across all connections. These settings can be changed in `./benchmark.sh`. 
