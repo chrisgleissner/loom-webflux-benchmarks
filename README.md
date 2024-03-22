@@ -14,7 +14,7 @@ printf '* soft nofile 1048576\n* hard nofile 1048576\n' | sudo tee -a /etc/secur
 Then log out and back in.
 
 
-### Build vegeta Load Tester
+### Build Load Tester
 
 ```shell
 git clone https://github.com/tsenart/vegeta
@@ -25,13 +25,20 @@ mv vegeta ~/bin
 
 Make sure that the `vegeta` executable is in your `$PATH`.
 
-## Run Benchmark 
+## Benchmark 
+
+The following command runs the benchmark for Loom as well as Webflux. Each benchmark consists of the following steps:
+* Build and start Spring Boot web server with chosen approach (Loom or Webflux).
+* Run two iterations of the benchmark. The result of each iteration is copied to the `results` folder, where each new iteration overwrites the previous one.
+* Stop the server.
 
 ```shell
 ./benchmark-all.sh 
 ```
 
 ### Results
+
+The following is the output of the `./benchmark-all.sh` command when executed on the test environment described further below.
 
 ```
 Starting server with loom approach
