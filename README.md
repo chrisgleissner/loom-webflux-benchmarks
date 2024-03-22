@@ -99,7 +99,7 @@ Stopping server
 
 ### Latencies over Time 
 
-The following diagrams show the client-side end-to-end request latencies (Y axis, in ms) over elpased benchmark time (X axis, in seconds). They were exported from the HTML results in the `results` folder which were produced by the benchmark run above. 
+The following diagrams show the client-side end-to-end request latencies (Y axis, in ms) over elapsed benchmark time (X axis, in seconds). They were exported from the HTML results in the `results` folder which were produced by the benchmark run above. 
 
 #### Loom
 
