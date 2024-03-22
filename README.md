@@ -30,14 +30,16 @@ Make sure that the `vegeta` executable is in your `$PATH`.
 
 ## Benchmark 
 
-The following command runs the benchmark for Loom as well as Webflux. Each benchmark consists of the following steps:
-* Build and start Spring Boot web server with chosen approach (Loom or Webflux).
-* Run two iterations of the benchmark. The result of each iteration is copied to the `results` folder, where each new iteration overwrites the previous one.
-* Stop the server.
+The following command runs the benchmark first for Project Loom, then for Webflux:
 
 ```shell
 ./benchmark-all.sh 
 ```
+
+Each benchmark run consists of the following steps:
+* Build and start Spring Boot web server with chosen approach (Loom or Webflux).
+* Run two iterations of the benchmark. The result of each iteration is copied to the `results` folder, where each new iteration overwrites the previous one.
+* Stop the server.
 
 ### Results
 
