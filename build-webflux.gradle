@@ -6,6 +6,7 @@ plugins {
 
 java { sourceCompatibility = '21' }
 repositories { mavenCentral() }
+bootRun { jvmArgs([ "-Xmx1g"])}
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
