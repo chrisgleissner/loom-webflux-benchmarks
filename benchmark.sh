@@ -8,14 +8,12 @@ fi
 testIterationDuration=60s # Duration of a test iteration. Each approach undergoes two test iterations.
 delayMillis=100 # Server-side delay in milliseconds before a response is returned.
 connections=5000 # Number of connections.
-workers=5000 # Number of workers, i.e. users.
 totalRate=5000 # Requests/s across all connections.
 
 approach=$1 # The service approach that is being tested, either loom or webflux.
 serviceHost=localhost # Server host which runs Spring Boot application under test.
 servicePort=8080
 serviceUrl="http://$serviceHost:$servicePort/epoch-millis/$approach?delayMillis=$delayMillis"
-serviceHeapSize=512m
 result="results/$approach.html"
 
 # Start service
@@ -28,8 +26,8 @@ until curl --output /dev/null --silent --head --fail $serviceUrl; do printf '.';
 
 # Benchmark service
 printf "\n\n"
-echo "Running benchmark: totalRate=$totalRate/s, connections=$connections, workers=$workers, delayMillis=$delayMillis, testIterationDuration=$testIterationDuration"
-for i in {1..2}; do mkdir -p bin && echo "Test iteration #$i started at $( date )..." && echo "GET $serviceUrl" | vegeta attack -duration=$testIterationDuration -rate=$totalRate -workers=$workers -max-workers=$workers -connections=$connections -max-connections=$connections | tee bin/results.bin | vegeta report && cat bin/results.bin | vegeta plot --title="$approach" > $result; done
+echo "Running benchmark: totalRate=$totalRate/s, connections=$connections, delayMillis=$delayMillis, testIterationDuration=$testIterationDuration"
+for i in {1..2}; do mkdir -p bin && echo "Test iteration #$i started at $( date )..." && echo "GET $serviceUrl" | vegeta attack -duration=$testIterationDuration -rate=$totalRate -connections=$connections -max-connections=$connections | tee bin/results.bin | vegeta report && cat bin/results.bin | vegeta plot --title="$approach" > $result; done
 
 # Stop service
 printf "\n\n"

@@ -48,7 +48,7 @@ Each benchmark run consists of the following steps:
 ### Config
 
 Configuration of the benchmark:
-* Client: `benchmark.sh` configures `totalRate`, `connections`, `workers`, `delayMillis` and `testIterationDuration`. Their values are logged during the benchmark.
+* Client: `benchmark.sh` configures `totalRate`, `connections`, `delayMillis` and `testIterationDuration`. Their values are logged during the benchmark.
 * Service: `build-*.gradle` configures the heap space to 1 GiB.
 
 ### Results
@@ -60,51 +60,20 @@ Starting service with loom approach
 Service URL: http://localhost:8080/epoch-millis/loom?delayMillis=100
 ....
 
-Running benchmark: totalRate=5000/s, connections=5000, workers=5000, delayMillis=100, testIterationDuration=60s
-Test iteration #1...
-Requests      [total, rate, throughput]         300000, 5003.58, 4995.15
-Duration      [total, attack, wait]             1m0s, 59.957s, 101.267ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.358ms, 115.793ms, 101.189ms, 111.903ms, 127.196ms, 644.686ms, 1.252s
+Running benchmark: totalRate=5000/s, connections=5000, delayMillis=100, testIterationDuration=60s
+Test iteration #1 started at Sat 23 Mar 09:52:21 GMT 2024...
+Requests      [total, rate, throughput]         300000, 5000.02, 4991.58
+Duration      [total, attack, wait]             1m0s, 1m0s, 101.445ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  100.383ms, 111.438ms, 101.113ms, 110.617ms, 127.581ms, 456.841ms, 823.243ms
 Bytes In      [total, mean]                     3900000, 13.00
 Bytes Out     [total, mean]                     0, 0.00
 Success       [ratio]                           100.00%
 Status Codes  [code:count]                      200:300000  
 Error Set:
-Test iteration #2...
-Requests      [total, rate, throughput]         300000, 5003.60, 4994.87
-Duration      [total, attack, wait]             1m0s, 59.957s, 104.873ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.316ms, 103.503ms, 101.071ms, 105.309ms, 113.344ms, 153.922ms, 419.383ms
-Bytes In      [total, mean]                     3900000, 13.00
-Bytes Out     [total, mean]                     0, 0.00
-Success       [ratio]                           100.00%
-Status Codes  [code:count]                      200:300000  
-Error Set:
-
-
-Stopping service
-{"message":"Shutting down, bye..."}
-
-
-Starting service with webflux approach
-Service URL: http://localhost:8080/epoch-millis/webflux?delayMillis=100
-....INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
-
-
-Running benchmark: totalRate=5000/s, connections=5000, workers=5000, delayMillis=100, testIterationDuration=60s
-Test iteration #1...
-[5999:5999:0323/085007.269979:ERROR:atom_cache.cc(229)] Add WM_CHANGE_STATE to kAtomsToCache
-Requests      [total, rate, throughput]         299999, 5000.85, 4992.26
-Duration      [total, attack, wait]             1m0s, 59.99s, 103.161ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.393ms, 102.39ms, 101.009ms, 102.29ms, 105.835ms, 119.972ms, 418.903ms
-Bytes In      [total, mean]                     3899987, 13.00
-Bytes Out     [total, mean]                     0, 0.00
-Success       [ratio]                           100.00%
-Status Codes  [code:count]                      200:299999  
-Error Set:
-Test iteration #2...
-Requests      [total, rate, throughput]         299998, 5003.56, 4995.14
-Duration      [total, attack, wait]             1m0s, 59.957s, 101.035ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.295ms, 101.917ms, 100.9ms, 101.674ms, 103.305ms, 118.605ms, 412.653ms
+Test iteration #2 started at Sat 23 Mar 09:53:25 GMT 2024...
+Requests      [total, rate, throughput]         299998, 4999.97, 4991.47
+Duration      [total, attack, wait]             1m0s, 1m0s, 102.163ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  100.441ms, 102.555ms, 101.09ms, 104.635ms, 110.283ms, 128.521ms, 202.524ms
 Bytes In      [total, mean]                     3899974, 13.00
 Bytes Out     [total, mean]                     0, 0.00
 Success       [ratio]                           100.00%
@@ -113,7 +82,37 @@ Error Set:
 
 
 Stopping service
-{"message":"Shutting down, bye..."}
+{"message":"Shutting down, bye..."}kf.service.services: KApplicationTrader: mimeType "x-scheme-handler/file" not found
+kf.service.services: KApplicationTrader: mimeType "x-scheme-handler/file" not found
+
+
+Starting service with webflux approach
+Service URL: http://localhost:8080/epoch-millis/webflux?delayMillis=100
+....INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+
+
+Running benchmark: totalRate=5000/s, connections=5000, delayMillis=100, testIterationDuration=60s
+Test iteration #1 started at Sat 23 Mar 09:54:33 GMT 2024...
+Requests      [total, rate, throughput]         299999, 5000.05, 4991.65
+Duration      [total, attack, wait]             1m0s, 59.999s, 100.953ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  100.424ms, 101.641ms, 100.816ms, 101.481ms, 102.663ms, 112.045ms, 337.884ms
+Bytes In      [total, mean]                     3899987, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:299999  
+Error Set:
+Test iteration #2 started at Sat 23 Mar 09:55:37 GMT 2024...
+Requests      [total, rate, throughput]         300000, 5000.01, 4991.59
+Duration      [total, attack, wait]             1m0s, 1m0s, 101.278ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  100.38ms, 101.173ms, 100.788ms, 101.351ms, 101.848ms, 108.156ms, 214.929ms
+Bytes In      [total, mean]                     3900000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:300000  
+Error Set:
+
+
+Stopping service
 ```
 
 ### Latencies over Time 
