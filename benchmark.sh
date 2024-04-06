@@ -16,32 +16,44 @@ servicePort=8080
 serviceUrl="http://$serviceHost:$servicePort/epoch-millis/$approach?delayMillis=$delayMillis"
 latencyResult="results/$approach-latency.html"
 
-# Start service
-printf "\n\n"
-echo "Starting service with $approach approach"
-echo "Service URL: $serviceUrl"
-cp -f build-$approach.gradle build.gradle
-nohup ./gradlew bootrun  >build/server.log 2>&1 &
-until curl --output /dev/null --silent --head --fail $serviceUrl; do printf '.'; sleep 1; done
+function start_service() {
+  printf "\n\n"
+  echo "Starting service with $approach approach"
+  echo "Service URL: $serviceUrl"
+  cp -f build-$approach.gradle build.gradle
+  nohup ./gradlew bootrun  >build/server.log 2>&1 &
+  until curl --output /dev/null --silent --head --fail $serviceUrl; do printf '.'; sleep 1; done
+}
 
-# Benchmark service
-printf "\n\n"
-echo "Running benchmark: totalRate=$totalRate/s, connections=$connections, delayMillis=$delayMillis, testIterationDuration=${testIterationDurationSeconds}s"
+function stop_service() {
+  printf "\n\n"
+  echo "Stopping service"
+  curl -X POST $serviceHost:$servicePort/actuator/shutdown
+  while curl --output /dev/null --silent --head --fail $serviceUrl; do printf '.'; sleep 1; done
+}
 
-for i in {1..2}
-do
+function benchmark_service() {
+  printf "\n\n"
+  echo "Running benchmark: totalRate=$totalRate/s, connections=$connections, delayMillis=$delayMillis, testIterationDuration=${testIterationDurationSeconds}s"
   mkdir -p bin
-  echo "Test iteration #$i started at $( date )..."
+
+  echo
+  echo "Warmup started at $( date )..."
+  perform_requests
+
+  echo
+  echo "Test started at $( date )..."
   ./system-measure.sh $approach $testIterationDurationSeconds &
+  perform_requests
+  ./system-chart.py $approach results/$approach-system.csv results/$approach-system.png
+}
+
+function perform_requests() {
   echo "GET $serviceUrl" | vegeta attack -duration=${testIterationDurationSeconds}s -rate=$totalRate -connections=$connections -max-connections=$connections | tee bin/results.bin | vegeta report
   vegeta plot --title="$approach" < bin/results.bin > "$latencyResult"
-  ./system-chart.py $approach results/$approach-system.csv results/$approach-system.png
-done
+}
 
-# Stop service
-printf "\n\n"
-echo "Stopping service"
-curl -X POST $serviceHost:$servicePort/actuator/shutdown
-
-# Open benchmark result in browser
-#open $result
+start_service
+benchmark_service
+stop_service
+# open $latencyResult

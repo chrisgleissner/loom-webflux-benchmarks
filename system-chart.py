@@ -21,11 +21,12 @@ def plot_chart(input_file, output_file):
     with open(input_file, 'r') as file:
         csv_reader = csv.DictReader(file, delimiter=';')
         for row in csv_reader:
+            # see system-measure.csv for available column names
             timestamps.append(datetime.utcfromtimestamp(int(row['timestamp'])))
             user_cpu.append(float(row['%user']))
             system_cpu.append(float(row['%system']))
             iowait_cpu.append(float(row['%iowait']))
-            mem_used.append(int(round(float(row['kbmemused']) / 1024, 0)))
+            mem_used.append(float(row['%memused']))
             tcpsck.append(float(row['tcpsck']))
             active_s.append(float(row['active/s']))
             passive_s.append(float(row['passive/s']))
@@ -47,7 +48,7 @@ def plot_chart(input_file, output_file):
     cpu.set_title('CPU', weight='bold')
 
     ram.plot(seconds_elapsed, mem_used, label='Used', linestyle='solid', linewidth=2)
-    ram.set_ylabel('RAM (MiB)', color='black')
+    ram.set_ylabel('RAM %', color='black')
     ram.legend(loc='upper left')
     ram.set_title('RAM', weight='bold')
 
@@ -60,7 +61,7 @@ def plot_chart(input_file, output_file):
 
     throughput.plot(seconds_elapsed, iseg_s, label='Received / s', color='tab:gray', linestyle='solid', linewidth=2)
     throughput.plot(seconds_elapsed, oseg_s, label='Sent / s', color='tab:olive', linestyle='dotted', linewidth=2)
-    throughput.set_ylabel('Segment Count', color='black')
+    throughput.set_ylabel('TCP Segments', color='black')
     throughput.legend(loc='upper left')
     throughput.set_title('Throughput', weight='bold')
     throughput.set_xlabel('Seconds')
