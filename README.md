@@ -58,76 +58,70 @@ The following is the output of the `./benchmark-all.sh` command when executed on
 ```
 Starting service with loom approach
 Service URL: http://localhost:8080/epoch-millis/loom?delayMillis=100
-....
+...........
 
 Running benchmark: totalRate=5000/s, connections=5000, delayMillis=100, testIterationDuration=60s
-Test iteration #1 started at Sat 23 Mar 09:52:21 GMT 2024...
-Requests      [total, rate, throughput]         300000, 5000.02, 4991.58
-Duration      [total, attack, wait]             1m0s, 1m0s, 101.445ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.383ms, 111.438ms, 101.113ms, 110.617ms, 127.581ms, 456.841ms, 823.243ms
+Test iteration #1 started at Sat  6 Apr 08:41:46 BST 2024...
+...warm-up iteration logs omitted...
+
+Test iteration #2 started at Sat  6 Apr 08:42:51 BST 2024...
+Measuring system using loom approach for 60 seconds...
+Updated results/loom-system.csv
+Requests      [total, rate, throughput]         300000, 5000.08, 4990.04
+Duration      [total, attack, wait]             1m0s, 59.999s, 120.782ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  100.269ms, 103.618ms, 101.149ms, 107.692ms, 115.954ms, 150.531ms, 241.942ms
 Bytes In      [total, mean]                     3900000, 13.00
 Bytes Out     [total, mean]                     0, 0.00
 Success       [ratio]                           100.00%
 Status Codes  [code:count]                      200:300000  
 Error Set:
-Test iteration #2 started at Sat 23 Mar 09:53:25 GMT 2024...
-Requests      [total, rate, throughput]         299998, 4999.97, 4991.47
-Duration      [total, attack, wait]             1m0s, 1m0s, 102.163ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.441ms, 102.555ms, 101.09ms, 104.635ms, 110.283ms, 128.521ms, 202.524ms
-Bytes In      [total, mean]                     3899974, 13.00
-Bytes Out     [total, mean]                     0, 0.00
-Success       [ratio]                           100.00%
-Status Codes  [code:count]                      200:299998  
-Error Set:
+Updated results/loom-system.png
 
 
 Stopping service
-{"message":"Shutting down, bye..."}kf.service.services: KApplicationTrader: mimeType "x-scheme-handler/file" not found
-kf.service.services: KApplicationTrader: mimeType "x-scheme-handler/file" not found
-
+{"message":"Shutting down, bye..."}
 
 Starting service with webflux approach
 Service URL: http://localhost:8080/epoch-millis/webflux?delayMillis=100
-....INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
 
 
 Running benchmark: totalRate=5000/s, connections=5000, delayMillis=100, testIterationDuration=60s
-Test iteration #1 started at Sat 23 Mar 09:54:33 GMT 2024...
-Requests      [total, rate, throughput]         299999, 5000.05, 4991.65
-Duration      [total, attack, wait]             1m0s, 59.999s, 100.953ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.424ms, 101.641ms, 100.816ms, 101.481ms, 102.663ms, 112.045ms, 337.884ms
+Test iteration #1 started at Sat  6 Apr 08:43:55 BST 2024...
+...warm-up iteration logs omitted...
+
+Test iteration #2 started at Sat  6 Apr 08:45:00 BST 2024...
+Measuring system using webflux approach for 60 seconds...
+Updated results/webflux-system.csv
+Requests      [total, rate, throughput]         299999, 5000.06, 4991.65
+Duration      [total, attack, wait]             1m0s, 59.999s, 100.993ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  100.297ms, 102.14ms, 100.976ms, 102.836ms, 107.14ms, 119.1ms, 308.556ms
 Bytes In      [total, mean]                     3899987, 13.00
 Bytes Out     [total, mean]                     0, 0.00
 Success       [ratio]                           100.00%
 Status Codes  [code:count]                      200:299999  
 Error Set:
-Test iteration #2 started at Sat 23 Mar 09:55:37 GMT 2024...
-Requests      [total, rate, throughput]         300000, 5000.01, 4991.59
-Duration      [total, attack, wait]             1m0s, 1m0s, 101.278ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.38ms, 101.173ms, 100.788ms, 101.351ms, 101.848ms, 108.156ms, 214.929ms
-Bytes In      [total, mean]                     3900000, 13.00
-Bytes Out     [total, mean]                     0, 0.00
-Success       [ratio]                           100.00%
-Status Codes  [code:count]                      200:300000  
-Error Set:
+Updated results/webflux-system.png
 
 
 Stopping service
+{"message":"Shutting down, bye..."}
 ```
 
-### Latencies over Time 
+### Charts
 
-The following diagrams show the client-side end-to-end request latencies (Y axis, in ms) over elapsed benchmark time (X axis, in seconds). 
-
-They were exported from the HTML results in the `results` folder which were produced by the benchmark run above.
+The following charts show the client-side end-to-end request latencies (Y axis, in ms) over elapsed benchmark time (X axis, in seconds).
+* The latency charts were exported from the HTML results in the `results` folder which were produced by the benchmark run above.
+* The system resource chart with multiple subplots was generated using Python 3 and [matplotlib](https://matplotlib.org/) from the [sar](https://linux.die.net/man/1/sar) results gathered during the test run. Measurements refer to the entire system, across all processes. The system had a base-level CPU use of ca 1% before the test start.
 
 #### Loom
 
-![Loom](results/loom.png "Loom")
+![Loom Latency](results/loom-latency.png "Loom Latency")
+![Loom System](results/loom-system.png "Loom System")
 
 #### Webflux
 
-![Webflux](results/webflux.png "Webflux")
+![WebFlux Latency](results/webflux-latency.png "WebFlux Latency")
+![WebFlux System](results/webflux-system.png "WebFlux System")
 
 ### Test Environment
 
@@ -146,3 +140,4 @@ This output was obtained via:
 ```shell
 printf "Java:\t" && java --version | grep "Server" && printf "OS:\t" && cat /etc/os-release | grep "PRETTY" && printf "Kernel:\t" && uname -r && printf "CPU:\t" && lscpu | grep "Model name" && printf "Cores:\t" && cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l
 ```
+

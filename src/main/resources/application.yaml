@@ -5,6 +5,10 @@ spring:
     virtual:
       enabled: true
 
+server:
+  http2:
+    enabled: true
+
 management:
   endpoints:
     web:
