@@ -58,18 +58,26 @@ The following is the output of the `./benchmark-all.sh` command when executed on
 ```
 Starting service with loom approach
 Service URL: http://localhost:8080/epoch-millis/loom?delayMillis=100
-...........
+..........
 
 Running benchmark: totalRate=5000/s, connections=5000, delayMillis=100, testIterationDuration=60s
-Test iteration #1 started at Sat  6 Apr 08:41:46 BST 2024...
-...warm-up iteration logs omitted...
 
-Test iteration #2 started at Sat  6 Apr 08:42:51 BST 2024...
+Warmup started at Sat  6 Apr 10:02:44 BST 2024...
+Requests      [total, rate, throughput]         299997, 4999.97, 4991.23
+Duration      [total, attack, wait]             1m0s, 1m0s, 105.007ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  100.345ms, 109.913ms, 101.14ms, 110.899ms, 125.433ms, 397.443ms, 801.798ms
+Bytes In      [total, mean]                     3899961, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:299997  
+Error Set:
+
+Test started at Sat  6 Apr 10:03:47 BST 2024...
 Measuring system using loom approach for 60 seconds...
 Updated results/loom-system.csv
-Requests      [total, rate, throughput]         300000, 5000.08, 4990.04
-Duration      [total, attack, wait]             1m0s, 59.999s, 120.782ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.269ms, 103.618ms, 101.149ms, 107.692ms, 115.954ms, 150.531ms, 241.942ms
+Requests      [total, rate, throughput]         300000, 5000.02, 4991.41
+Duration      [total, attack, wait]             1m0s, 1m0s, 103.488ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  100.351ms, 103.464ms, 101.15ms, 106.674ms, 114.337ms, 153.467ms, 230.101ms
 Bytes In      [total, mean]                     3900000, 13.00
 Bytes Out     [total, mean]                     0, 0.00
 Success       [ratio]                           100.00%
@@ -79,22 +87,30 @@ Updated results/loom-system.png
 
 
 Stopping service
-{"message":"Shutting down, bye..."}
+{"message":"Shutting down, bye..."}.
 
 Starting service with webflux approach
 Service URL: http://localhost:8080/epoch-millis/webflux?delayMillis=100
-
+....
 
 Running benchmark: totalRate=5000/s, connections=5000, delayMillis=100, testIterationDuration=60s
-Test iteration #1 started at Sat  6 Apr 08:43:55 BST 2024...
-...warm-up iteration logs omitted...
 
-Test iteration #2 started at Sat  6 Apr 08:45:00 BST 2024...
+Warmup started at Sat  6 Apr 10:04:58 BST 2024...
+Requests      [total, rate, throughput]         300000, 4999.99, 4991.59
+Duration      [total, attack, wait]             1m0s, 1m0s, 101.047ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  100.372ms, 103.567ms, 100.851ms, 101.637ms, 103.488ms, 168.193ms, 512.248ms
+Bytes In      [total, mean]                     3900000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:300000  
+Error Set:
+
+Test started at Sat  6 Apr 10:06:01 BST 2024...
 Measuring system using webflux approach for 60 seconds...
 Updated results/webflux-system.csv
-Requests      [total, rate, throughput]         299999, 5000.06, 4991.65
-Duration      [total, attack, wait]             1m0s, 59.999s, 100.993ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.297ms, 102.14ms, 100.976ms, 102.836ms, 107.14ms, 119.1ms, 308.556ms
+Requests      [total, rate, throughput]         299999, 4999.99, 4991.56
+Duration      [total, attack, wait]             1m0s, 1m0s, 101.25ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  100.307ms, 101.78ms, 100.838ms, 101.767ms, 104.054ms, 120.398ms, 253.431ms
 Bytes In      [total, mean]                     3899987, 13.00
 Bytes Out     [total, mean]                     0, 0.00
 Success       [ratio]                           100.00%
@@ -104,7 +120,7 @@ Updated results/webflux-system.png
 
 
 Stopping service
-{"message":"Shutting down, bye..."}
+{"message":"Shutting down, bye..."}.
 ```
 
 ### Charts
