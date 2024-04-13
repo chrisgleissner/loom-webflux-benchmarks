@@ -4,7 +4,7 @@ This Java 21 project benchmarks a simple [Spring Boot 3.2.4](https://spring.io/p
 
 ### Background
 
-Both Spring WebFlux and Virtual Threads are alternative technologies to create Java web services that support a high number of concurrent users, mapping incoming requests to very few underlying operating system threads. This reduces the resource overhead incurred by dedicating a single operating system thread to reach user.
+Both Spring WebFlux and Virtual Threads are alternative technologies to create Java microservices that support a high number of concurrent users, mapping all incoming requests to very few shared operating system threads. This reduces the resource overhead incurred by dedicating a single operating system thread to each user.
 
 Spring WebFlux was first introduced in September 2017. Virtual Threads were first introduced as preview feature with Java 19 and have been fully rolled out with Java 21 in September 2023.
 
