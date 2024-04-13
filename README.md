@@ -97,7 +97,9 @@ including the benchmark log output to `stdout`.
 
 ### Scenario: 5k connections, 5k requests / s, request delay 200ms
 
-#### Virtual Threads (aka Project Loom)
+This simulates 5000 concurrent users, each issuing one request per second. Each request waits 200ms for another resource such as a down-stream service or DB.
+
+#### Virtual Threads
 
 ![Loom](results/con5k_rps5k_del200ms/loom.png)
 
@@ -105,6 +107,17 @@ including the benchmark log output to `stdout`.
 
 ![WebFlux](results/con5k_rps5k_del200ms/webflux.png)
 
+### Scenario: 10k connections, 5k requests / s, request delay 200ms
+
+Same as before, but with 10,000 concurrent users, each issuing one request every two seconds.
+
+#### Virtual Threads
+
+![Loom](results/con10k_rps5k_del200ms/loom.png)
+
+#### WebFlux
+
+![WebFlux](results/con10k_rps5k_del200ms/webflux.png)
 
 ## Test Environment
 
