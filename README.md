@@ -10,7 +10,6 @@ Spring WebFlux was first introduced in September 2017. Virtual Threads were firs
 
 ### Features
 
-This project compares the latency and resource use of Spring WebFlux with Virtual Threads:
 * Fully automated and CLI-driven via `benchmark-all.sh`. 
 * Test scenario support, see `test-scenario.csv`.
 * Produces single PNG plot using [Matplotlib](https://matplotlib.org/) for each scenario and approach (Loom or WebFlux), containing:
