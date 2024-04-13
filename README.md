@@ -118,6 +118,10 @@ Same as before, but with 10,000 concurrent users, each issuing one request every
 
 ![WebFlux](results/con10k_rps5k_del200ms/webflux.png)
 
+## Known Issues 
+
+- vegeta cannot be forced to use a specific number of connections. Instead, you can only specify a desired and maximum number. This explains why in several scenarios, including those referenced in this README, the number of TCP sockets is lower than the number of desired connections. 
+
 ## Test Environment
 
 The benchmark was performed on the following physical machine:
