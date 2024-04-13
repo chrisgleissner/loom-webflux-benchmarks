@@ -24,7 +24,7 @@ Spring WebFlux was first introduced in September 2017. Virtual Threads were firs
 
 ### Requirements
 * Unix-based OS; tested with Ubuntu 22.04
-* [vegeta](https://github.com/tsenart/vegeta) and Python 3 with [Matplotlib](https://matplotlib.org/) to drive load and measure latency
+* [vegeta](https://github.com/tsenart/vegeta) to create load and measure latency
 * [sar/sadf](https://linux.die.net/man/1/sar) to measure system resource use
 * Python 3 and [Matplotlib](https://matplotlib.org/) to convert latency and system CSV measurements into a PNG image
 
