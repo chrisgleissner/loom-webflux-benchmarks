@@ -1,27 +1,41 @@
-# Benchmark of Java Virtual Threads vs Webflux
+# Benchmark of Java Virtual Threads vs WebFlux
 
-This Java 21 project benchmarks a simple [Spring Boot 3.2.4](https://spring.io/projects/spring-boot) HTTP endpoint, comparing Java Virtual Threads (introduced by [Project Loom, JEP 444](https://openjdk.org/jeps/444)) with [Spring Webflux](https://docs.spring.io/spring-framework/reference/web/webflux.html) (relying on [Project Reactor](https://projectreactor.io/)):
-* The benchmark is driven by [vegeta](https://github.com/tsenart/vegeta) which repeatedly issues HTTP GET requests to a service listening at http://localhost:8080/epoch-millis/$approach?delayMillis=$delayMillis
-* The value of `$approach` in the URL is either `loom` or `webflux`.
+This Java 21 project benchmarks a simple [Spring Boot 3.2.4](https://spring.io/projects/spring-boot) HTTP endpoint using configurable scenarios, comparing Java Virtual Threads (introduced by [Project Loom, JEP 444](https://openjdk.org/jeps/444)) with [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html) (relying on [Project Reactor](https://projectreactor.io/)).
+
+### Background
+
+Both Spring WebFlux and Virtual Threads are alternative technologies to create Java web services that support a high number of concurrent users, mapping incoming requests to very few underlying operating system threads. This reduces the resource overhead incurred by dedicating a single operating system thread to reach user.
+
+Spring WebFlux was first introduced in September 2017. Virtual Threads were first introduced as preview feature with Java 19 and have been fully rolled out with Java 21 in September 2023.
+
+### Features
+
+This project compares the latency and resource use of Spring WebFlux with Virtual Threads:
+* Fully automated and CLI-driven via `benchmark-all.sh`. 
+* Test scenario support, see `test-scenario.csv`.
+* Produces single PNG plot using [Matplotlib](https://matplotlib.org/) for each scenario and approach (Loom or WebFlux), containing:
+  * Raw latencies and P50/90/99 percentiles, as well as any errors
+  * System metrics for CPU, RAM, sockets, and network throughput
+
+### Design
+* The benchmark is driven by [vegeta](https://github.com/tsenart/vegeta) which repeatedly issues HTTP GET requests to a service listening at http://localhost:8080/epoch-millis/$approach?delayInMillis=$delayInMillis
 * The service implementation consists of two steps:
-  1. It waits `$delayMillis` (default: `100`) to mimic a network call, filesystem wait, or similar. Whilst the request waits, its operating system thread can be reused by another request. Both Loom and Webflux use their respective idiomatic ways to wait. 
+  1. It waits `$delayInMillis` (default: `100`) to mimic a network call, filesystem wait, or similar. Whilst the request waits, its operating system thread can be reused by another request. Both Loom and WebFlux use their respective idiomatic ways to wait. 
   2. It then returns the milliseconds since the epoch.
+
+### Requirements
+* Unix-based OS; tested with Ubuntu 22.04
+* [vegeta](https://github.com/tsenart/vegeta) and Python 3 with [Matplotlib](https://matplotlib.org/) to drive load and measure latency
+* [sar/sadf](https://linux.die.net/man/1/sar) to measure system resource use
+* Python 3 and [Matplotlib](https://matplotlib.org/) to convert latency and system CSV measurements into a PNG image
 
 ## Setup 
 
 The following instructions assume you are using a Debian-based Linux such as Ubuntu 22.04. 
 
-### Increase Open File Limit
+### vegeta
 
-```shell
-printf '* soft nofile 1048576\n* hard nofile 1048576\n' | sudo tee -a /etc/security/limits.conf 
-```
-Then log out and back in.
-
-
-### Build Load Tester
-
-We are using [vegeta](https://github.com/tsenart/vegeta) for driving the load test. Here's how to build it from source:
+[vegeta](https://github.com/tsenart/vegeta) is used to load the service. Here's how to build it:
 
 ```shell
 git clone https://github.com/tsenart/vegeta
@@ -32,114 +46,67 @@ mv vegeta ~/bin
 
 Make sure that the `vegeta` executable is in your `$PATH`.
 
+### Python 3, matplotlib, sar and sadf
+
+Python 3 and `matplotlib` are used to convert the CSV output of `vegeta` and `sar`/`sadf` to a single PNG chart. The `sar` and `sadf` tools come as part of `sysstat` and are used to measure resource use.
+
+To install these, run:
+
+```shell
+sudo apt update && sudo apt install -y python3 python3-matplotlib sysstat
+```
+
+### Increase Open File Limit
+
+The following is needed to ensure your system can handle a large number of concurrent connections:
+
+```shell
+printf '* soft nofile 1048576\n* hard nofile 1048576\n' | sudo tee -a /etc/security/limits.conf 
+```
+
+Then log out and back in.
+
+
 ## Benchmark 
 
-The following command runs the benchmark first for Project Loom, then for Webflux:
+The following command runs the benchmark for all scenarios in `test-scenarios.csv`, first for Project Loom, then for WebFlux, and records its output in the `results` folder:
 
 ```shell
 ./benchmark-all.sh 
 ```
 
-Each benchmark run consists of the following steps:
-* Build and start Spring Boot service with chosen approach (Loom or Webflux).
+The benchmark run for each scenario consists of the following steps:
+* Build and start Spring Boot service with chosen approach (Loom or WebFlux).
 * Run two iterations of the benchmark. The result of each iteration is copied to the `results` folder, where each new iteration overwrites the previous one.
 * Stop the service.
 
-### Config
+## Config
 
 Configuration of the benchmark:
-* Client: `benchmark.sh` configures `totalRate`, `connections`, `delayMillis` and `testIterationDuration`. Their values are logged during the benchmark.
+* Scenarios: `test-scenarios.csv` containing one scenario per line.
 * Service: `build-*.gradle` configures the heap space to 1 GiB.
 
-### Results
+## Results
 
-The following is the output of the `./benchmark-all.sh` command when executed on the test environment described further below.
+The following charts show interesting findings. 
 
-```
-Starting service with loom approach
-Service URL: http://localhost:8080/epoch-millis/loom?delayMillis=100
-..........
+Each chart charts show the client-side end-to-end request latencies (Y axis, in ms) over elapsed benchmark time (X axis, in seconds), as well as resource use.
 
-Running benchmark: totalRate=5000/s, connections=5000, delayMillis=100, testIterationDuration=60s
+All charts for a run on the test machine (see below for specs) can be found in the `results` folder of this GitHub repo,
+including the benchmark log output to `stdout`.
 
-Warmup started at Sat  6 Apr 10:02:44 BST 2024...
-Requests      [total, rate, throughput]         299997, 4999.97, 4991.23
-Duration      [total, attack, wait]             1m0s, 1m0s, 105.007ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.345ms, 109.913ms, 101.14ms, 110.899ms, 125.433ms, 397.443ms, 801.798ms
-Bytes In      [total, mean]                     3899961, 13.00
-Bytes Out     [total, mean]                     0, 0.00
-Success       [ratio]                           100.00%
-Status Codes  [code:count]                      200:299997  
-Error Set:
+### Scenario: 5k connections, 5k requests / s, request delay 200ms
 
-Test started at Sat  6 Apr 10:03:47 BST 2024...
-Measuring system using loom approach for 60 seconds...
-Updated results/loom-system.csv
-Requests      [total, rate, throughput]         300000, 5000.02, 4991.41
-Duration      [total, attack, wait]             1m0s, 1m0s, 103.488ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.351ms, 103.464ms, 101.15ms, 106.674ms, 114.337ms, 153.467ms, 230.101ms
-Bytes In      [total, mean]                     3900000, 13.00
-Bytes Out     [total, mean]                     0, 0.00
-Success       [ratio]                           100.00%
-Status Codes  [code:count]                      200:300000  
-Error Set:
-Updated results/loom-system.png
+#### Virtual Threads (aka Project Loom)
+
+![Loom](results/con5k_rps5k_del200ms/loom.png)
+
+#### WebFlux
+
+![WebFlux](results/con5k_rps5k_del200ms/webflux.png)
 
 
-Stopping service
-{"message":"Shutting down, bye..."}.
-
-Starting service with webflux approach
-Service URL: http://localhost:8080/epoch-millis/webflux?delayMillis=100
-....
-
-Running benchmark: totalRate=5000/s, connections=5000, delayMillis=100, testIterationDuration=60s
-
-Warmup started at Sat  6 Apr 10:04:58 BST 2024...
-Requests      [total, rate, throughput]         300000, 4999.99, 4991.59
-Duration      [total, attack, wait]             1m0s, 1m0s, 101.047ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.372ms, 103.567ms, 100.851ms, 101.637ms, 103.488ms, 168.193ms, 512.248ms
-Bytes In      [total, mean]                     3900000, 13.00
-Bytes Out     [total, mean]                     0, 0.00
-Success       [ratio]                           100.00%
-Status Codes  [code:count]                      200:300000  
-Error Set:
-
-Test started at Sat  6 Apr 10:06:01 BST 2024...
-Measuring system using webflux approach for 60 seconds...
-Updated results/webflux-system.csv
-Requests      [total, rate, throughput]         299999, 4999.99, 4991.56
-Duration      [total, attack, wait]             1m0s, 1m0s, 101.25ms
-Latencies     [min, mean, 50, 90, 95, 99, max]  100.307ms, 101.78ms, 100.838ms, 101.767ms, 104.054ms, 120.398ms, 253.431ms
-Bytes In      [total, mean]                     3899987, 13.00
-Bytes Out     [total, mean]                     0, 0.00
-Success       [ratio]                           100.00%
-Status Codes  [code:count]                      200:299999  
-Error Set:
-Updated results/webflux-system.png
-
-
-Stopping service
-{"message":"Shutting down, bye..."}.
-```
-
-### Charts
-
-The following charts show the client-side end-to-end request latencies (Y axis, in ms) over elapsed benchmark time (X axis, in seconds).
-* The latency charts were exported from the HTML results in the `results` folder which were produced by the benchmark run above.
-* The system resource chart with multiple subplots was generated using Python 3 and [matplotlib](https://matplotlib.org/) from the [sar](https://linux.die.net/man/1/sar) results gathered during the test run. Measurements refer to the entire system, across all processes. The system had a base-level CPU use of ca 1% before the test start.
-
-#### Loom
-
-![Loom Latency](results/loom-latency.png "Loom Latency")
-![Loom System](results/loom-system.png "Loom System")
-
-#### Webflux
-
-![WebFlux Latency](results/webflux-latency.png "WebFlux Latency")
-![WebFlux System](results/webflux-system.png "WebFlux System")
-
-### Test Environment
+## Test Environment
 
 The benchmark was performed on the following environment:
 

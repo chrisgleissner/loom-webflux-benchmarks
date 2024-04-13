@@ -7,7 +7,7 @@ spring:
 
 server:
   http2:
-    enabled: true
+    enabled: false
 
 management:
   endpoints:

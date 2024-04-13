@@ -1,0 +1,824 @@
+Started Loom and WebFlux benchmark
+
+
+Starting smoketest for loom: delayInMillis=100, connections=100, requestsPerSecond=100, warmupDurationInSeconds=1, testDurationInSeconds=3
+Starting service to listen at http://localhost:8080/epoch-millis/loom?delayInMillis=100
+..........
+Starting warmup at 2024-04-13T01:02:58+01:00
+
+Issuing requests for 1s with vegeta...
+Measuring system for 1s...
+Saved results/smoketest/loom-system.csv
+Requests      [total, rate, throughput]         100, 100.94, 90.91
+Duration      [total, attack, wait]             1.1s, 990.648ms, 109.302ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  104.011ms, 105.751ms, 105.25ms, 107.649ms, 108.88ms, 116.014ms, 119.802ms
+Bytes In      [total, mean]                     1300, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:100  
+Error Set:
+Saved results/smoketest/loom-latency.csv
+Saved results/smoketest/loom.png
+
+Starting test at 2024-04-13T01:03:03+01:00
+
+Issuing requests for 3s with vegeta...
+Measuring system for 3s...
+Saved results/smoketest/loom-system.csv
+Requests      [total, rate, throughput]         300, 100.33, 97.00
+Duration      [total, attack, wait]             3.093s, 2.99s, 102.632ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  102.504ms, 103.481ms, 103.375ms, 104.376ms, 104.655ms, 106.253ms, 109.66ms
+Bytes In      [total, mean]                     3900, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:300  
+Error Set:
+Saved results/smoketest/loom-latency.csv
+Saved results/smoketest/loom.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting smoketest for webflux: delayInMillis=100, connections=100, requestsPerSecond=100, warmupDurationInSeconds=1, testDurationInSeconds=3
+Starting service to listen at http://localhost:8080/epoch-millis/webflux?delayInMillis=100
+....
+Starting warmup at 2024-04-13T01:03:13+01:00
+
+Issuing requests for 1s with vegeta...
+Measuring system for 1s...
+Saved results/smoketest/webflux-system.csv
+Requests      [total, rate, throughput]         100, 100.95, 91.35
+Duration      [total, attack, wait]             1.095s, 990.57ms, 104.12ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  104.12ms, 107.49ms, 105.579ms, 109.202ms, 127.094ms, 134.794ms, 137.583ms
+Bytes In      [total, mean]                     1300, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:100  
+Error Set:
+Saved results/smoketest/webflux-latency.csv
+Saved results/smoketest/webflux.png
+
+Starting test at 2024-04-13T01:03:18+01:00
+
+Issuing requests for 3s with vegeta...
+Measuring system for 3s...
+Saved results/smoketest/webflux-system.csv
+Requests      [total, rate, throughput]         300, 100.34, 97.01
+Duration      [total, attack, wait]             3.093s, 2.99s, 102.895ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  102.682ms, 103.813ms, 103.511ms, 104.537ms, 105.166ms, 112.109ms, 122.512ms
+Bytes In      [total, mean]                     3900, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:300  
+Error Set:
+Saved results/smoketest/webflux-latency.csv
+Saved results/smoketest/webflux.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con5k_rps1k_del0ms for loom: delayInMillis=0, connections=5000, requestsPerSecond=1000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/loom?delayInMillis=0
+........
+Starting warmup at 2024-04-13T01:03:32+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Requests      [total, rate, throughput]         10000, 1000.09, 999.96
+Duration      [total, attack, wait]             10s, 9.999s, 1.313ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  1.119ms, 1.782ms, 1.62ms, 2.107ms, 2.602ms, 6.04ms, 19.348ms
+Bytes In      [total, mean]                     130000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:10000  
+Error Set:
+Saved results/con5k_rps1k_del0ms/loom-system.csv
+Saved results/con5k_rps1k_del0ms/loom-latency.csv
+Saved results/con5k_rps1k_del0ms/loom.png
+
+Starting test at 2024-04-13T01:03:46+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Requests      [total, rate, throughput]         300000, 1000.00, 1000.00
+Duration      [total, attack, wait]             5m0s, 5m0s, 1.473ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  227.402µs, 1.499ms, 1.514ms, 1.733ms, 1.806ms, 2.036ms, 18.758ms
+Bytes In      [total, mean]                     3900000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:300000  
+Error Set:
+Saved results/con5k_rps1k_del0ms/loom-system.csv
+Saved results/con5k_rps1k_del0ms/loom-latency.csv
+Saved results/con5k_rps1k_del0ms/loom.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con5k_rps1k_del0ms for webflux: delayInMillis=0, connections=5000, requestsPerSecond=1000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/webflux?delayInMillis=0
+...
+Starting warmup at 2024-04-13T01:09:00+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Requests      [total, rate, throughput]         10000, 1000.05, 999.86
+Duration      [total, attack, wait]             10.001s, 10s, 1.823ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  1.105ms, 2.313ms, 1.881ms, 2.723ms, 3.832ms, 10.127ms, 52.781ms
+Bytes In      [total, mean]                     130000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:10000  
+Error Set:
+Saved results/con5k_rps1k_del0ms/webflux-system.csv
+Saved results/con5k_rps1k_del0ms/webflux-latency.csv
+Saved results/con5k_rps1k_del0ms/webflux.png
+
+Starting test at 2024-04-13T01:09:14+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Requests      [total, rate, throughput]         300000, 1000.00, 1000.00
+Duration      [total, attack, wait]             5m0s, 5m0s, 1.702ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  1.281ms, 1.798ms, 1.776ms, 1.973ms, 2.045ms, 2.402ms, 12.203ms
+Bytes In      [total, mean]                     3900000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:300000  
+Error Set:
+Saved results/con5k_rps1k_del0ms/webflux-system.csv
+Saved results/con5k_rps1k_del0ms/webflux-latency.csv
+Saved results/con5k_rps1k_del0ms/webflux.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con5k_rps5k_del0ms for loom: delayInMillis=0, connections=5000, requestsPerSecond=5000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/loom?delayInMillis=0
+....
+Starting warmup at 2024-04-13T01:14:29+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Requests      [total, rate, throughput]         50000, 5000.11, 4999.75
+Duration      [total, attack, wait]             10s, 10s, 715.189µs
+Latencies     [min, mean, 50, 90, 95, 99, max]  207.472µs, 5.493ms, 700.045µs, 1.957ms, 11.241ms, 134.426ms, 242.231ms
+Bytes In      [total, mean]                     650000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:50000  
+Error Set:
+Saved results/con5k_rps5k_del0ms/loom-system.csv
+Saved results/con5k_rps5k_del0ms/loom-latency.csv
+Saved results/con5k_rps5k_del0ms/loom.png
+
+Starting test at 2024-04-13T01:14:43+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Requests      [total, rate, throughput]         1500000, 5000.00, 4999.98
+Duration      [total, attack, wait]             5m0s, 5m0s, 1.493ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  216.782µs, 996.908µs, 804.002µs, 1.095ms, 1.416ms, 3.89ms, 186.726ms
+Bytes In      [total, mean]                     19500000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:1500000  
+Error Set:
+Saved results/con5k_rps5k_del0ms/loom-system.csv
+Saved results/con5k_rps5k_del0ms/loom-latency.csv
+Saved results/con5k_rps5k_del0ms/loom.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con5k_rps5k_del0ms for webflux: delayInMillis=0, connections=5000, requestsPerSecond=5000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/webflux?delayInMillis=0
+...
+Starting warmup at 2024-04-13T01:20:30+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Requests      [total, rate, throughput]         50000, 4999.66, 4979.21
+Duration      [total, attack, wait]             10.042s, 10.001s, 41.076ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  243.758µs, 14.165ms, 1.695ms, 32.612ms, 64.208ms, 247.822ms, 361.157ms
+Bytes In      [total, mean]                     650000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:50000  
+Error Set:
+Saved results/con5k_rps5k_del0ms/webflux-system.csv
+Saved results/con5k_rps5k_del0ms/webflux-latency.csv
+Saved results/con5k_rps5k_del0ms/webflux.png
+
+Starting test at 2024-04-13T01:20:44+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Requests      [total, rate, throughput]         1499999, 5000.00, 4999.98
+Duration      [total, attack, wait]             5m0s, 5m0s, 1.062ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  246.308µs, 1.782ms, 857.483µs, 2.413ms, 4.748ms, 19.71ms, 287.098ms
+Bytes In      [total, mean]                     19499987, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:1499999  
+Error Set:
+Saved results/con5k_rps5k_del0ms/webflux-system.csv
+Saved results/con5k_rps5k_del0ms/webflux-latency.csv
+Saved results/con5k_rps5k_del0ms/webflux.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con5k_rps1k_del200ms for loom: delayInMillis=200, connections=5000, requestsPerSecond=1000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/loom?delayInMillis=200
+...
+Starting warmup at 2024-04-13T01:26:29+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Saved results/con5k_rps1k_del200ms/loom-system.csv
+Requests      [total, rate, throughput]         10000, 1000.13, 980.33
+Duration      [total, attack, wait]             10.201s, 9.999s, 201.944ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  201.219ms, 203.33ms, 201.859ms, 202.429ms, 205.95ms, 250.031ms, 288.348ms
+Bytes In      [total, mean]                     130000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:10000  
+Error Set:
+Saved results/con5k_rps1k_del200ms/loom-latency.csv
+Saved results/con5k_rps1k_del200ms/loom.png
+
+Starting test at 2024-04-13T01:26:42+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Saved results/con5k_rps1k_del200ms/loom-system.csv
+Requests      [total, rate, throughput]         300000, 1000.00, 999.33
+Duration      [total, attack, wait]             5m0s, 5m0s, 201.87ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.857ms, 201.855ms, 201.788ms, 202ms, 202.082ms, 204.184ms, 219.38ms
+Bytes In      [total, mean]                     3900000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:300000  
+Error Set:
+Saved results/con5k_rps1k_del200ms/loom-latency.csv
+Saved results/con5k_rps1k_del200ms/loom.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con5k_rps1k_del200ms for webflux: delayInMillis=200, connections=5000, requestsPerSecond=1000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/webflux?delayInMillis=200
+...
+Starting warmup at 2024-04-13T01:31:58+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Saved results/con5k_rps1k_del200ms/webflux-system.csv
+Requests      [total, rate, throughput]         10000, 1000.08, 980.26
+Duration      [total, attack, wait]             10.201s, 9.999s, 202.181ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  201.514ms, 206.145ms, 201.987ms, 203.385ms, 218.785ms, 312.709ms, 425.839ms
+Bytes In      [total, mean]                     130000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:10000  
+Error Set:
+Saved results/con5k_rps1k_del200ms/webflux-latency.csv
+Saved results/con5k_rps1k_del200ms/webflux.png
+
+Starting test at 2024-04-13T01:32:11+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Saved results/con5k_rps1k_del200ms/webflux-system.csv
+Requests      [total, rate, throughput]         300000, 1000.00, 999.33
+Duration      [total, attack, wait]             5m0s, 5m0s, 201.939ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.803ms, 201.996ms, 201.879ms, 202.203ms, 202.664ms, 203.842ms, 229.975ms
+Bytes In      [total, mean]                     3900000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:300000  
+Error Set:
+Saved results/con5k_rps1k_del200ms/webflux-latency.csv
+Saved results/con5k_rps1k_del200ms/webflux.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con5k_rps5k_del200ms for loom: delayInMillis=200, connections=5000, requestsPerSecond=5000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/loom?delayInMillis=200
+...
+Starting warmup at 2024-04-13T01:37:25+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Saved results/con5k_rps5k_del200ms/loom-system.csv
+Requests      [total, rate, throughput]         49997, 4999.87, 4901.18
+Duration      [total, attack, wait]             10.201s, 10s, 201.35ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.411ms, 302.617ms, 232.38ms, 543.412ms, 737.581ms, 1.197s, 1.315s
+Bytes In      [total, mean]                     649961, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:49997  
+Error Set:
+Saved results/con5k_rps5k_del200ms/loom-latency.csv
+Saved results/con5k_rps5k_del200ms/loom.png
+
+Starting test at 2024-04-13T01:37:40+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Saved results/con5k_rps5k_del200ms/loom-system.csv
+Requests      [total, rate, throughput]         1500000, 5000.00, 4996.59
+Duration      [total, attack, wait]             5m0s, 5m0s, 204.966ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.379ms, 235.13ms, 206.191ms, 314.194ms, 348.012ms, 420.622ms, 595.436ms
+Bytes In      [total, mean]                     19500000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:1500000  
+Error Set:
+Saved results/con5k_rps5k_del200ms/loom-latency.csv
+Saved results/con5k_rps5k_del200ms/loom.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con5k_rps5k_del200ms for webflux: delayInMillis=200, connections=5000, requestsPerSecond=5000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/webflux?delayInMillis=200
+....
+Starting warmup at 2024-04-13T01:43:30+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Saved results/con5k_rps5k_del200ms/webflux-system.csv
+Requests      [total, rate, throughput]         50000, 5000.58, 4901.91
+Duration      [total, attack, wait]             10.2s, 9.999s, 201.273ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.374ms, 208.244ms, 201.084ms, 207.661ms, 230.198ms, 365.493ms, 488.505ms
+Bytes In      [total, mean]                     650000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:50000  
+Error Set:
+Saved results/con5k_rps5k_del200ms/webflux-latency.csv
+Saved results/con5k_rps5k_del200ms/webflux.png
+
+Starting test at 2024-04-13T01:43:45+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Saved results/con5k_rps5k_del200ms/webflux-system.csv
+Requests      [total, rate, throughput]         1499999, 5000.00, 4996.64
+Duration      [total, attack, wait]             5m0s, 5m0s, 201.552ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.596ms, 201.909ms, 200.966ms, 202.339ms, 207.085ms, 217.536ms, 350.936ms
+Bytes In      [total, mean]                     19499987, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:1499999  
+Error Set:
+Saved results/con5k_rps5k_del200ms/webflux-latency.csv
+Saved results/con5k_rps5k_del200ms/webflux.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con10k_rps1k_del200ms for loom: delayInMillis=200, connections=10000, requestsPerSecond=1000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/loom?delayInMillis=200
+...
+Starting warmup at 2024-04-13T01:49:32+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Saved results/con10k_rps1k_del200ms/loom-system.csv
+Requests      [total, rate, throughput]         10000, 1000.08, 980.28
+Duration      [total, attack, wait]             10.201s, 9.999s, 201.949ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  201.075ms, 203.178ms, 201.854ms, 202.217ms, 204.887ms, 252.526ms, 287.839ms
+Bytes In      [total, mean]                     130000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:10000  
+Error Set:
+Saved results/con10k_rps1k_del200ms/loom-latency.csv
+Saved results/con10k_rps1k_del200ms/loom.png
+
+Starting test at 2024-04-13T01:49:46+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Saved results/con10k_rps1k_del200ms/loom-system.csv
+Requests      [total, rate, throughput]         299999, 1000.00, 999.33
+Duration      [total, attack, wait]             5m0s, 5m0s, 201.831ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.944ms, 201.855ms, 201.786ms, 201.998ms, 202.082ms, 204.258ms, 220.56ms
+Bytes In      [total, mean]                     3899987, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:299999  
+Error Set:
+Saved results/con10k_rps1k_del200ms/loom-latency.csv
+Saved results/con10k_rps1k_del200ms/loom.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con10k_rps1k_del200ms for webflux: delayInMillis=200, connections=10000, requestsPerSecond=1000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/webflux?delayInMillis=200
+...
+Starting warmup at 2024-04-13T01:55:00+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Saved results/con10k_rps1k_del200ms/webflux-system.csv
+Requests      [total, rate, throughput]         10000, 1000.12, 980.28
+Duration      [total, attack, wait]             10.201s, 9.999s, 202.344ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  201.491ms, 204.702ms, 201.986ms, 203.055ms, 208.601ms, 289.12ms, 343.798ms
+Bytes In      [total, mean]                     130000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:10000  
+Error Set:
+Saved results/con10k_rps1k_del200ms/webflux-latency.csv
+Saved results/con10k_rps1k_del200ms/webflux.png
+
+Starting test at 2024-04-13T01:55:14+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Saved results/con10k_rps1k_del200ms/webflux-system.csv
+Requests      [total, rate, throughput]         300000, 1000.00, 999.33
+Duration      [total, attack, wait]             5m0s, 5m0s, 201.832ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  201.383ms, 201.97ms, 201.871ms, 202.191ms, 202.649ms, 203.6ms, 220.039ms
+Bytes In      [total, mean]                     3900000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:300000  
+Error Set:
+Saved results/con10k_rps1k_del200ms/webflux-latency.csv
+Saved results/con10k_rps1k_del200ms/webflux.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con10k_rps5k_del200ms for loom: delayInMillis=200, connections=10000, requestsPerSecond=5000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/loom?delayInMillis=200
+....
+Starting warmup at 2024-04-13T02:00:30+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Saved results/con10k_rps5k_del200ms/loom-system.csv
+Requests      [total, rate, throughput]         50000, 4997.16, 4892.59
+Duration      [total, attack, wait]             10.22s, 10.006s, 213.849ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.367ms, 295.385ms, 234.783ms, 465.613ms, 575.939ms, 769.191ms, 937.123ms
+Bytes In      [total, mean]                     650000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:50000  
+Error Set:
+Saved results/con10k_rps5k_del200ms/loom-latency.csv
+Saved results/con10k_rps5k_del200ms/loom.png
+
+Starting test at 2024-04-13T02:00:46+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Saved results/con10k_rps5k_del200ms/loom-system.csv
+Requests      [total, rate, throughput]         1500000, 5000.00, 4996.63
+Duration      [total, attack, wait]             5m0s, 5m0s, 202.382ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.34ms, 231.923ms, 204.157ms, 304.703ms, 337.93ms, 402.758ms, 587.348ms
+Bytes In      [total, mean]                     19500000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:1500000  
+Error Set:
+Saved results/con10k_rps5k_del200ms/loom-latency.csv
+Saved results/con10k_rps5k_del200ms/loom.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con10k_rps5k_del200ms for webflux: delayInMillis=200, connections=10000, requestsPerSecond=5000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/webflux?delayInMillis=200
+....
+Starting warmup at 2024-04-13T02:06:34+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Saved results/con10k_rps5k_del200ms/webflux-system.csv
+Requests      [total, rate, throughput]         50000, 5000.13, 4901.53
+Duration      [total, attack, wait]             10.201s, 10s, 201.159ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.43ms, 220.374ms, 201.177ms, 256.718ms, 355.776ms, 482.683ms, 575.535ms
+Bytes In      [total, mean]                     650000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:50000  
+Error Set:
+Saved results/con10k_rps5k_del200ms/webflux-latency.csv
+Saved results/con10k_rps5k_del200ms/webflux.png
+
+Starting test at 2024-04-13T02:06:49+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Saved results/con10k_rps5k_del200ms/webflux-system.csv
+Requests      [total, rate, throughput]         1500000, 5000.00, 4996.62
+Duration      [total, attack, wait]             5m0s, 5m0s, 203.252ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.4ms, 201.795ms, 201.063ms, 202.16ms, 204.762ms, 215.616ms, 349.786ms
+Bytes In      [total, mean]                     19500000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:1500000  
+Error Set:
+Saved results/con10k_rps5k_del200ms/webflux-latency.csv
+Saved results/con10k_rps5k_del200ms/webflux.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con10k_rps10k_del200ms for loom: delayInMillis=200, connections=10000, requestsPerSecond=10000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/loom?delayInMillis=200
+........
+Starting warmup at 2024-04-13T02:12:42+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Saved results/con10k_rps10k_del200ms/loom-system.csv
+Requests      [total, rate, throughput]         99996, 9999.40, 3135.26
+Duration      [total, attack, wait]             31.615s, 10s, 21.614s
+Latencies     [min, mean, 50, 90, 95, 99, max]  267.597ms, 6.512s, 7.159s, 10.93s, 11.086s, 12.255s, 30.012s
+Bytes In      [total, mean]                     1288560, 12.89
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           99.12%
+Status Codes  [code:count]                      0:876  200:99120  
+Error Set:
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+Saved results/con10k_rps10k_del200ms/loom-latency.csv
+Saved results/con10k_rps10k_del200ms/loom.png
+
+Starting test at 2024-04-13T02:13:19+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Saved results/con10k_rps10k_del200ms/loom-system.csv
+Requests      [total, rate, throughput]         2999960, 9993.76, 1187.82
+Duration      [total, attack, wait]             5m30s, 5m0s, 30.24s
+Latencies     [min, mean, 50, 90, 95, 99, max]  2.373ms, 38.733s, 39.817s, 57.223s, 1m9s, 1m14s, 1m46s
+Bytes In      [total, mean]                     5102279, 1.70
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           13.08%
+Status Codes  [code:count]                      0:2607477  200:392483  
+Error Set:
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": dial tcp 0.0.0.0:0->127.0.0.1:8080: i/o timeout (Client.Timeout exceeded while awaiting headers)
+context deadline exceeded (Client.Timeout or context cancellation while reading body)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": dial tcp 0.0.0.0:0->127.0.0.1:8080: bind: address already in use
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": dial tcp 0.0.0.0:0->127.0.0.1:8080: bind: address already in use (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:51665->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:59520->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:34596->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:49112->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:39296->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:41848->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:38574->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:46120->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:39199->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:38923->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:49788->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:52128->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:53026->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:45404->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:54727->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:39206->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:39362->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:40543->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:33070->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:47712->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:38097->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:48808->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:33746->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:49862->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:60892->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": http: server closed idle connection (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:56384->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:51794->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:56810->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:53886->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:35298->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:56828->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:52306->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:60930->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:51688->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:51014->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:36568->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:34848->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:35267->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:38049->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:58665->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:56999->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:53227->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:51445->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:50949->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:59677->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:43365->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:59531->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:55273->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:59691->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:51449->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:48235->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:41737->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:53263->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:59392->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:37651->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:60529->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:58941->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:58683->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:48045->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:47227->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:57465->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:60071->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:49577->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:48205->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:45567->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:36529->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:59493->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:36785->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:58525->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:34059->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:43335->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:47859->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:51813->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:46493->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:50007->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:50915->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:39167->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:50262->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:44561->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:52939->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:34820->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:51414->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:44833->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:55423->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:42915->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:46875->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:51587->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:54027->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:39513->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:49877->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:47369->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:47201->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:42001->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:40936->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:57662->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:43300->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:49482->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:41548->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:36888->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:41158->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:50514->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:36531->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:36617->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:48021->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:37345->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:37625->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:36667->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:38235->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:36723->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:43984->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:44964->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:45534->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:47276->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:58286->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:37833->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:50152->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:38292->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:60358->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:60506->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:59322->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:36748->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:42694->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:39076->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:58502->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:54418->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:60526->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:44976->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:43990->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:60917->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:59753->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Saved results/con10k_rps10k_del200ms/loom-latency.csv
+Saved results/con10k_rps10k_del200ms/loom.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con10k_rps10k_del200ms for webflux: delayInMillis=200, connections=10000, requestsPerSecond=10000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/webflux?delayInMillis=200
+...
+Starting warmup at 2024-04-13T02:19:52+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Saved results/con10k_rps10k_del200ms/webflux-system.csv
+Requests      [total, rate, throughput]         99998, 9999.88, 9802.36
+Duration      [total, attack, wait]             10.201s, 10s, 201.499ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.333ms, 251.64ms, 200.818ms, 395.338ms, 549.945ms, 797.299ms, 916.088ms
+Bytes In      [total, mean]                     1299974, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:99998  
+Error Set:
+Saved results/con10k_rps10k_del200ms/webflux-latency.csv
+Saved results/con10k_rps10k_del200ms/webflux.png
+
+Starting test at 2024-04-13T02:20:08+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Saved results/con10k_rps10k_del200ms/webflux-system.csv
+Requests      [total, rate, throughput]         3000000, 10000.00, 9993.32
+Duration      [total, attack, wait]             5m0s, 5m0s, 200.562ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.293ms, 201.496ms, 200.503ms, 201.424ms, 204.908ms, 216.091ms, 402.492ms
+Bytes In      [total, mean]                     39000000, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:3000000  
+Error Set:
+Saved results/con10k_rps10k_del200ms/webflux-latency.csv
+Saved results/con10k_rps10k_del200ms/webflux.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con10k_rps15k_del200ms for loom: delayInMillis=200, connections=10000, requestsPerSecond=15000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/loom?delayInMillis=200
+....
+Starting warmup at 2024-04-13T02:26:33+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Saved results/con10k_rps15k_del200ms/loom-system.csv
+Requests      [total, rate, throughput]         150000, 15000.07, 4012.99
+Duration      [total, attack, wait]             37.196s, 10s, 27.196s
+Latencies     [min, mean, 50, 90, 95, 99, max]  220.444ms, 13.721s, 13.847s, 26.033s, 27.071s, 27.198s, 30.021s
+Bytes In      [total, mean]                     1940484, 12.94
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           99.51%
+Status Codes  [code:count]                      0:732  200:149268  
+Error Set:
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+Saved results/con10k_rps15k_del200ms/loom-latency.csv
+Saved results/con10k_rps15k_del200ms/loom.png
+
+Starting test at 2024-04-13T02:27:18+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Saved results/con10k_rps15k_del200ms/loom-system.csv
+Requests      [total, rate, throughput]         4499993, 14999.45, 1719.78
+Duration      [total, attack, wait]             5m33s, 5m0s, 33.089s
+Latencies     [min, mean, 50, 90, 95, 99, max]  2.265ms, 48.342s, 53.249s, 1m9s, 1m14s, 1m16s, 1m37s
+Bytes In      [total, mean]                     7447167, 1.65
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           12.73%
+Status Codes  [code:count]                      0:3927134  200:572859  
+Error Set:
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+context deadline exceeded (Client.Timeout or context cancellation while reading body)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": dial tcp 0.0.0.0:0->127.0.0.1:8080: i/o timeout (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": dial tcp 0.0.0.0:0->127.0.0.1:8080: bind: address already in use (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": dial tcp 0.0.0.0:0->127.0.0.1:8080: bind: address already in use
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:37055->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:45439->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": http: server closed idle connection (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:46323->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:39153->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:58393->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:44377->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:36621->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:59731->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:52035->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": readLoopPeekFailLocked: read tcp 127.0.0.1:41957->127.0.0.1:8080: read: connection reset by peer (Client.Timeout exceeded while awaiting headers)
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:45143->127.0.0.1:8080: read: connection reset by peer
+Get "http://localhost:8080/epoch-millis/loom?delayInMillis=200": read tcp 127.0.0.1:59341->127.0.0.1:8080: read: connection reset by peer
+Saved results/con10k_rps15k_del200ms/loom-latency.csv
+Saved results/con10k_rps15k_del200ms/loom.png
+Stopping service
+{"message":"Shutting down, bye..."}.
+
+Starting con10k_rps15k_del200ms for webflux: delayInMillis=200, connections=10000, requestsPerSecond=15000, warmupDurationInSeconds=10, testDurationInSeconds=300
+Starting service to listen at http://localhost:8080/epoch-millis/webflux?delayInMillis=200
+...
+Starting warmup at 2024-04-13T02:34:20+01:00
+
+Issuing requests for 10s with vegeta...
+Measuring system for 10s...
+Saved results/con10k_rps15k_del200ms/webflux-system.csv
+Requests      [total, rate, throughput]         150002, 14999.72, 14237.53
+Duration      [total, attack, wait]             10.536s, 10s, 535.355ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  207.703ms, 952.472ms, 968.454ms, 1.332s, 1.423s, 1.601s, 1.936s
+Bytes In      [total, mean]                     1950026, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:150002  
+Error Set:
+Saved results/con10k_rps15k_del200ms/webflux-latency.csv
+Saved results/con10k_rps15k_del200ms/webflux.png
+
+Starting test at 2024-04-13T02:34:38+01:00
+
+Issuing requests for 300s with vegeta...
+Measuring system for 300s...
+Saved results/con10k_rps15k_del200ms/webflux-system.csv
+Requests      [total, rate, throughput]         4500031, 15000.11, 14989.68
+Duration      [total, attack, wait]             5m0s, 5m0s, 208.742ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  200.293ms, 240.569ms, 203.784ms, 242.6ms, 285.723ms, 1.269s, 2.159s
+Bytes In      [total, mean]                     58500403, 13.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:4500031  
+Error Set:
+Saved results/con10k_rps15k_del200ms/webflux-latency.csv
+Saved results/con10k_rps15k_del200ms/webflux.png
+Stopping service
+{"message":"Shutting down, bye..."}.Completed Loom and WebFlux benchmark after 5933s
