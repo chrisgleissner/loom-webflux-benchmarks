@@ -121,7 +121,7 @@ Same as before, but with 10,000 concurrent users, each issuing one request every
 
 ## Test Environment
 
-The benchmark was performed on the following environment:
+The benchmark was performed on the following physical machine:
 
 ```
 Java:   OpenJDK 64-Bit Server VM Corretto-21.0.2.13.1 (build 21.0.2+13-LTS, mixed mode, sharing)
