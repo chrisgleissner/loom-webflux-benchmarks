@@ -18,14 +18,14 @@ This project compares the latency and resource use of Spring WebFlux with Virtua
   * System metrics for CPU, RAM, sockets, and network throughput
 
 ### Design
-* The benchmark is driven by [vegeta](https://github.com/tsenart/vegeta) which repeatedly issues HTTP GET requests to a service listening at http://localhost:8080/epoch-millis/$approach?delayInMillis=$delayInMillis
+* The benchmark is driven by [k6](https://k6.io/docs/) which repeatedly issues HTTP GET requests to a service listening at http://localhost:8080/epoch-millis/$approach?delayInMillis=$delayInMillis
 * The service implementation consists of two steps:
   1. It waits `$delayInMillis` (default: `100`) to mimic a network call, filesystem wait, or similar. Whilst the request waits, its operating system thread can be reused by another request. Both Loom and WebFlux use their respective idiomatic ways to wait. 
   2. It then returns the milliseconds since the epoch.
 
 ### Requirements
 * Unix-based OS; tested with Ubuntu 22.04
-* [vegeta](https://github.com/tsenart/vegeta) and Python 3 with [Matplotlib](https://matplotlib.org/) to drive load and measure latency
+* [k6](https://k6.io/docs/) and Python 3 with [Matplotlib](https://matplotlib.org/) to drive load and measure latency
 * [sar/sadf](https://linux.die.net/man/1/sar) to measure system resource use
 * Python 3 and [Matplotlib](https://matplotlib.org/) to convert latency and system CSV measurements into a PNG image
 
@@ -33,22 +33,21 @@ This project compares the latency and resource use of Spring WebFlux with Virtua
 
 The following instructions assume you are using a Debian-based Linux such as Ubuntu 22.04. 
 
-### vegeta
+### k6
 
-[vegeta](https://github.com/tsenart/vegeta) is used to load the service. Here's how to build it:
+[k6](https://k6.io/docs/) is used to load the service. Here's how to install it:
 
 ```shell
-git clone https://github.com/tsenart/vegeta
-cd vegeta
-make vegeta
-mv vegeta ~/bin
+sudo gpg -k
+sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+sudo apt-get update
+sudo apt-get install k6
 ```
-
-Make sure that the `vegeta` executable is in your `$PATH`.
 
 ### Python 3, matplotlib, sar and sadf
 
-Python 3 and `matplotlib` are used to convert the CSV output of `vegeta` and `sar`/`sadf` to a single PNG chart. The `sar` and `sadf` tools come as part of `sysstat` and are used to measure resource use.
+Python 3 and `matplotlib` are used to convert the CSV output of `k6` and `sar`/`sadf` to a single PNG chart. The `sar` and `sadf` tools come as part of `sysstat` and are used to measure resource use.
 
 To install these, run:
 
@@ -137,4 +136,4 @@ This output was obtained via:
 printf "Java:\t" && java --version | grep "Server" && printf "OS:\t" && cat /etc/os-release | grep "PRETTY" && printf "Kernel:\t" && uname -r && printf "CPU:\t" && lscpu | grep "Model name" && printf "Cores:\t" && cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l
 ```
 
-The system was rebooted before each test and quieted down as much as possible. The baseline CPU use before test start was ca. 3%.
+The system was rebooted before each test and quieted down as much as possible. The baseline CPU use before test start was ca. 0.6% (user + system).

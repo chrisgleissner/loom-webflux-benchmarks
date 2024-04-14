@@ -48,18 +48,23 @@ function load_and_measure_system() {
   echo
   echo "Starting $phase at $( date -Is )"
   ./system-measure.sh "$systemCsvFilename" "$durationInSeconds" &
-  loadWithVegeta "$durationInSeconds"
+  load "$durationInSeconds"
   ./chart.py "$approach ($scenario): delay=${delayInMillis}ms, connections=$connections, requests=$requestsPerSecond/s" "$latencyCsvFilename" "$systemCsvFilename" "$resultDir"/"$approach".png
   rm "$latencyCsvFilename"
   rm "$systemCsvFilename"
 }
 
-function loadWithVegeta() {
+function load() {
   _durationInSeconds=$1
   echo
-  echo "Issuing requests for ${_durationInSeconds}s with vegeta..."
-  echo "GET $serviceUrl" | vegeta attack -duration="${_durationInSeconds}"s -rate="$requestsPerSecond" -connections="$connections" -max-connections="$connections" | tee bin/results.bin | vegeta report
-  vegeta encode --to csv < bin/results.bin | awk -F, '{print $1","$2","$3}' > "$latencyCsvFilename"
+  echo "Issuing requests for ${_durationInSeconds}s..."
+
+  k6OutputFile=bin/k6.csv
+  k6 run --vus "$connections" --duration "${_durationInSeconds}"s --rps "$requestsPerSecond" --out csv="$k6OutputFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env SERVICE_URL="$serviceUrl" k6.js
+
+  # csv: metric_name,timestamp,metric_value,check,error,error_code,expected_response,group,method,name,proto,scenario,service,status
+  cat "$k6OutputFile" | grep http_req_duration | awk -F, '{print $2","$3","$14}' > "$latencyCsvFilename"
+
   echo "Saved $latencyCsvFilename"
 }
 
