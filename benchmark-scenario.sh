@@ -47,11 +47,11 @@ function load_and_measure_system() {
   durationInSeconds=$2
   echo
   echo "Starting $phase at $( date -Is )"
-  ./system-measure.sh "$systemCsvFilename" "$durationInSeconds" &
+  sleep 1 && ./system-measure.sh "$systemCsvFilename" "$durationInSeconds" &
   load "$durationInSeconds"
   ./chart.py "$approach ($scenario): delay=${delayInMillis}ms, connections=$connections, requests=$requestsPerSecond/s" "$latencyCsvFilename" "$systemCsvFilename" "$resultDir"/"$approach".png
-  rm "$latencyCsvFilename"
-  rm "$systemCsvFilename"
+#  rm "$latencyCsvFilename"
+#  rm "$systemCsvFilename"
 }
 
 function load() {

@@ -1,5 +1,5 @@
 scenario,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
-smoketest,100,30,30,3,10
+smoketest,100,500,500,3,10
 con5k_rps1k_del0ms,0,5000,1000,10,300
 con5k_rps5k_del0ms,0,5000,5000,10,300
 con5k_rps1k_del200ms,200,5000,1000,10,300
