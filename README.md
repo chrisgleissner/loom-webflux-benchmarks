@@ -120,21 +120,6 @@ Each chart charts show the client-side end-to-end request latencies (Y axis, in 
 All charts for a run on the test machine (see below for specs) can be found in the `results` folder of this GitHub repo,
 including the benchmark log output to `stdout`.
 
-### Ramping users from 3k to 18k and back down
-
-This scenario ramps up virtual users (and thus connections) from 3k to 18k in multiple steps, then back down:
-- Each step has a 20s ramp-time followed by a 40s steady time.
-- Each user issues 1 request per second.
-- The server-side delay is 200ms.
-
-#### Virtual Threads
-
-![Loom](results/ramp_18k_users/loom.png)
-
-#### WebFlux
-
-![WebFlux](results/ramp_18k_users/webflux.png)
-
 ### Steady 5k users
 
 This scenario maintains a steady number of 5k virtual users (and thus connections) for 5 minutes:
@@ -160,6 +145,21 @@ Like before, but 10k users.
 #### WebFlux
 
 ![WebFlux](results/10k_users/webflux.png)
+
+### Ramping users from 3k to 18k and back down
+
+This scenario ramps up virtual users (and thus connections) from 3k to 18k in multiple steps, then back down:
+- Each step has a 20s ramp-time followed by a 40s steady time.
+- Each user issues 1 request per second.
+- The server-side delay is 200ms.
+
+#### Virtual Threads
+
+![Loom](results/ramp_18k_users/loom.png)
+
+#### WebFlux
+
+![WebFlux](results/ramp_18k_users/webflux.png)
 
 ## Test Environment
 
