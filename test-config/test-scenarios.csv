@@ -1,0 +1,7 @@
+scenario,k6Config,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
+smoketest,k6.js,100,500,500,0,3
+ramp_18k_users_short_delay,k6-ramp-vus-to-18k.js,20,,,0,480
+ramp_18k_users,k6-ramp-vus-to-18k.js,200,,,0,480
+ramp_18k_users_long_delay,k6-ramp-vus-to-18k.js,2000,,,0,480
+5k_users,k6.js,200,5000,5000,10,300
+10k_users,k6.js,200,10000,10000,10,300

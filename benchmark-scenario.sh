@@ -1,18 +1,19 @@
 #!/bin/bash
 # Performs a benchmark of Loom and WebFlux for a single scenario.
 
-if [[ $# -ne 7 ]] ; then
-    echo 'Syntax: benchmark-scenario.sh <approach> <scenario> <delayInMillis> <connections> <requestsPerSecond> <testDurationInSeconds>'
+if [[ $# -ne 8 ]] ; then
+    echo 'Syntax: benchmark-scenario.sh <approach> <scenario> <k6Config> <delayInMillis> <connections> <requestsPerSecond> <testDurationInSeconds>'
     exit 1
 fi
 
 approach=$1
 scenario=$2
-delayInMillis=$3
-connections=$4
-requestsPerSecond=$5
-warmupDurationInSeconds=$6
-testDurationInSeconds=$7
+k6Config=$3
+delayInMillis=$4
+connections=$5
+requestsPerSecond=$6
+warmupDurationInSeconds=$7
+testDurationInSeconds=$8
 
 serviceHost=localhost
 servicePort=8080
@@ -37,8 +38,10 @@ function stop_service() {
 function benchmark_service() {
   mkdir -p bin
   mkdir -p "$resultDir"
-  load_and_measure_system warmup "$warmupDurationInSeconds"
-  sleep 2
+  if (( warmupDurationInSeconds > 0 )); then
+    load_and_measure_system warmup "$warmupDurationInSeconds"
+    sleep 2
+  fi
   load_and_measure_system test "$testDurationInSeconds"
 }
 
@@ -50,8 +53,8 @@ function load_and_measure_system() {
   sleep 1 && ./system-measure.sh "$systemCsvFilename" "$durationInSeconds" &
   load "$durationInSeconds"
   ./chart.py "$approach ($scenario): delay=${delayInMillis}ms, connections=$connections, requests=$requestsPerSecond/s" "$latencyCsvFilename" "$systemCsvFilename" "$resultDir"/"$approach".png
-#  rm "$latencyCsvFilename"
-#  rm "$systemCsvFilename"
+  rm "$latencyCsvFilename"
+  rm "$systemCsvFilename"
 }
 
 function load() {
@@ -60,7 +63,11 @@ function load() {
   echo "Issuing requests for ${_durationInSeconds}s..."
 
   k6OutputFile=bin/k6.csv
-  k6 run --vus "$connections" --duration "${_durationInSeconds}"s --rps "$requestsPerSecond" --out csv="$k6OutputFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env SERVICE_URL="$serviceUrl" k6.js
+  if [[ $k6Config == "" || $k6Config == "k6.js" ]]; then
+    k6 run --vus "$connections" --duration "${_durationInSeconds}"s --rps "$requestsPerSecond" --out csv="$k6OutputFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env SERVICE_URL="$serviceUrl" test-config/k6.js
+  else
+    k6 run --out csv="$k6OutputFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env SERVICE_URL="$serviceUrl" test-config/"$k6Config"
+  fi
 
   # csv: metric_name,timestamp,metric_value,check,error,error_code,expected_response,group,method,name,proto,scenario,service,status
   cat "$k6OutputFile" | grep http_req_duration | awk -F, '{print $2","$3","$14}' > "$latencyCsvFilename"
@@ -69,7 +76,7 @@ function load() {
 }
 
 printf "\n\n"
-echo "Starting $scenario for $approach: delayInMillis=$delayInMillis, connections=$connections, requestsPerSecond=$requestsPerSecond, warmupDurationInSeconds=$warmupDurationInSeconds, testDurationInSeconds=$testDurationInSeconds"
+echo "Starting $scenario for $approach: k6Config=$k6Config, delayInMillis=$delayInMillis, connections=$connections, requestsPerSecond=$requestsPerSecond, warmupDurationInSeconds=$warmupDurationInSeconds, testDurationInSeconds=$testDurationInSeconds"
 
 start_service
 benchmark_service

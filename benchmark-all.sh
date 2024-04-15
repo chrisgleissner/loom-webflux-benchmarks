@@ -6,7 +6,7 @@ echo "Started Loom and WebFlux benchmark"
 startSeconds=`date +%s`
 
 first_line=true
-while IFS=',' read -r scenario delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
+while IFS=',' read -r scenario k6Config delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
     if [[ -z "$scenario" ]]; then
         continue
     fi
@@ -14,8 +14,8 @@ while IFS=',' read -r scenario delayInMillis connections requestsPerSecond warmu
         first_line=false
         continue
     fi
-    for approach in loom webflux; do ./benchmark-scenario.sh "$approach" "$scenario" "$delayInMillis" "$connections" "$requestsPerSecond" "$warmupDurationInSeconds" "$testDurationInSeconds"; done
-done < test-scenarios.csv
+    for approach in loom webflux; do ./benchmark-scenario.sh "$approach" "$scenario" "$k6Config" "$delayInMillis" "$connections" "$requestsPerSecond" "$warmupDurationInSeconds" "$testDurationInSeconds"; done
+done < test-config/test-scenarios.csv
 
 endSeconds=`date +%s`
 testDurationInSeconds=$(( $endSeconds - $startSeconds ))
