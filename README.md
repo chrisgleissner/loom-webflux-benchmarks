@@ -24,14 +24,14 @@ Spring WebFlux was first introduced in September 2017. Virtual Threads were firs
 
 ## Requirements
 
-### Software Requirements
+### Software
 * Unix-based OS; tested with Ubuntu 22.04
 * Java 21 or above
 * [k6](https://k6.io/docs/) and Python 3 with [Matplotlib](https://matplotlib.org/) to drive load and measure latency
 * [sar/sadf](https://linux.die.net/man/1/sar) to measure system resource use
 * Python 3 and [Matplotlib](https://matplotlib.org/) to convert latency and system CSV measurements into a PNG image
 
-### Hardware Requirements
+### Hardware
 
 The hardware requirements depend purely on the scenarios configured in `config/scenarios.csv`. The following is recommended to run the default scenarios committed to this repo:
 * CPU comparable to Intel 6700K or above
@@ -112,9 +112,15 @@ The benchmark run for each scenario consists of the following steps:
 
 ## Config
 
-### Client Config
+### Common
 
-Each line in `config/scenarios.csv` configures a test scenario which is performed first for Virtual Threads, then for WebFlux.
+- The `build-$approach.gradle` file configures the heap space to 1 GiB. The value of `$approach` is replaced with either `loom` or `webflux`, depending on the approach under test.
+- The `src/main/resources/application.yaml` file enables HTTP/2.
+- Time-out is 60s for both client and server.
+
+### Scenario-specific
+
+Each line in `config/scenarios.csv` configures a test scenario which is performed first for Java Virtual Threads, then for WebFlux.
 
 #### Example
 
@@ -123,7 +129,7 @@ Each line in `config/scenarios.csv` configures a test scenario which is performe
 |5k_users                 |k6.js                       |100          |5000       |5000             |10                     |360                  |
 |ramp-vus-steps           |k6-ramp-vus-to-25k-steps.js |100          |           |                 |0                      |360                  |
 
-#### Column Explanation 
+#### Columns 
 
 1. `scenario`: Name of scenario. Is printed on top of each diagram.
 2. `k6Config`: Name of the [K6 Config File](https://k6.io/docs/using-k6/http-requests/) which is assumed to be in the `config` folder. If specified and different from `k6.js`, the value of the `connections`, `requestsPerSecond`, and `warmUpDurationInSeconds` columns is ignored.
@@ -132,12 +138,6 @@ Each line in `config/scenarios.csv` configures a test scenario which is performe
 5. `requestsPerSecond`: Number of requests per second across all connections. Ignored if the `k6Config` column contains `k6.js`.
 6. `warmUpDurationInSeconds`: Duration of a warm-up iteration before the actual test. Warm-up is skipped if `0`. Ignored if the `k6Config` column contains `k6.js`. 
 7. `testDurationInSeconds`: Duration of the test iteration. If the `k6Config` column has a value other than `k6.js`, the test duration is instead controlled by the K6 config and the value of this cell instead purely controls the duration of the system monitoring. In this case, it needs to match the test duration configured in the K6 config file.
-
-
-### Server Config
-
-- `build-$approach.gradle` configures the heap space to 1 GiB. The value of `$approach` is replaced with either `loom` or `webflux`, depending on the approach under test.
-- `application.yaml` disables HTTP/2
 
 ## Results 
 
