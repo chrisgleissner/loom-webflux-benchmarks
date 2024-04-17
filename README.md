@@ -148,8 +148,8 @@ including the benchmark log output to `stdout`.
 
 ### Constant 5k users and rps
 
-This scenario maintains a steady number of 5k virtual users (and thus connections) as well as 5k requests per second across all users for 5 minutes:
-- Each user issues a request and does not wait. The wait between consecutive requests is controlled by k6 to achieve the desired number of rps.
+This scenario aims to maintain a steady number of 5k virtual users (and thus connections) as well as 5k requests per second across all users for 5 minutes:
+- Each user issues a request and then waits. This wait between consecutive requests is controlled by k6 to achieve the desired number of rps.
 - The server-side delay is 100ms.
 
 #### Virtual Threads
@@ -162,7 +162,7 @@ This scenario maintains a steady number of 5k virtual users (and thus connection
 
 ### Constant 10k users and rps
 
-Like the earlier scenario, but 10k users and rps.
+Like the earlier scenario, but it aims to maintain 10k users and rps.
 
 #### Virtual Threads
 
@@ -174,8 +174,8 @@ Like the earlier scenario, but 10k users and rps.
 
 ### Constant 10k users with client-side delay
 
-Like the earlier scenario, but wait each user waits a random time between 1s and 3s between consecutive requests. This thus reduces the load
-and better mimics user interactions.
+Like the earlier scenario, but each user waits a random time of between 1s and 3s between consecutive requests. This reduces the load and better mimics real user interactions with a service, assuming
+the service calls are driven by user interactions with a website that relies on the service under test.
 
 #### Virtual Threads
 
@@ -187,7 +187,7 @@ and better mimics user interactions.
 
 ### Stepped user spike
 
-This scenario ramps up virtual users (and thus connections) from 0 to 25k in multiple steps, then back down:
+This scenario ramps up virtual users (and thus TCP connections) from 0 to 25k in multiple steps, then back down:
 - Each step has a 20s ramp-time followed by a 40s steady time.
 - Each user issues a request followed by a 1s to 3s random delay.
 - The server-side delay is 100ms.
