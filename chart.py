@@ -57,28 +57,30 @@ def add_system_plots(system_csv_file, cpu, ram, socket, throughput):
 
     seconds_elapsed = [(timestamp - times[0]).total_seconds() for timestamp in times]
 
-    cpu.plot(seconds_elapsed, user_cpu, label=label('User', user_cpu, '%'), linestyle='solid', linewidth=1)
-    cpu.plot(seconds_elapsed, system_cpu, label=label('System', system_cpu, '%'), linestyle='solid', linewidth=1)
-    cpu.plot(seconds_elapsed, iowait_cpu, label=label('IO Wait', iowait_cpu, '%'), linestyle='solid', linewidth=1)
     total_cpu = [user + system + iowait for user, system, iowait in zip(user_cpu, system_cpu, iowait_cpu)]
-    cpu.plot(seconds_elapsed, total_cpu, label=label('Total', total_cpu, '%'), color='black', linestyle='solid', linewidth=2)
+    cpu.plot(seconds_elapsed, total_cpu, label=legend_label('Total', total_cpu, '%'), color='black', linestyle='solid', linewidth=2)
+    cpu.plot(seconds_elapsed, user_cpu, label=legend_label('User', user_cpu, '%'), linestyle='solid', linewidth=1)
+    cpu.plot(seconds_elapsed, system_cpu, label=legend_label('System', system_cpu, '%'), linestyle='solid', linewidth=1)
+    cpu.plot(seconds_elapsed, iowait_cpu, label=legend_label('IO Wait', iowait_cpu, '%'), linestyle='solid', linewidth=1)
     cpu.set_ylabel('CPU %', color='black')
-    cpu.set_title('CPU', weight='bold')
+    cpu.set_title(title_label('CPU', total_cpu, '%'), weight='bold')
 
-    ram.plot(seconds_elapsed, mem_used, label=label('Used', mem_used, '%'), linestyle='solid', linewidth=2)
+    ram.plot(seconds_elapsed, mem_used, label=legend_label('Used', mem_used, '%'), linestyle='solid', linewidth=2)
     ram.set_ylabel('RAM %', color='black')
-    ram.set_title('RAM', weight='bold')
+    ram.set_title(title_label('RAM', mem_used, '%'), weight='bold')
 
-    socket.plot(seconds_elapsed, tcpsck, label=label('TCP', tcpsck), linestyle='solid', linewidth=2)
-    socket.plot(seconds_elapsed, active_s, label=label('TCP Active Opens / s', active_s), linestyle='solid', linewidth=1)
-    socket.plot(seconds_elapsed, passive_s, label=label('TCP Passive Opens / s', passive_s), linestyle='solid', linewidth=1)
+    socket.plot(seconds_elapsed, tcpsck, label=legend_label('TCP', tcpsck), linestyle='solid', linewidth=2)
+    socket.plot(seconds_elapsed, active_s, label=legend_label('TCP Active Opens / s', active_s), linestyle='solid', linewidth=1)
+    socket.plot(seconds_elapsed, passive_s, label=legend_label('TCP Passive Opens / s', passive_s), linestyle='solid', linewidth=1)
     socket.set_ylabel('Sockets', color='black')
-    socket.set_title('Sockets', weight='bold')
+    socket.set_title(title_label('Sockets', tcpsck, ''), weight='bold')
 
-    throughput.plot(seconds_elapsed, iseg_s, label=label('Received / s', iseg_s), color='tab:gray', linestyle='solid', linewidth=2)
-    throughput.plot(seconds_elapsed, oseg_s, label=label('Sent / s', oseg_s), color='tab:green', linestyle='solid', linewidth=2)
+    total_seg_s = [iseg_s + oseg_s for iseg_s, oseg_s in zip(iseg_s, oseg_s)]
+    throughput.plot(seconds_elapsed, total_seg_s, label=legend_label('Total', total_seg_s, ''), color='black', linestyle='solid', linewidth=2)
+    throughput.plot(seconds_elapsed, iseg_s, label=legend_label('Received / s', iseg_s), color='tab:gray', linestyle='solid', linewidth=1)
+    throughput.plot(seconds_elapsed, oseg_s, label=legend_label('Sent / s', oseg_s), color='tab:green', linestyle='solid', linewidth=1)
     throughput.set_ylabel('TCP Segments', color='black')
-    throughput.set_title('Throughput', weight='bold')
+    throughput.set_title(title_label('Throughput', total_seg_s, ''), weight='bold')
     throughput.set_xlabel('Seconds')
 
 def add_request_plots(latency_csv_file, latency_plot, rps_plot):
@@ -123,28 +125,32 @@ def add_request_plots(latency_csv_file, latency_plot, rps_plot):
             bucket_latencies = [latency]
 
     append_percentile_values(bucket_latencies, p50_values, p90_values, p99_values)
-    latency_plot.scatter(seconds_elapsed, latencies, label=label('Latency', latencies, 'ms'), color='silver', alpha=0.7, s=1)
+    latency_plot.scatter(seconds_elapsed, latencies, label=legend_label('Latency', latencies, 'ms'), color='silver', alpha=0.7, s=1)
     latency_plot.scatter(error_seconds_elapsed, error_latencies, label='Errors: ' + str(len(error_latencies)), color='red')
     x_bucket = np.arange(len(p50_values))
     latency_plot.plot(x_bucket, p99_values, label='p99: {:,.0f}ms'.format(np.percentile(latencies, 99)), color='blue', linewidth=1)
     latency_plot.plot(x_bucket, p90_values, label='p90: {:,.0f}ms'.format(np.percentile(latencies, 90)), color='green', linewidth=1)
     latency_plot.plot(x_bucket, p50_values, label='p50: {:,.0f}ms'.format(np.percentile(latencies, 50)), color='black', linewidth=2)
     latency_plot.set_ylabel('Latency (ms)', color='black')
-    latency_plot.set_title('Latency (Min / Median / Max: {:,.0f} / {:,.0f} / {:,.0f}ms)'.format(np.min(latencies), np.median(latencies), np.max(latencies)), weight='bold')
+    latency_plot.set_title(title_label('Latency', latencies, 'ms'), weight='bold')
     latency_plot.set_yscale('log')
     latency_plot.yaxis.set_minor_locator(LogLocator(subs=(1.0, 3.0)))
 
     rps_bin_count = int(np.ceil(seconds_elapsed[-1])) + 1
     rps, _ = np.histogram(seconds_elapsed, bins=rps_bin_count, range=(0, rps_bin_count))
-    rps_plot.plot(list(range(rps_bin_count)), rps, label=label('RPS', rps), color='black', linewidth=2)
+    rps_plot.plot(list(range(rps_bin_count)), rps, label=legend_label('RPS', rps), color='black', linewidth=2)
     if len(error_latencies) > 0:
         rps_error, _ = np.histogram(error_seconds_elapsed, bins=rps_bin_count, range=(0, rps_bin_count))
-        rps_plot.plot(list(range(rps_bin_count)), rps_error, label=label('RPS (Failed)', rps_error), color='orange', linewidth=2)
+        rps_plot.plot(list(range(rps_bin_count)), rps_error, label=legend_label('RPS (Failed)', rps_error), color='orange', linewidth=2)
     rps_plot.set_ylabel('Requests per second', color='black')
-    rps_plot.set_title('RPS (Total requests: {:,.0f} ok, {:,.0f} failed)'.format(len(latencies) - len(error_latencies), len(error_latencies)), weight='bold')
+    title_postfix = '. Total requests: {:,.0f} ok, {:,.0f} failed.'.format(len(latencies) - len(error_latencies), len(error_latencies))
+    rps_plot.set_title(title_label(prefix = 'RPS', measurements = rps, unit = '', postfix = title_postfix), weight='bold')
 
-def label(prefix, measurements, unit = ''):
-    return '{}: {:,.0f}..{:,.0f}{}'.format(prefix, np.min(measurements), np.max(measurements), unit)
+def title_label(prefix, measurements, unit = {}, postfix = ''):
+    return '{} (Min / Avg / Max: {:,.0f} / {:,.0f} / {:,.0f}{}{})'.format(prefix, np.min(measurements), np.average(measurements), np.max(measurements), unit, postfix)
+
+def legend_label(name, measurements, unit = ''):
+    return '{}: {:,.0f} / {:,.0f} / {:,.0f}{}'.format(name, np.min(measurements), np.average(measurements), np.max(measurements), unit)
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
@@ -155,4 +161,4 @@ if __name__ == "__main__":
         system_csv_file = sys.argv[3]
         output_png_file = sys.argv[4]
         plot_chart(latency_csv_file, system_csv_file, output_png_file)
-        print("Saved " + output_png_file)
+        print(datetime.now().strftime('%H:%M:%S') + " Saved " + output_png_file)

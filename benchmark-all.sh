@@ -1,8 +1,12 @@
 #!/bin/bash
-# Performs a benchmark of Loom and WebFlux, using the scenarios defined in test-scenarios.csv.
+# Performs a benchmark of Loom and WebFlux, using the scenarios defined in scenarios.csv.
 # Outputs are written to results/$scenario.
 
-echo "Started Loom and WebFlux benchmark"
+function log() {
+  echo "$( date +"%H:%M:%S" )" "$1"
+}
+
+log "Started Loom and WebFlux benchmark"
 startSeconds=`date +%s`
 
 first_line=true
@@ -15,9 +19,9 @@ while IFS=',' read -r scenario k6Config delayInMillis connections requestsPerSec
         continue
     fi
     for approach in loom webflux; do ./benchmark-scenario.sh "$approach" "$scenario" "$k6Config" "$delayInMillis" "$connections" "$requestsPerSecond" "$warmupDurationInSeconds" "$testDurationInSeconds"; done
-done < test-config/test-scenarios.csv
+done < config/scenarios.csv
 
 endSeconds=`date +%s`
 testDurationInSeconds=$(( $endSeconds - $startSeconds ))
 
-echo "Completed Loom and WebFlux benchmark after ${testDurationInSeconds}s"
+log "Completed Loom and WebFlux benchmark after ${testDurationInSeconds}s"

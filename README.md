@@ -22,19 +22,36 @@ Spring WebFlux was first introduced in September 2017. Virtual Threads were firs
   1. It waits `$delayInMillis` (default: `100`) to mimic a network call, filesystem wait, or similar. Whilst the request waits, its operating system thread can be reused by another request. Both Loom and WebFlux use their respective idiomatic ways to wait. 
   2. It then returns the milliseconds since the epoch.
 
-### Requirements
+## Requirements
+
+### Software Requirements
 * Unix-based OS; tested with Ubuntu 22.04
+* Java 21 or above
 * [k6](https://k6.io/docs/) and Python 3 with [Matplotlib](https://matplotlib.org/) to drive load and measure latency
 * [sar/sadf](https://linux.die.net/man/1/sar) to measure system resource use
 * Python 3 and [Matplotlib](https://matplotlib.org/) to convert latency and system CSV measurements into a PNG image
+
+### Hardware Requirements
+
+The hardware requirements depend purely on the scenarios configured in `config/scenarios.csv`. The following is recommended to run the default scenarios committed to this repo:
+* CPU comparable to Intel 6700K or above
+* 16 GiB RAM
 
 ## Setup 
 
 The following instructions assume you are using a Debian-based Linux such as Ubuntu 22.04. 
 
+### Java 21
+
+You'll need Java 21 or above:
+
+```shell
+sudo apt install openjdk-21-jdk
+```
+
 ### k6
 
-[k6](https://k6.io/docs/) is used to load the service. Here's how to install it:
+[k6](https://k6.io/docs/) is used to load the service:
 
 ```shell
 sudo gpg -k
@@ -46,28 +63,43 @@ sudo apt-get install k6
 
 ### Python 3, matplotlib, sar and sadf
 
-Python 3 and `matplotlib` are used to convert the CSV output of `k6` and `sar`/`sadf` to a single PNG chart. The `sar` and `sadf` tools come as part of `sysstat` and are used to measure resource use.
-
-To install these, run:
+Python 3 and `matplotlib` are used to convert the CSV output of `k6` and `sar`/`sadf` to a single PNG chart. The `sar` and `sadf` tools come as part of `sysstat` and are used to measure resource use. To install them run:
 
 ```shell
 sudo apt update && sudo apt install -y python3 python3-matplotlib sysstat
 ```
 
-### Increase Open File Limit
+### Linux Optimizations
 
-The following is needed to ensure your system can handle a large number of concurrent connections:
+The following adjustments optimize Linux for HTTP load tests. 
+
+#### Increase Open File Limit
+
+Ensure your system can handle a large number of concurrent connections:
 
 ```shell
 printf '* soft nofile 1048576\n* hard nofile 1048576\n' | sudo tee -a /etc/security/limits.conf 
 ```
 
-Then log out and back in.
+#### Allow Fast Connection Reuse
+
+Ensure the TCP connections created by a test scenario can be quickly reused by subsequent scenarios:
+
+```shell
+printf 'net.ipv4.tcp_tw_reuse = 1\nnet.ipv4.tcp_tw_recycle = 1\n' | sudo tee -a /etc/sysctl.conf
+```
+
+Please note that the latter adjustment (`net.ipv4.tcp_tw_recycle = 1`) is [known](https://www.speedguide.net/articles/linux-tweaking-121) to cause problems if your Linux machine
+hosts an externally visible website and uses a load balancer. In that case, revert it after you are done with load tests.
+
+#### Activate Changes
+
+Log out and back in.
 
 
 ## Benchmark 
 
-The following command runs the benchmark for all scenarios in `test-scenarios.csv`, first for Project Loom, then for WebFlux, and records its output in the `results` folder:
+The following command runs the benchmark for all scenarios in `scenarios.csv`, first for Project Loom, then for WebFlux, and records its output in the `results` folder:
 
 ```shell
 ./benchmark-all.sh 
@@ -82,23 +114,19 @@ The benchmark run for each scenario consists of the following steps:
 
 ### Client Config
 
-Each line in `test-config/test-scenarios.csv` configures a test scenario which is performed first for Virtual Threads, then for WebFlux.
+Each line in `config/scenarios.csv` configures a test scenario which is performed first for Virtual Threads, then for WebFlux.
 
 #### Example
 
-|scenario                  |k6Config             |delayInMillis|connections|requestsPerSecond|warmupDurationInSeconds|testDurationInSeconds|
-|--------------------------|---------------------|-------------|-----------|-----------------|-----------------------|---------------------|
-|smoketest                 |k6.js                |100          |500        |500              |0                      |3                    |
-|ramp_18k_users_short_delay|k6-ramp-vus-to-18k.js|20           |           |                 |0                      |480                  |
-|ramp_18k_users            |k6-ramp-vus-to-18k.js|200          |           |                 |0                      |480                  |
-|ramp_18k_users_long_delay |k6-ramp-vus-to-18k.js|2000         |           |                 |0                      |480                  |
-|5k_users                  |k6.js                |200          |5000       |5000             |10                     |300                  |
-|10k_users                 |k6.js                |200          |10000      |10000            |10                     |300                  |
+|scenario                 |k6Config                    |delayInMillis|connections|requestsPerSecond|warmupDurationInSeconds|testDurationInSeconds|
+|-------------------------|----------------------------|-------------|-----------|-----------------|-----------------------|---------------------|
+|5k_users                 |k6.js                       |100          |5000       |5000             |10                     |360                  |
+|ramp-vus-steps           |k6-ramp-vus-to-25k-steps.js |100          |           |                 |0                      |360                  |
 
 #### Column Explanation 
 
 1. `scenario`: Name of scenario. Is printed on top of each diagram.
-2. `k6Config`: Name of the [K6 Config File](https://k6.io/docs/using-k6/http-requests/) which is assumed to be in the `test-config` folder. If specified and different from `k6.js`, the value of the `connections`, `requestsPerSecond`, and `warmUpDurationInSeconds` columns is ignored.
+2. `k6Config`: Name of the [K6 Config File](https://k6.io/docs/using-k6/http-requests/) which is assumed to be in the `config` folder. If specified and different from `k6.js`, the value of the `connections`, `requestsPerSecond`, and `warmUpDurationInSeconds` columns is ignored.
 3. `delayInMillis`: Server-side delay of each request, in milliseconds.
 4. `connections`: Number of TCP connections, i.e. virtual users. Ignored if the `k6Config` column contains `k6.js`.
 5. `requestsPerSecond`: Number of requests per second across all connections. Ignored if the `k6Config` column contains `k6.js`.
@@ -146,20 +174,35 @@ Like before, but 10k users.
 
 ![WebFlux](results/10k_users/webflux.png)
 
-### Ramping users from 3k to 18k and back down
+### Stepped user spike
 
-This scenario ramps up virtual users (and thus connections) from 3k to 18k in multiple steps, then back down:
+This scenario ramps up virtual users (and thus connections) from 3k to 25k in multiple steps, then back down:
 - Each step has a 20s ramp-time followed by a 40s steady time.
-- Each user issues 1 request per second.
-- The server-side delay is 200ms.
+- Each user issues about requests per second.
+- The server-side delay is 100ms.
 
 #### Virtual Threads
 
-![Loom](results/ramp_18k_users/loom.png)
+![Loom](results/ramp-vus-linear/loom.png)
 
 #### WebFlux
 
-![WebFlux](results/ramp_18k_users/webflux.png)
+![WebFlux](results/ramp-vus-linear/webflux.png)
+
+### Linear user spike
+
+This scenario ramps up virtual users (and thus connections) from 3k to 25k in multiple steps, then back down:
+- Each step has a 20s ramp-time followed by a 40s steady time.
+- Each user issues 1 request per second.
+- The server-side delay is 100ms.
+
+#### Virtual Threads
+
+![Loom](results/ramp-vus-linear/loom.png)
+
+#### WebFlux
+
+![WebFlux](results/ramp-vus-linear/webflux.png)
 
 ## Test Environment
 

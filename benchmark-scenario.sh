@@ -22,15 +22,19 @@ resultDir=results/"$scenario"
 latencyCsvFilename="$resultDir/$approach"-latency.csv
 systemCsvFilename="$resultDir/$approach"-system.csv
 
+function log() {
+  echo "$( date +"%H:%M:%S" )" "$1"
+}
+
 function start_service() {
-  echo "Starting service to listen at $serviceUrl"
+  log "Starting service to listen at $serviceUrl"
   cp -f build-"$approach".gradle build.gradle
   nohup ./gradlew bootrun  >build/server.log 2>&1 &
   until curl --output /dev/null --silent --head --fail "$serviceUrl"; do printf '.'; sleep 1; done
 }
 
 function stop_service() {
-  echo "Stopping service"
+  log "Stopping service"
   curl -X POST $serviceHost:$servicePort/actuator/shutdown
   while curl --output /dev/null --silent --head --fail "$serviceUrl"; do printf '.'; sleep 1; done
 }
@@ -40,7 +44,6 @@ function benchmark_service() {
   mkdir -p "$resultDir"
   if (( warmupDurationInSeconds > 0 )); then
     load_and_measure_system warmup "$warmupDurationInSeconds"
-    sleep 2
   fi
   load_and_measure_system test "$testDurationInSeconds"
 }
@@ -48,35 +51,35 @@ function benchmark_service() {
 function load_and_measure_system() {
   phase=$1
   durationInSeconds=$2
-  echo
-  echo "Starting $phase at $( date -Is )"
-  sleep 1 && ./system-measure.sh "$systemCsvFilename" "$durationInSeconds" &
+  log "Starting $phase"
+  sleep 2 && ./system-measure.sh "$systemCsvFilename" "$durationInSeconds" &
   load "$durationInSeconds"
+  sleep 2
+  log "Creating chart for approach $approach and scenario $scenario"
   ./chart.py "$approach ($scenario): delay=${delayInMillis}ms, connections=$connections, requests=$requestsPerSecond/s" "$latencyCsvFilename" "$systemCsvFilename" "$resultDir"/"$approach".png
-  rm "$latencyCsvFilename"
-  rm "$systemCsvFilename"
+  # rm "$latencyCsvFilename"
+  # rm "$systemCsvFilename"
 }
 
 function load() {
   _durationInSeconds=$1
-  echo
-  echo "Issuing requests for ${_durationInSeconds}s..."
+  log "Issuing requests for ${_durationInSeconds}s..."
 
   k6OutputFile=bin/k6.csv
   if [[ $k6Config == "" || $k6Config == "k6.js" ]]; then
-    k6 run --vus "$connections" --duration "${_durationInSeconds}"s --rps "$requestsPerSecond" --out csv="$k6OutputFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env SERVICE_URL="$serviceUrl" test-config/k6.js
+    k6 run --vus "$connections" --duration "${_durationInSeconds}"s --rps "$requestsPerSecond" --out csv="$k6OutputFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env SERVICE_URL="$serviceUrl" config/k6.js
   else
-    k6 run --out csv="$k6OutputFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env SERVICE_URL="$serviceUrl" test-config/"$k6Config"
+    k6 run --out csv="$k6OutputFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env SERVICE_URL="$serviceUrl" config/"$k6Config"
   fi
 
   # csv: metric_name,timestamp,metric_value,check,error,error_code,expected_response,group,method,name,proto,scenario,service,status
   cat "$k6OutputFile" | grep http_req_duration | awk -F, '{print $2","$3","$14}' > "$latencyCsvFilename"
 
-  echo "Saved $latencyCsvFilename"
+  log "Saved $latencyCsvFilename"
 }
 
 printf "\n\n"
-echo "Starting $scenario for $approach: k6Config=$k6Config, delayInMillis=$delayInMillis, connections=$connections, requestsPerSecond=$requestsPerSecond, warmupDurationInSeconds=$warmupDurationInSeconds, testDurationInSeconds=$testDurationInSeconds"
+log "Starting $scenario for $approach: k6Config=$k6Config, delayInMillis=$delayInMillis, connections=$connections, requestsPerSecond=$requestsPerSecond, warmupDurationInSeconds=$warmupDurationInSeconds, testDurationInSeconds=$testDurationInSeconds"
 
 start_service
 benchmark_service
