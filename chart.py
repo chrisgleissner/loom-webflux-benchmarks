@@ -11,7 +11,7 @@ from matplotlib.ticker import LogLocator
 
 def plot_chart(latency_csv_file, system_csv_file, output_png_file):
     fig, (latency, rps, cpu, ram, socket, throughput) = plt.subplots(6, 1, figsize=(25, 20), sharex=True)
-    fig.suptitle(title, fontsize=18)
+    fig.suptitle(title, fontsize=20)
     fig.subplots_adjust(top=0.93)
     plots = (latency, rps, cpu, ram, socket, throughput)
 

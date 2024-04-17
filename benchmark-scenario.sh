@@ -56,7 +56,7 @@ function load_and_measure_system() {
   load "$durationInSeconds"
   sleep 2
   log "Creating chart for approach $approach and scenario $scenario"
-  ./chart.py "$approach ($scenario): delay=${delayInMillis}ms, connections=$connections, requests=$requestsPerSecond/s" "$latencyCsvFilename" "$systemCsvFilename" "$resultDir"/"$approach".png
+  ./chart.py "$approach: $scenario" "$latencyCsvFilename" "$systemCsvFilename" "$resultDir"/"$approach".png
   # rm "$latencyCsvFilename"
   # rm "$systemCsvFilename"
 }

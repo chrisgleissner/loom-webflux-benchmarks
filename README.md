@@ -139,11 +139,11 @@ Each line in `config/scenarios.csv` configures a test scenario which is performe
 - `build-$approach.gradle` configures the heap space to 1 GiB. The value of `$approach` is replaced with either `loom` or `webflux`, depending on the approach under test.
 - `application.yaml` disables HTTP/2
 
-## Results
+## Results 
 
 The following charts show interesting findings:
 - Each chart charts show the client-side request latencies and RPS (requests per second) over elapsed benchmark time (X axis, in seconds), as well as the system resource use.
-- All charts for a run on the test machine (see below for specs) can be found in the `results` folder of this GitHub repo,
+- All charts for a run on the test machine using Java 22 (see below for full specs) can be found in the `results` folder of this GitHub repo,
 including the benchmark log output to `stdout`.
 
 ### Constant 5k users and rps
@@ -217,7 +217,7 @@ Like the earlier scenario, but linear ramp-up and down.
 The benchmark was performed on the following physical machine:
 
 ```
-Java:   OpenJDK 64-Bit Server VM Corretto-21.0.2.13.1 (build 21.0.2+13-LTS, mixed mode, sharing)
+Java:   OpenJDK 64-Bit Server VM Corretto-22.0.0.36.2 (build 22+36-FR, mixed mode, sharing)
 OS:     PRETTY_NAME="Ubuntu 22.04.4 LTS"
 Kernel: 5.15.86-051586-generic
 CPU:    Model name:                      Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz
