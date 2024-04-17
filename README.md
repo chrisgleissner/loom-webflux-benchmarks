@@ -141,60 +141,68 @@ Each line in `config/scenarios.csv` configures a test scenario which is performe
 
 ## Results
 
-The following charts show interesting findings. 
-
-Each chart charts show the client-side end-to-end request latencies (Y axis, in ms) over elapsed benchmark time (X axis, in seconds), as well as resource use.
-
-All charts for a run on the test machine (see below for specs) can be found in the `results` folder of this GitHub repo,
+The following charts show interesting findings:
+- Each chart charts show the client-side end-to-end request latencies (Y axis, in ms) over elapsed benchmark time (X axis, in seconds), as well as resource use.
+- All charts for a run on the test machine (see below for specs) can be found in the `results` folder of this GitHub repo,
 including the benchmark log output to `stdout`.
 
-### Steady 5k users
+### Constant 5k users and rps
 
-This scenario maintains a steady number of 5k virtual users (and thus connections) for 5 minutes:
-- Each user issues 1 request per second.
-- The server-side delay is 200ms.
-
-#### Virtual Threads
-
-![Loom](results/5k_users/loom.png)
-
-#### WebFlux
-
-![WebFlux](results/5k_users//webflux.png)
-
-### Steady 10k users
-
-Like before, but 10k users.
+This scenario maintains a steady number of 5k virtual users (and thus connections) as well as 5k requests per second across all users for 5 minutes:
+- Each user issues a request and does not wait. The wait between consecutive requests is controlled by k6 to achieve the desired number of rps.
+- The server-side delay is 100ms.
 
 #### Virtual Threads
 
-![Loom](results/10k_users/loom.png)
+![Loom](results/5k-vus-and-rps/loom.png)
 
 #### WebFlux
 
-![WebFlux](results/10k_users/webflux.png)
+![WebFlux](results/5k-vus-and-rps/webflux.png)
+
+### Constant 10k users and rps
+
+Like the earlier scenario, but 10k users and rps.
+
+#### Virtual Threads
+
+![Loom](results/10k-vus-and-rps/loom.png)
+
+#### WebFlux
+
+![WebFlux](results/10k-vus-and-rps/webflux.png)
+
+### Constant 10k users with client-side delay
+
+Like the earlier scenario, but wait each user waits a random time between 1s and 3s between consecutive requests. This thus reduces the load
+and better mimics user interactions.
+
+#### Virtual Threads
+
+![Loom](results/10k-vus/loom.png)
+
+#### WebFlux
+
+![WebFlux](results/10k-vus/webflux.png)
 
 ### Stepped user spike
 
-This scenario ramps up virtual users (and thus connections) from 3k to 25k in multiple steps, then back down:
+This scenario ramps up virtual users (and thus connections) from 0 to 25k in multiple steps, then back down:
 - Each step has a 20s ramp-time followed by a 40s steady time.
-- Each user issues about requests per second.
+- Each user issues a request followed by a 1s to 3s random delay.
 - The server-side delay is 100ms.
 
 #### Virtual Threads
 
-![Loom](results/ramp-vus-linear/loom.png)
+![Loom](results/ramp-vus-steps/loom.png)
 
 #### WebFlux
 
-![WebFlux](results/ramp-vus-linear/webflux.png)
+![WebFlux](results/ramp-vus-steps/webflux.png)
 
 ### Linear user spike
 
-This scenario ramps up virtual users (and thus connections) from 3k to 25k in multiple steps, then back down:
-- Each step has a 20s ramp-time followed by a 40s steady time.
-- Each user issues 1 request per second.
-- The server-side delay is 100ms.
+Like the earlier scenario, but linear ramp-up and down.
 
 #### Virtual Threads
 

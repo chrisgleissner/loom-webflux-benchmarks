@@ -3,7 +3,7 @@ import {sleep} from 'k6';
 
 export default function () {
     http.get(__ENV.SERVICE_URL);
-    sleep(1.8);
+    sleep(2 * Math.random() + 1); // between 1s and 3s
 }
 export const options = {
     discardResponseBodies: true,
@@ -13,7 +13,7 @@ export const options = {
             startVUs: 0,
             gracefulStop: '3s',
 
-            // Total duration: 6m = 360s
+            // Total duration: 6m
             stages: [
                 {target: 5000, duration: '10s'},
                 {target: 5000, duration: '50s'},

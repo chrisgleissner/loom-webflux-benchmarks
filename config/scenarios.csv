@@ -1,8 +1,9 @@
 scenario,k6Config,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
-smoketest-ramp-rps-linear,k6-ramp-rps-to-1k-linear.js,100,,,0,10
 smoketest,k6.js,100,500,500,0,3
-5k_users,k6.js,100,5000,5000,10,360
-10k_users,k6.js,100,10000,10000,10,360
+5k-vus-and-rps,k6.js,100,5000,5000,10,360
+10k-vus-and-rps,k6.js,100,10000,10000,10,360
+5k-vus,k6-constant-vus-5k.js,100,,,0,360
+10k-vus,k6-constant-vus-10k.js,100,,,0,360
 ramp-vus-steps,k6-ramp-vus-to-25k-steps.js,100,,,0,360
 ramp-vus-linear,k6-ramp-vus-to-25k-linear.js,100,,,0,360
 ramp-rps-steps,k6-ramp-rps-to-25k-steps.js,100,,,0,360

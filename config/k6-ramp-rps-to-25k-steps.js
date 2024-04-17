@@ -1,9 +1,7 @@
 import http from 'k6/http';
-import {sleep} from 'k6';
 
 export default function () {
     http.get(__ENV.SERVICE_URL);
-    sleep(1.8);
 }
 
 export const options = {
@@ -16,7 +14,7 @@ export const options = {
             preAllocatedVUs: 30000,
             gracefulStop: '3s',
 
-            // Total duration: 6m = 360s
+            // Total duration: 6m
             stages: [
                 {target: 5000, duration: '10s'},
                 {target: 5000, duration: '50s'},
