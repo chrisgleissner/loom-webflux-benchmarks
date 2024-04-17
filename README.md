@@ -142,7 +142,7 @@ Each line in `config/scenarios.csv` configures a test scenario which is performe
 ## Results
 
 The following charts show interesting findings:
-- Each chart charts show the client-side end-to-end request latencies (Y axis, in ms) over elapsed benchmark time (X axis, in seconds), as well as resource use.
+- Each chart charts show the client-side request latencies and RPS (requests per second) over elapsed benchmark time (X axis, in seconds), as well as the system resource use.
 - All charts for a run on the test machine (see below for specs) can be found in the `results` folder of this GitHub repo,
 including the benchmark log output to `stdout`.
 
