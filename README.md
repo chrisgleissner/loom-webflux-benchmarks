@@ -1,6 +1,6 @@
 # Benchmark of Java Virtual Threads vs WebFlux
 
-This Java 21 project benchmarks a simple [Spring Boot 3.2.4](https://spring.io/projects/spring-boot) HTTP endpoint using configurable scenarios, comparing Java Virtual Threads (introduced by [Project Loom, JEP 444](https://openjdk.org/jeps/444)) with [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html) (relying on [Project Reactor](https://projectreactor.io/)).
+This Java 21 project benchmarks a simple [Spring Boot 3.2.5](https://spring.io/projects/spring-boot) HTTP endpoint using configurable scenarios, comparing Java Virtual Threads (introduced by [Project Loom, JEP 444](https://openjdk.org/jeps/444)) using Tomcat and Netty with [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html) (relying on [Project Reactor](https://projectreactor.io/)) using Netty.
 
 ### Background
 
@@ -11,7 +11,7 @@ Spring WebFlux was first introduced in September 2017. Virtual Threads were firs
 ### Features
 
 * Fully automated and CLI-driven via `benchmark-all.sh`. 
-* Test scenario support, see `test-scenario.csv`.
+* Test scenario support, see `config/scenario.csv`.
 * Produces single PNG plot using [Matplotlib](https://matplotlib.org/) for each scenario and approach (Loom or WebFlux), containing:
   * Raw latencies and P50/90/99 percentiles, as well as any errors
   * System metrics for CPU, RAM, sockets, and network throughput
@@ -99,11 +99,35 @@ Log out and back in.
 
 ## Benchmark 
 
-The following command runs the benchmark for all scenarios in `scenarios.csv`, first for Project Loom, then for WebFlux, and records its output in the `results` folder:
+The following command runs the benchmark for each combination of approaches and scenarios in [config/scenarios.csv](config/scenarios.csv). Results are recorded in the `results` folder:
 
 ```shell
 ./benchmark-all.sh 
 ```
+
+### Approaches
+
+- **loom-tomcat**: Virtual Threads using Tomcat
+- **loom-netty**: Virtual Threads on Netty
+- **webflux-netty**: WebFlux on Netty
+
+All approaches use the same Spring Boot 3.2.x version.
+
+### Scenarios
+
+Scenarios configured in [config/scenarios.csv](config/scenarios.csv):
+
+| Scenario                            | Description                                       | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) |
+|-------------------------------------|---------------------------------------------------|--------------------|-----------------------------|----------------------|-------------------|
+| smoketest                           | Smoke test of test infrastructure                 | 500                | 500                         | 0                    | 100               |
+| [5k-vus-and-rps](#5k-vus-and-rps)   | Constant users, constant request rate             | 5,000              | 5,000                       | 0                    | 100               |
+| [10k-vus-and-rps](#10k-vus-and-rps) | Constant users, constant request rate             | 10,000             | 10,000                      | 0                    | 100               |
+| [5k-vus-and-rps](#5k-vus-and-rps)   | Constant users                                    | 5,000              | Depends on users and delays | 1000 - 3000 (random) | 100               |
+| [10k-vus-and-rps](#10k-vus-and-rps) | Constant users                                    | 10,000             | Depends on users and delays | 1000 - 3000 (random) | 100               |
+| [ramp-vus-steps](#ramp-vus-steps)   | User spike: Ramp-up in 5k steps, linear ramp-down | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               |
+| [ramp-vus-linear](#ramp-vus-linear) | User spike: Linear ramp-up and ramp-down          | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               |
+
+### Steps
 
 The benchmark run for each scenario consists of the following steps:
 * Build and start Spring Boot service with chosen approach (Loom or WebFlux).
@@ -114,13 +138,13 @@ The benchmark run for each scenario consists of the following steps:
 
 ### Common
 
-- The `build-$approach.gradle` file configures the heap space to 1 GiB. The value of `$approach` is replaced with either `loom` or `webflux`, depending on the approach under test.
+- The `build-$approach.gradle` file configures the heap space to 2 GiB. The value of `$approach` is replaced with either `loom` or `webflux`, depending on the approach under test.
 - The `src/main/resources/application.yaml` file enables HTTP/2.
 - Time-out is 60s for both client and server.
 
 ### Scenario-specific
 
-Each line in `config/scenarios.csv` configures a test scenario which is performed first for Java Virtual Threads, then for WebFlux.
+Each line in [config/scenarios.csv](config/scenarios.csv) configures a test scenario which is performed first for Java Virtual Threads, then for WebFlux.
 
 #### Example
 
@@ -141,93 +165,115 @@ Each line in `config/scenarios.csv` configures a test scenario which is performe
 
 ## Results 
 
-The following charts show interesting findings:
-- Each chart charts show the client-side request latencies and RPS (requests per second) over elapsed benchmark time (X axis, in seconds), as well as the system resource use.
-- All charts for a run on the test machine using Java 22 (see below for full specs) can be found in the `results` folder of this GitHub repo,
-including the benchmark log output to `stdout`.
+## Test Environment
 
-### Constant 5k users and rps
+### Hardware
+- CPU: [Intel Core i7-6700K](https://www.intel.com/content/www/us/en/products/sku/88195/intel-core-i76700k-processor-8m-cache-up-to-4-20-ghz/specifications.html) @ 4.00GHz with 4 cores (8 threads)
+- Virtualization: None; bare metal desktop
+- RAM: 32 GiB DDR4 (2 x Corsair 16 GiB, 2133 MT/s)
+- Network: Loopback interface
 
-This scenario aims to maintain a steady number of 5k virtual users (and thus connections) as well as 5k requests per second across all users for 5 minutes:
-- Each user issues a request and then waits. This wait between consecutive requests is controlled by k6 to achieve the desired number of rps.
+### Software
+- OS: Ubuntu 22.04.4 LTS
+- Kernel: 5.15.86-051586-generic
+- Java: Amazon Corretto JDK 21.0.3.9.1
+- Spring Boot 3.2.5
+
+### Other Notes
+
+* **Preparation**: The system was rebooted before each test and quieted down as much as possible. The baseline total CPU use before test start was 0.3%.
+* **Co-location**: Test driver (k6) and server under test (Spring Boot microservice) were co-located on the same physical machine. The aim of this benchmark is not to achieve maximum absolute performance, but rather to compare different server-side approaches with each other. Considering that the test driver and the load it produced was identical for the combination of server-side approach and scenario, this co-location should not affect the validity of the test results.
+* **Specs**: Hardware specs are included at the top of the [full logs](results/benchmark.log) and were obtained via
+```shell
+log-system-specs.sh
+```
+
+## Charts
+
+### 5k-vus-and-rps
+
+This scenario aims to maintain a steady number of 5k virtual users (VUs, i.e. TCP connections) as well as 5k requests per second (RPS) across all users for 5 minutes:
+- Each user issues a request and then waits. This wait between consecutive requests is controlled by k6 in order to achieve the desired number of RPS.
 - The server-side delay is 100ms.
 
-#### Virtual Threads
+#### Virtual Threads (Tomcat)
 
-![Loom](results/5k-vus-and-rps/loom.png)
+![Loom](results/5k-vus-and-rps/loom-tomcat.png)
 
-#### WebFlux
+#### Virtual Threads (Netty)
 
-![WebFlux](results/5k-vus-and-rps/webflux.png)
+![WebFlux](results/5k-vus-and-rps/loom-netty.png)
 
-### Constant 10k users and rps
+#### WebFlux (Netty)
 
-Like the earlier scenario, but it aims to maintain 10k users and rps.
+![WebFlux](results/5k-vus-and-rps/webflux-netty.png)
 
-#### Virtual Threads
+### 10k-vus-and-rps
 
-![Loom](results/10k-vus-and-rps/loom.png)
+Like the earlier scenario, but it aims to maintain 10k users and RPS.
 
-#### WebFlux
+#### Virtual Threads (Tomcat)
 
-![WebFlux](results/10k-vus-and-rps/webflux.png)
+![Loom](results/10k-vus-and-rps/loom-tomcat.png)
 
-### Constant 10k users with client-side delay
+#### Virtual Threads (Netty)
 
-Like the earlier scenario, but each user waits a random time of between 1s and 3s between consecutive requests. This reduces the load and better mimics real user interactions with a service, assuming
+![Loom](results/10k-vus-and-rps/loom-netty.png)
+
+#### WebFlux (Netty)
+
+![WebFlux](results/10k-vus-and-rps/webflux-netty.png)
+
+### 10k-vus
+
+Like the earlier scenario, but each user waits a random time of between 1s and 3s between consecutive requests. 
+
+This reduces the load and better mimics real user interactions with a service, assuming
 the service calls are driven by user interactions with a website that relies on the service under test.
 
-#### Virtual Threads
+#### Virtual Threads (Tomcat)
 
-![Loom](results/10k-vus/loom.png)
+![Loom](results/10k-vus/loom-tomcat.png)
 
-#### WebFlux
+#### Virtual Threads (WebFlux)
 
-![WebFlux](results/10k-vus/webflux.png)
+![Loom](results/10k-vus/loom-netty.png)
 
-### Stepped user spike
+#### WebFlux (Netty)
+
+![WebFlux](results/10k-vus/webflux-netty.png)
+
+### ramp-vus-steps
 
 This scenario ramps up virtual users (and thus TCP connections) from 0 to 25k in multiple steps, then back down:
 - Each step has a 20s ramp-time followed by a 40s steady time.
-- Each user issues a request followed by a 1s to 3s random delay.
-- The server-side delay is 100ms.
+- Each user issues a request, waits for the response, and then waits for a random delay between 1s and 3s.
+- The server-side delay before returning a response is 100ms.
 
-#### Virtual Threads
+#### Virtual Threads (Tomcat)
 
-![Loom](results/ramp-vus-steps/loom.png)
+![Loom](results/ramp-vus-steps/loom-tomcat.png)
 
-#### WebFlux
+#### Virtual Threads (Netty)
 
-![WebFlux](results/ramp-vus-steps/webflux.png)
+![Loom](results/ramp-vus-steps/loom-netty.png)
 
-### Linear user spike
+#### WebFlux (Netty)
+
+![WebFlux](results/ramp-vus-steps/webflux-netty.png)
+
+### ramp-vus-linear
 
 Like the earlier scenario, but linear ramp-up and down.
 
-#### Virtual Threads
+#### Virtual Threads (Tomcat)
 
-![Loom](results/ramp-vus-linear/loom.png)
+![Loom](results/ramp-vus-linear/loom-tomcat.png)
 
-#### WebFlux
+#### Virtual Threads (Netty)
 
-![WebFlux](results/ramp-vus-linear/webflux.png)
+![Loom](results/ramp-vus-linear/loom-netty.png)
 
-## Test Environment
+#### WebFlux (Netty)
 
-The benchmark was performed on the following physical machine:
-
-```
-Java:   OpenJDK 64-Bit Server VM Corretto-22.0.0.36.2 (build 22+36-FR, mixed mode, sharing)
-OS:     PRETTY_NAME="Ubuntu 22.04.4 LTS"
-Kernel: 5.15.86-051586-generic
-CPU:    Model name:                      Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz
-Cores:  8
-```
-
-This output was obtained via:
-
-```shell
-printf "Java:\t" && java --version | grep "Server" && printf "OS:\t" && cat /etc/os-release | grep "PRETTY" && printf "Kernel:\t" && uname -r && printf "CPU:\t" && lscpu | grep "Model name" && printf "Cores:\t" && cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l
-```
-
-The system was rebooted before each test and quieted down as much as possible. The baseline CPU use before test start was ca. 0.6% (user + system).
+![WebFlux](results/ramp-vus-linear/webflux-netty.png)

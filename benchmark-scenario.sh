@@ -29,7 +29,7 @@ function log() {
 function start_service() {
   log "Starting service to listen at $serviceUrl"
   cp -f build-"$approach".gradle build.gradle
-  nohup ./gradlew bootrun  >build/server.log 2>&1 &
+  ./gradlew bootrun 2>&1 &
   until curl --output /dev/null --silent --head --fail "$serviceUrl"; do printf '.'; sleep 1; done
 }
 

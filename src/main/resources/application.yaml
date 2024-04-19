@@ -1,6 +1,8 @@
 spring:
   application:
     name: loom-webflux
+  main:
+    banner-mode: off
   threads:
     virtual:
       enabled: true
@@ -13,7 +15,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: "heapdump, shutdown, threaddump"
   endpoint:
     shutdown:
       enabled: true

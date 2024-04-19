@@ -11,16 +11,16 @@ public class TimeController {
 
     private static final long DEFAULT_DELAY_MILLIS = 100;
 
-    @GetMapping("/loom")
+    @GetMapping({"/loom-tomcat", "/loom-netty"})
     @ResponseBody
-    public Long epochMillisLoom(@RequestParam(defaultValue = "" + DEFAULT_DELAY_MILLIS) Long delayInMillis) throws InterruptedException {
+    public Long epochMillisLoomNetty(@RequestParam(defaultValue = "" + DEFAULT_DELAY_MILLIS) Long delayInMillis) throws InterruptedException {
         Thread.sleep(Duration.ofMillis(delayInMillis));
         return System.currentTimeMillis();
     }
 
-    @GetMapping("/webflux")
+    @GetMapping("/webflux-netty")
     @ResponseBody
-    public Mono<Long> epochMillisWebflux(@RequestParam(defaultValue = "" + DEFAULT_DELAY_MILLIS) Long delayInMillis) {
+    public Mono<Long> epochMillisWebfluxNetty(@RequestParam(defaultValue = "" + DEFAULT_DELAY_MILLIS) Long delayInMillis) {
         return Mono.delay(Duration.ofMillis(delayInMillis))
                 .map(d -> System.currentTimeMillis());
     }

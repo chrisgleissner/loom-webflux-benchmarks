@@ -8,6 +8,7 @@ function log() {
 
 log "Started Loom and WebFlux benchmark"
 startSeconds=`date +%s`
+./log-system-specs.sh
 
 first_line=true
 while IFS=',' read -r scenario k6Config delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
@@ -18,7 +19,7 @@ while IFS=',' read -r scenario k6Config delayInMillis connections requestsPerSec
         first_line=false
         continue
     fi
-    for approach in loom webflux; do ./benchmark-scenario.sh "$approach" "$scenario" "$k6Config" "$delayInMillis" "$connections" "$requestsPerSecond" "$warmupDurationInSeconds" "$testDurationInSeconds"; done
+    for approach in loom-tomcat loom-netty webflux-netty; do ./benchmark-scenario.sh "$approach" "$scenario" "$k6Config" "$delayInMillis" "$connections" "$requestsPerSecond" "$warmupDurationInSeconds" "$testDurationInSeconds"; done
 done < config/scenarios.csv
 
 endSeconds=`date +%s`
