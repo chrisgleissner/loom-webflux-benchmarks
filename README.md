@@ -257,9 +257,10 @@ Virtual Threads, then for WebFlux.
 ### Hardware
 
 - CPU: Intel Core i7-6700K at 4.00GHz with 4 cores (8 threads)
-- Virtualization: None; bare metal desktop
+- Motherboard: Asus Z170-A
 - RAM: 32 GiB DDR4 (2 x Corsair 16 GiB, 2133 MT/s)
 - Network: Loopback interface
+- Virtualization: None; bare metal desktop
 
 ### Software
 
@@ -396,14 +397,16 @@ different Linux Kernel version. The rest of the setup is identical.
 #### Hardware
 
 - CPU: Intel Core i7-12700K at 5GHz with 12 cores (20 threads)
-- Virtualization: VirtualBox 7.0.14 r161095 on bare metal desktop. All cores and 32GiB assigned to VM.
+- Motherboard: Asus ProArt Z690 Creator
 - RAM: 64 GiB DDR4 (2 x Corsair 32 GiB, 5600MT/s)
 - Network: Loopback interface
+- Virtualization: VirtualBox 7.0.14 r161095 on bare metal desktop. All cores and 32GiB assigned to VM.
 
 #### Software
 
-- OS: Ubuntu 22.04.4 LTS
-- Kernel: 6.5.0-28-generic
+- Host OS: Windows 11 Pro (10.0.22631)
+- Client OS: Ubuntu 22.04.4 LTS
+- Client Kernel: 6.5.0-28-generic
 - Java: Amazon Corretto JDK 21.0.2+13-LTS
 - Spring Boot 3.2.5
 
