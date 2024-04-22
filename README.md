@@ -1,4 +1,4 @@
-9# Benchmark of Java Virtual Threads vs WebFlux
+# Benchmark of Java Virtual Threads vs WebFlux
 
 This Java 21 project benchmarks a simple [Spring Boot 3.2.5](https://spring.io/projects/spring-boot) HTTP endpoint using
 configurable scenarios, comparing Java Virtual Threads (introduced
