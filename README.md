@@ -38,8 +38,9 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 * Test scenario support, see `config/scenario.csv`.
 * Produces single PNG plot using [Matplotlib](https://matplotlib.org/) for each scenario and approach (Loom or WebFlux),
   containing:
-    * Raw latencies and P50/90/99 percentiles, as well as any errors
-    * System metrics for CPU, RAM, sockets, and network throughput
+    * Raw latencies and P50/90/99 percentiles, as well as any errors. 
+    * System metrics for CPU, RAM, sockets, and network throughput. 
+    * JVM metrics such as heap usage, garbage collections (GCs), and platform thread count. 
 
 ### Design
 
@@ -272,6 +273,10 @@ Virtual Threads, then for WebFlux.
 ## Charts
 
 The following charts show the results of each scenario, sorted by ascending scenario load.
+
+Any failed requests appear both in the latency chart as red dots, as well as in the RPS chart as part of a continuous line:
+- A small latency, such as 0s, indicates that the request never reached the server, typically since the client failed to establish a connection.
+- A larger latency, especially if it is around 60s, indicates that the client didn't receive a response before the request timeout was reached. 
 
 ### 5k-vus-and-rps-get-time
 
