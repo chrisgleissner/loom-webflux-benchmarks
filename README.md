@@ -1,4 +1,4 @@
-# Benchmark of Java Virtual Threads vs WebFlux
+9# Benchmark of Java Virtual Threads vs WebFlux
 
 This Java 21 project benchmarks a simple [Spring Boot 3.2.5](https://spring.io/projects/spring-boot) HTTP endpoint using
 configurable scenarios, comparing Java Virtual Threads (introduced
@@ -237,8 +237,8 @@ Virtual Threads, then for WebFlux.
 3. `delayInMillis`: Server-side delay of each request, in milliseconds.
 4. `connections`: Number of TCP connections, i.e. virtual users.
 5. `requestsPerSecond`: Number of requests per second across all connections. Left empty for scenarios where the number
-   of requests per second is organically derived based on the number of connections and client-side delays.
-6. `warmUpDurationInSeconds`: Duration of a warm-up iteration before the actual test. Warm-up is skipped if `0`.
+   of requests per second is organically derived based on the number of connections, the request latency, and any explicit client-side delays.
+6. `warmUpDurationInSeconds`: Duration of the warm-up iteration before the actual test. Warm-up is skipped if `0`.
 7. `testDurationInSeconds`: Duration of the test iteration.
 
 ## Results
