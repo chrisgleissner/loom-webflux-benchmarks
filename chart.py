@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# Converts latency and system measurement CSV files to PNG
+
+# Converts latency, JVM metric, and system metric CSV files to a PNG file. 
 
 import csv
 import matplotlib.pyplot as plt
