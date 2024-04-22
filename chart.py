@@ -214,7 +214,7 @@ def legend_label(name, measurements, unit=''):
 
 if __name__ == "__main__":
     if len(sys.argv) != 6:
-        print("Syntax: system-chart.py <title> <latencyCsvFile> <systemCsvFile> <jvmCsvFile> <outputPngFile>")
+        print("Syntax: chart.py <title> <latencyCsvFile> <systemCsvFile> <jvmCsvFile> <outputPngFile>")
     else:
         title = sys.argv[1]
         latency_csv_file = sys.argv[2]
