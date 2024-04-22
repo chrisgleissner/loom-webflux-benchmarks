@@ -16,8 +16,9 @@ function log() {
 
 log "Measuring system for ${durationInSeconds}s..."
 
+rm -f bin/sar.bin
 # Columns: # hostname	interval	timestamp	CPU	%user	%nice	%system	%iowait	%steal	%idle[...]	kbmemfree	kbavail	kbmemused	%memused	kbbuffers	kbcached	kbcommit	%commit	kbactive	kbinact	kbdirty	totsck	tcpsck	udpsck	rawsck	ip-frag	tcp-tw	active/s	passive/s	iseg/s	oseg/s
-sar $sarOptions -o bin/sar.bin 1 "$durationInSeconds" >/dev/null && sadf -Udh bin/sar.bin -- $sarOptions | cut -d ";" -f3,5,7,8,14,23,28-31 > "$outputCsvFilename" && rm bin/sar.bin
-
+sar $sarOptions -o bin/sar.bin 1 "$durationInSeconds" >/dev/null
+sadf -Udh bin/sar.bin -- $sarOptions | cut -d ";" -f3,5,7,8,14,23,28-31 > "$outputCsvFilename"
 log "Saved $outputCsvFilename"
 

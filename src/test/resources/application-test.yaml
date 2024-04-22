@@ -1,0 +1,7 @@
+loom-webflux:
+  repo-read-only: false
+
+logging:
+  level:
+    uk.gleissner.loomwebflux.movie: debug
+

@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "loom-webflux.save-enabled",
+      "type": "java.lang.String",
+      "description": "Description for loom-webflux.save-enabled."
+    }
+  ]
+}

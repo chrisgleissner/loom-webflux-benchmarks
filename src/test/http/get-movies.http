@@ -1,0 +1,12 @@
+GET http://localhost:8080/loom-netty/movies?directorLastName=Allen
+Accept: application/json
+
+###
+
+GET http://localhost:8080/loom-netty/movies?directorLastName=Hitchcock
+Accept: application/json
+
+###
+
+GET http://localhost:8080/loom-netty/movies?directorLastName=Kubrick
+Accept: application/json

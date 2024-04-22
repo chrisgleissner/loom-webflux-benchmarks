@@ -1,8 +1,8 @@
 scenario,k6Config,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
-smoketest,k6.js,100,500,500,0,3
-5k-vus-and-rps,k6.js,100,5000,5000,10,360
-10k-vus-and-rps,k6.js,100,10000,10000,10,360
-5k-vus,k6-constant-vus-5k.js,100,,,0,360
-10k-vus,k6-constant-vus-10k.js,100,,,0,360
-ramp-vus-steps,k6-ramp-vus-to-25k-steps.js,100,,,0,360
-ramp-vus-linear,k6-ramp-vus-to-25k-linear.js,100,,,0,360
+smoketest,get-time.js,100,5,5,0,5
+5k-vus-and-rps-get-time,get-time.js,100,5000,5000,10,300
+5k-vus-and-rps-get-movies,get-movies.js,100,5000,5000,10,300
+10k-vus-and-rps-get-movies,get-movies.js,100,10000,10000,10,300
+25k-vus-stepped-spike-get-movies,get-movies-stepped-vus-spike.js,100,25000,,0,300
+25k-vus-smooth-spike-get-movies,get-movies-smooth-vus-spike.js,100,25000,,0,300
+25k-vus-smooth-spike-get-post-movies,get-post-movies-smooth-vus-spike.js,100,25000,,0,300

@@ -1,14 +1,37 @@
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.5'
+    id("io.freefair.lombok") version "8.6"
     id 'io.spring.dependency-management' version '1.1.4'
+    id "org.jetbrains.kotlin.jvm" version "1.9.23"
 }
+
 
 java { sourceCompatibility = '21' }
 repositories { mavenCentral() }
-bootRun { jvmArgs([ "-Xms2g", "-Xmx2g"])}
+bootRun { jvmArgs(["-Xms2g", "-Xmx2g"]) }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0'
+    testImplementation 'io.github.hakky54:logcaptor:2.9.2'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.assertj:assertj-core'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+if (System.env.APPROACH == "loom-tomcat") {
+    dependencies {
+        // Takes precedence over spring-boot-starter-webflux if both on classpath
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+    }
+    println 'Added spring-boot-starter-web dependency for approach loom-tomcat'
+}
+
+test {
+    useJUnitPlatform()
+    jvmArgs '-XX:+EnableDynamicAgentLoading'
+    jvmArgs '-Xshare:off'
 }

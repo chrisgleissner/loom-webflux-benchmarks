@@ -1,0 +1,70 @@
+POST http://localhost:8080/loom-netty/movies
+Content-Type: application/json
+Accept: application/json
+
+[
+{
+"title": "Mulholland Drive",
+"releaseYear": 2001,
+"actors": [
+{
+"person": {
+"firstName": "Naomi",
+"lastName": "Watts",
+"birthday": [
+1968,
+9,
+28
+]
+},
+"role": "Betty Elms"
+},
+{
+"person": {
+"firstName": "Laura",
+"lastName": "Harring",
+"birthday": [
+1964,
+3,
+3
+]
+},
+"role": "Rita"
+}
+],
+"directors": [
+{
+"firstName": "David",
+"lastName": "Lynch",
+"birthday": [
+1946,
+1,
+20
+]
+}
+],
+"writers": [
+{
+"firstName": "David",
+"lastName": "Lynch",
+"birthday": [
+1946,
+1,
+20
+]
+}
+],
+"awards": [
+{
+"name": "Cannes Film Festival",
+"year": 2001
+},
+{
+"name": "National Society of Film Critics Award",
+"year": 2001
+}
+],
+"genre": "MYSTERY",
+"rating": 7.9
+}
+]
