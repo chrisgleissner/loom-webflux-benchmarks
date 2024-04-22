@@ -17,9 +17,11 @@ High-level, the results of this benchmark are:
   using [reactive code](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html)).
 - For both approaches, we are able to scale out to the same number of virtual users (and thus TCP connections) before
   exhausting the CPU and running into time-outs due to rejected TCP connection requests.
+- In some cases ([60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies)), the P90 and P99
+  latencies were considerably lower for Virtual Threads on Netty when compared with WebFlux on Netty (P90: 193ms vs
+  521ms, P99: 714ms vs 1429ms).
 - Using Virtual Threads on Tomcat is not recommended for high load: we see higher resource use compared with using
-  Netty, as
-  well as time-outs.
+  Netty, as well as time-outs.
 
 ### Background
 
@@ -195,6 +197,7 @@ Scenarios configured in [config/scenarios.csv](config/scenarios.csv):
 | [25k-vus-stepped-spike-get-movies](#25k-vus-stepped-spike-get-movies)         | Movies | Stepped user spike                    | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               |
 | [25k-vus-smooth-spike-get-movies](#25k-vus-smooth-spike-get-movies)           | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               |
 | [25k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies) | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               |
+| [60k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies) | Movies | Smooth user spike                     | 0 - 60,000         | Depends on users and delays | 1000 - 3000 (random) | 100               |
 
 ### Steps
 
@@ -242,6 +245,15 @@ Virtual Threads, then for WebFlux.
 
 ## Test Environment
 
+- Unless noted otherwise, all tests were conducted on this test environment.
+- **Preparation**: The system was rebooted before each test and quieted down as much as possible. The baseline total CPU
+  use before test start was 0.3%.
+- **Co-location**: Test driver (k6) and server under test (Spring Boot microservice) were co-located on the same
+  physical machine. The aim of this benchmark is not to achieve maximum absolute performance, but rather to compare
+  different server-side approaches with each other. Considering that the test driver and the load it produced was
+  identical for the combination of server-side approach and scenario, this co-location should not affect the validity of
+  the test results.
+
 ### Hardware
 
 - CPU: Intel Core i7-6700K at 4.00GHz with 4 cores (8 threads)
@@ -255,16 +267,6 @@ Virtual Threads, then for WebFlux.
 - Kernel: 5.15.86-051586-generic
 - Java: Amazon Corretto JDK 21.0.3.9.1
 - Spring Boot 3.2.5
-
-### Other Notes
-
-* **Preparation**: The system was rebooted before each test and quieted down as much as possible. The baseline total CPU
-  use before test start was 0.3%.
-* **Co-location**: Test driver (k6) and server under test (Spring Boot microservice) were co-located on the same
-  physical machine. The aim of this benchmark is not to achieve maximum absolute performance, but rather to compare
-  different server-side approaches with each other. Considering that the test driver and the load it produced was
-  identical for the combination of server-side approach and scenario, this co-location should not affect the validity of
-  the test results.
 
 ## Charts
 
@@ -294,7 +296,7 @@ per second (RPS) across all users for 5 minutes:
 
 ### 5k-vus-and-rps-get-movies
 
-Like the earlier scenario, but the response body contains a JSON of movies.
+Like the previous scenario, but the response body contains a JSON of movies.
 
 #### Virtual Threads (Tomcat)
 
@@ -310,7 +312,7 @@ Like the earlier scenario, but the response body contains a JSON of movies.
 
 ### 10k-vus-and-rps-get-movies
 
-Like the earlier scenario, but 10 virtual users and requests per second.
+Like the previous scenario, but 10 virtual users and requests per second.
 
 #### Virtual Threads (Tomcat)
 
@@ -350,7 +352,7 @@ This scenario ramps up virtual users (and thus TCP connections) from 0 to 25k in
 
 ### 25k-vus-smooth-spike-get-movies
 
-Like the earlier scenario, but linear ramp-up and down.
+Like the previous scenario, but linear ramp-up and down.
 
 #### Virtual Threads (Tomcat)
 
@@ -366,7 +368,7 @@ Like the earlier scenario, but linear ramp-up and down.
 
 ### 25k-vus-smooth-spike-get-post-movies
 
-Like the earlier scenario, but instead of just getting movies, we are now additionally saving them:
+Like the previous scenario, but instead of just getting movies, we are now additionally saving them:
 
 - 75% of requests are GET requests which are split into three groups, each requesting movies by a specific director.
 - 25% of requests are POST requests.
@@ -384,3 +386,43 @@ For further details, please see the [movies](#movies) section.
 #### WebFlux (Netty)
 
 ![WebFlux](results/25k-vus-smooth-spike-get-post-movies/webflux-netty.png)
+
+### 60k-vus-smooth-spike-get-post-movies
+
+Like the previous scenario, but scaling up to 60k users and executed within a VirtualBox VM on more powerful hardware,
+using a
+different Linux Kernel version. The rest of the setup is identical.
+
+#### Hardware
+
+- CPU: Intel Core i7-12700K at 5GHz with 12 cores (20 threads)
+- Virtualization: VirtualBox 7.0.14 r161095 on bare metal desktop. All cores and 32GiB assigned to VM.
+- RAM: 64 GiB DDR4 (2 x Corsair 32 GiB, 5600MT/s)
+- Network: Loopback interface
+
+#### Software
+
+- OS: Ubuntu 22.04.4 LTS
+- Kernel: 6.5.0-28-generic
+- Java: Amazon Corretto JDK 21.0.2+13-LTS
+- Spring Boot 3.2.5
+
+#### Config
+
+The `scenario.csv` line for this run was:
+
+```csv
+60k-vus-smooth-spike-get-post-movies,get-post-movies-smooth-vus-spike.js,100,60000,,0,300
+```
+
+#### Virtual Threads (Tomcat)
+
+![Loom](results/60k-vus-smooth-spike-get-post-movies/loom-tomcat.png)
+
+#### Virtual Threads (Netty)
+
+![Loom](results/60k-vus-smooth-spike-get-post-movies/loom-netty.png)
+
+#### WebFlux (Netty)
+
+![WebFlux](results/60k-vus-smooth-spike-get-post-movies/webflux-netty.png)
