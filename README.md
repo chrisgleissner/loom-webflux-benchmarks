@@ -299,6 +299,8 @@ per second (RPS) across all users for 5 minutes:
 
 Like the previous scenario, but the response body contains a JSON of movies.
 
+For further details, please see the [movies](#movies) section.
+
 #### Virtual Threads (Tomcat)
 
 ![Loom](results/5k-vus-and-rps-get-movies/loom-tomcat.png)
@@ -371,7 +373,7 @@ Like the previous scenario, but linear ramp-up and down.
 
 Like the previous scenario, but instead of just getting movies, we are now additionally saving them:
 
-- 75% of requests are GET requests which are split into three groups, each requesting movies by a specific director.
+- 75% of requests are GET requests which are split into three groups, each requesting movies by a different director.
 - 25% of requests are POST requests.
 
 For further details, please see the [movies](#movies) section.
