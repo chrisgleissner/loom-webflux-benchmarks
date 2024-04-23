@@ -27,3 +27,6 @@ jobs:
 
       - name: Build
         run: ./gradlew build
+
+      - name: Benchmark Smoke Test
+        run: ./benchmark-all.sh config/scenarios-ci.csv
