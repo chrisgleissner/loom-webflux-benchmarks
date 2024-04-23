@@ -38,9 +38,9 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 * Test scenario support, see `config/scenario.csv`.
 * Produces single PNG plot using [Matplotlib](https://matplotlib.org/) for each scenario and approach (Loom or WebFlux),
   containing:
-    * Raw latencies and P50/90/99 percentiles, as well as any errors. 
-    * System metrics for CPU, RAM, sockets, and network throughput. 
-    * JVM metrics such as heap usage, garbage collections (GCs), and platform thread count. 
+    * Raw latencies and P50/90/99 percentiles, as well as any errors.
+    * System metrics for CPU, RAM, sockets, and network throughput.
+    * JVM metrics such as heap usage, garbage collections (GCs), and platform thread count.
 
 ### Design
 
@@ -238,7 +238,8 @@ Virtual Threads, then for WebFlux.
 3. `delayInMillis`: Server-side delay of each request, in milliseconds.
 4. `connections`: Number of TCP connections, i.e. virtual users.
 5. `requestsPerSecond`: Number of requests per second across all connections. Left empty for scenarios where the number
-   of requests per second is organically derived based on the number of connections, the request latency, and any explicit client-side delays.
+   of requests per second is organically derived based on the number of connections, the request latency, and any
+   explicit client-side delays.
 6. `warmUpDurationInSeconds`: Duration of the warm-up iteration before the actual test. Warm-up is skipped if `0`.
 7. `testDurationInSeconds`: Duration of the test iteration.
 
@@ -274,9 +275,13 @@ Virtual Threads, then for WebFlux.
 
 The following charts show the results of each scenario, sorted by ascending scenario load.
 
-Any failed requests appear both in the latency chart as red dots, as well as in the RPS chart as part of a continuous line:
-- A small latency, such as 0s, indicates that the request never reached the server, typically since the client failed to establish a connection.
-- A larger latency, especially if it is around 60s, indicates that the client didn't receive a response before the request timeout was reached. 
+Any failed requests appear both in the latency chart as red dots, as well as in the RPS chart as part of a continuous
+line:
+
+- A small latency, such as 0s, indicates that the request never reached the server, typically since the client failed to
+  establish a connection.
+- A larger latency, especially if it is around 60s, indicates that the client didn't receive a response before the
+  request timeout was reached.
 
 ### 5k-vus-and-rps-get-time
 
@@ -427,7 +432,7 @@ The `scenario.csv` line for this run was:
 
 #### Virtual Threads (Tomcat)
 
-<img src="results/60k-vus-smooth-spike-get-post-movies/loom-tomcat.png" alt="chart"/>
+![Loom](results/60k-vus-smooth-spike-get-post-movies/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
