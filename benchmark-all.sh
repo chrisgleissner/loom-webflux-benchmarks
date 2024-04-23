@@ -8,12 +8,16 @@ function log() {
   echo "$( date +"%H:%M:%S" )" "$1"
 }
 
-log "Starting Loom and WebFlux benchmark"
-startSeconds=`date +%s`
- ./log-system-specs.sh
+if [ -z "$1" ]; then
+    scenariosFile="config/scenarios.csv"
+else
+    env="$1"
+fi
 
 log "Building service"
  ./gradlew clean build
+
+log "Reading scenarios from $scenarios File"
 
 first_line=true
 while IFS=',' read -r scenario k6Config delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
@@ -26,7 +30,7 @@ while IFS=',' read -r scenario k6Config delayInMillis connections requestsPerSec
     fi
 
     for approach in $approaches; do ./benchmark-scenario.sh "$approach" "$scenario" "$k6Config" "$delayInMillis" "$connections" "$requestsPerSecond" "$warmupDurationInSeconds" "$testDurationInSeconds"; done
-done < config/scenarios.csv
+done < "$scenariosFile" 
 
 endSeconds=`date +%s`
 testDurationInSeconds=$(( $endSeconds - $startSeconds ))
