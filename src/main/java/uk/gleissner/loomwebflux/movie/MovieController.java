@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import uk.gleissner.loomwebflux.config.AppProperties;
 import uk.gleissner.loomwebflux.controller.LoomWebFluxController;
@@ -44,7 +45,8 @@ public class MovieController implements LoomWebFluxController {
     public Mono<Set<Movie>> findMoviesByDirectorLastNameWebFlux(@RequestParam String directorLastName,
                                                                 @RequestParam(required = false) Long delayInMillis) {
         log("findMoviesByDirectorLastNameWebFlux");
-        return Mono.delay(actualDelay(delayInMillis, appProperties))
+        return Mono
+                .delay(actualDelay(delayInMillis, appProperties))
                 .map(d -> movieRepo.findMoviesByDirector(directorLastName));
     }
 
@@ -57,11 +59,12 @@ public class MovieController implements LoomWebFluxController {
     }
 
     @PostMapping(WEBFLUX_NETTY + API_PATH)
-    public Mono<List<Movie>> saveMoviesWebFlux(@RequestBody List<Movie> movies,
-                                               @RequestParam(required = false) Long delayInMillis) {
+    public Flux<Movie> saveMoviesWebFlux(@RequestBody Flux<Movie> movies,
+                                         @RequestParam(required = false) Long delayInMillis) {
         log("saveMoviesWebFlux");
-        return Mono.delay(actualDelay(delayInMillis, appProperties))
-                .map(d -> movieRepo.saveAll(movies));
+        return movies
+                .delaySubscription(actualDelay(delayInMillis, appProperties))
+                .flatMap(movie -> Mono.just(movieRepo.save(movie)));
     }
 
     @DeleteMapping({LOOM_TOMCAT + API_PATH + "/{id}", LOOM_NETTY + API_PATH + "/{id}"})
@@ -76,7 +79,8 @@ public class MovieController implements LoomWebFluxController {
     public Mono<Void> deleteMoviesByIdWebFlux(@PathVariable UUID id,
                                               @RequestParam(required = false) Long delayInMillis) {
         log("deleteMoviesByIdWebFlux");
-        return Mono.delay(actualDelay(delayInMillis, appProperties))
+        return Mono
+                .delay(actualDelay(delayInMillis, appProperties))
                 .doOnSuccess(d -> movieRepo.deleteById(id))
                 .then();
     }

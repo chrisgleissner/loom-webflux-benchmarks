@@ -7,24 +7,30 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gleissner.loomwebflux.config.AppProperties
 import uk.gleissner.loomwebflux.controller.LoomWebFluxController.*
 import uk.gleissner.loomwebflux.fixture.AbstractIntegrationTest
 import uk.gleissner.loomwebflux.movie.domain.*
 import uk.gleissner.loomwebflux.movie.repo.MovieRepo
+import java.time.Duration
+import java.time.Instant.now
 import java.time.LocalDate
+import java.util.*
 
 internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
 
     @Autowired
     private lateinit var movieRepo: MovieRepo
 
+    @Autowired
+    private lateinit var appProperties: AppProperties
+
     @ParameterizedTest
     @ValueSource(strings = [LOOM_TOMCAT, LOOM_NETTY, WEBFLUX_NETTY])
     fun `find movies by director last name`(approach: String) {
         val logCaptor = logCaptor()
-        val movies = movies(approach)
-        assertThat(movies)
-            .containsExactlyElementsOf(movieRepo.findMoviesByDirector("Allen"))
+        val movies = getMovies(approach)
+        assertThat(movies).containsExactlyElementsOf(movieRepo.findMoviesByDirector("Allen"))
         logCaptor.assertCorrectThreadType(approach)
     }
 
@@ -32,28 +38,27 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
     @ValueSource(strings = [LOOM_TOMCAT, LOOM_NETTY, WEBFLUX_NETTY])
     fun `save and delete a movie`(approach: String) {
         val logCaptor = logCaptor()
-        val newMovie = mulhollandDrive
-        assertThat(newMovie.id).isNull()
-        val directorLastName = newMovie.directors[0].lastName
-        val movies = movies(approach, directorLastName)
+
+        val moviesByDavidLynch = listOf(mulhollandDrive, theStraightStory)
+        moviesByDavidLynch.forEach {
+            assertThat(it.id).isNull()
+        }
+
+        val movies = getMovies(approach, davidLynch.lastName)
         assertThat(movies).isEmpty()
 
-        val savedMovies = client.post().uri("$approach/movies")
-            .contentType(APPLICATION_JSON)
-            .accept(APPLICATION_JSON)
-            .body(
-                BodyInserters.fromValue(listOf(newMovie))
-            ).exchange().expectStatus().isOk
-            .expectBodyList(Movie::class.java).returnResult().responseBody
+        val savedMovies = saveMovies(approach, moviesByDavidLynch)
+        assertThat(savedMovies).hasSize(moviesByDavidLynch.size)
+        savedMovies.forEach {
+            assertThat(it.id).isNotNull()
+        }
+        assertThat(savedMovies).usingRecursiveComparison().ignoringFields("id").isEqualTo(moviesByDavidLynch)
 
-        assertThat(savedMovies).hasSize(1)
-        val savedMovie = savedMovies?.get(0)!!
-        assertThat(savedMovie.id).isNotNull()
-        assertThat(savedMovie).usingRecursiveComparison().ignoringFields("id").isEqualTo(newMovie)
+        savedMovies.forEach {
+            deleteMovie(approach, it.id)
+        }
+        assertThat(getMovies(approach, davidLynch.lastName)).doesNotContainAnyElementsOf(savedMovies)
 
-        client.delete().uri("$approach/movies/${savedMovie.id}")
-            .exchange().expectStatus().isOk
-        assertThat(movies(approach, directorLastName)).doesNotContain(newMovie)
         logCaptor.assertCorrectThreadType(approach)
     }
 
@@ -67,14 +72,37 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
         }
     }
 
-    private fun movies(approach: String, directorLastName: String = "Allen"): MutableList<Movie>? {
+    private fun getMovies(approach: String, directorLastName: String = "Allen"): MutableList<Movie>? {
+        val start = now()
         val movies = client.get().uri("$approach/movies?directorLastName=$directorLastName").exchange()
             .expectStatus().isOk()
             .expectBodyList(Movie::class.java).returnResult().responseBody
+        assertThat(Duration.between(start, now())).isGreaterThan(appProperties.defaultDelay)
         return movies
     }
 
+    private fun saveMovies(approach: String, movies: List<Movie>): List<Movie> {
+        val start = now()
+        val savedMovies = client.post().uri("$approach/movies")
+            .contentType(APPLICATION_JSON)
+            .accept(APPLICATION_JSON)
+            .body(
+                BodyInserters.fromValue(movies)
+            ).exchange().expectStatus().isOk
+            .expectBodyList(Movie::class.java).returnResult().responseBody?.toList() ?: listOf()
+        assertThat(Duration.between(start, now())).isGreaterThan(appProperties.defaultDelay)
+        return savedMovies
+    }
+
+    private fun deleteMovie(approach: String, movieId: UUID) {
+        val start = now()
+        client.delete().uri("$approach/movies/${movieId}")
+            .exchange().expectStatus().isOk
+        assertThat(Duration.between(start, now())).isGreaterThan(appProperties.defaultDelay)
+    }
+
     private val davidLynch = Person.of("David Lynch", LocalDate.of(1946, 1, 20))
+
     private val mulhollandDrive = Movie.builder()
         .title("Mulholland Drive")
         .releaseYear(2001)
@@ -94,5 +122,33 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
         )
         .genre(Genre.MYSTERY)
         .rating(7.9)
+        .build()
+
+    private val theStraightStory = Movie.builder()
+        .title("The Straight Story")
+        .releaseYear(1999)
+        .actors(
+            listOf(
+                Actor.builder().person(Person.of("Richard Farnsworth", LocalDate.of(1920, 9, 1))).role("Alvin Straight")
+                    .build(),
+                Actor.builder().person(Person.of("Sissy Spacek", LocalDate.of(1949, 12, 25))).role("Rose Straight")
+                    .build()
+            )
+        )
+        .directors(listOf(davidLynch))
+        .writers(
+            listOf(
+                Person.of("John Roach", LocalDate.of(1960, 3, 2)),
+                Person.of("Mary Sweeney", LocalDate.of(1954, 4, 29))
+            )
+        )
+        .awards(
+            listOf(
+                Award.builder().name("Cannes Film Festival").year(1999).build(),
+                Award.builder().name("Golden Globe Award").year(2000).build()
+            )
+        )
+        .genre(Genre.DRAMA)
+        .rating(8.0)
         .build()
 }
