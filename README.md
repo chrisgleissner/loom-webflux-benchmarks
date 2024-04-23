@@ -38,8 +38,9 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 * Test scenario support, see `config/scenario.csv`.
 * Produces single PNG plot using [Matplotlib](https://matplotlib.org/) for each scenario and approach (Loom or WebFlux),
   containing:
-    * Raw latencies and P50/90/99 percentiles, as well as any errors
-    * System metrics for CPU, RAM, sockets, and network throughput
+    * Raw latencies and P50/90/99 percentiles, as well as any errors. 
+    * System metrics for CPU, RAM, sockets, and network throughput. 
+    * JVM metrics such as heap usage, garbage collections (GCs), and platform thread count. 
 
 ### Design
 
@@ -237,8 +238,8 @@ Virtual Threads, then for WebFlux.
 3. `delayInMillis`: Server-side delay of each request, in milliseconds.
 4. `connections`: Number of TCP connections, i.e. virtual users.
 5. `requestsPerSecond`: Number of requests per second across all connections. Left empty for scenarios where the number
-   of requests per second is organically derived based on the number of connections and client-side delays.
-6. `warmUpDurationInSeconds`: Duration of a warm-up iteration before the actual test. Warm-up is skipped if `0`.
+   of requests per second is organically derived based on the number of connections, the request latency, and any explicit client-side delays.
+6. `warmUpDurationInSeconds`: Duration of the warm-up iteration before the actual test. Warm-up is skipped if `0`.
 7. `testDurationInSeconds`: Duration of the test iteration.
 
 ## Results
@@ -273,6 +274,10 @@ Virtual Threads, then for WebFlux.
 
 The following charts show the results of each scenario, sorted by ascending scenario load.
 
+Any failed requests appear both in the latency chart as red dots, as well as in the RPS chart as part of a continuous line:
+- A small latency, such as 0s, indicates that the request never reached the server, typically since the client failed to establish a connection.
+- A larger latency, especially if it is around 60s, indicates that the client didn't receive a response before the request timeout was reached. 
+
 ### 5k-vus-and-rps-get-time
 
 This scenario aims to maintain a steady number of 5k virtual users (VUs, i.e. TCP connections) as well as 5k requests
@@ -298,6 +303,8 @@ per second (RPS) across all users for 5 minutes:
 ### 5k-vus-and-rps-get-movies
 
 Like the previous scenario, but the response body contains a JSON of movies.
+
+For further details, please see the [movies](#movies) section.
 
 #### Virtual Threads (Tomcat)
 
@@ -371,7 +378,7 @@ Like the previous scenario, but linear ramp-up and down.
 
 Like the previous scenario, but instead of just getting movies, we are now additionally saving them:
 
-- 75% of requests are GET requests which are split into three groups, each requesting movies by a specific director.
+- 75% of requests are GET requests which are split into three groups, each requesting movies by a different director.
 - 25% of requests are POST requests.
 
 For further details, please see the [movies](#movies) section.
