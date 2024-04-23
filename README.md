@@ -420,7 +420,7 @@ The `scenario.csv` line for this run was:
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/60k-vus-smooth-spike-get-post-movies/loom-tomcat.png)
+<img src="results/60k-vus-smooth-spike-get-post-movies/loom-tomcat.png" alt="chart"/>
 
 #### Virtual Threads (Netty)
 
