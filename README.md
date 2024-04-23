@@ -1,6 +1,6 @@
 # Benchmark of Java Virtual Threads vs WebFlux
 
-[![Build Status](https://github.com/chrisgleissner/loom-webflux/actions/workflows/build.yml/badge.svg)](https://github.com/chrisgleissner/loom-webflux/actions)
+[![Build Status](https://github.com/chrisgleissner/loom-webflux/actions/workflows/build.yaml/badge.svg)](https://github.com/chrisgleissner/loom-webflux/actions)
 
 This Java 21 project benchmarks a simple [Spring Boot 3.2.5](https://spring.io/projects/spring-boot) HTTP endpoint using
 configurable scenarios, comparing Java Virtual Threads (introduced
