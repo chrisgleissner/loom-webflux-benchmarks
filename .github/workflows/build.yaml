@@ -20,6 +20,7 @@ jobs:
       - name: Install k6
         run: |
           curl https://github.com/grafana/k6/releases/download/v0.47.0/k6-v0.47.0-linux-amd64.tar.gz -L | tar xvz --strip-components 1
+          sudo mv k6 /usr/bin
 
       - name: Install Python and sysstat
         run: |
