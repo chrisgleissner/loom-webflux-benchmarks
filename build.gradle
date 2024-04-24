@@ -22,12 +22,12 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-if (System.env.APPROACH == "loom-tomcat") {
+if (System.env.SPRING_PROFILES_ACTIVE == "platform-tomcat" || System.env.SPRING_PROFILES_ACTIVE == "loom-tomcat") {
     dependencies {
         // Takes precedence over spring-boot-starter-webflux if both on classpath
         implementation 'org.springframework.boot:spring-boot-starter-web'
     }
-    println 'Added spring-boot-starter-web dependency for approach loom-tomcat'
+    println 'Added spring-boot-starter-web dependency'
 }
 
 test {
