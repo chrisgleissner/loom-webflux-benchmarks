@@ -30,7 +30,10 @@ jobs:
 
       - name: Install Python and sysstat
         run: |
-          sudo apt-get update && sudo apt-get install -y python3 python3-matplotlib sysstat      
+          sudo rm /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt-get update
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-matplotlib sysstat      
 
       - name: Build
         run: ./gradlew -q dependencies | grep spring-boot | head -n1 && ./gradlew build
