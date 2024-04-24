@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/chrisgleissner/loom-webflux/actions/workflows/build.yaml/badge.svg)](https://github.com/chrisgleissner/loom-webflux/actions)
 
-This Java 21 project benchmarks a simple [Spring Boot 3.2.5](https://spring.io/projects/spring-boot) HTTP endpoint using
+This Java 21 project benchmarks a simple [Spring Boot 3.2](https://spring.io/projects/spring-boot) HTTP endpoint using
 configurable scenarios, comparing Java Virtual Threads (introduced
 by [Project Loom, JEP 444](https://openjdk.org/jeps/444)) using Tomcat and Netty
 with [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html) (relying
@@ -156,14 +156,8 @@ printf '* soft nofile 1048576\n* hard nofile 1048576\n' | sudo tee -a /etc/secur
 Increase the port range for outgoing TCP connections and allow quick connection reuse:
 
 ```shell
-printf 'net.ipv4.ip_local_port_range=1024 65535\nnet.ipv4.tcp_tw_reuse = 1\nnet.ipv4.tcp_tw_recycle = 1\n' | sudo tee -a /etc/sysctl.conf
+printf 'net.ipv4.ip_local_port_range=1024 65535\nnet.ipv4.tcp_tw_reuse = 1\n' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 ```
-
-Please note
-that `net.ipv4.tcp_tw_recycle = 1` [may cause problems](https://www.speedguide.net/articles/linux-tweaking-121) if your
-Linux machine
-hosts an externally visible website and uses a load balancer. In that case, revert it after you are done with load
-tests.
 
 #### Activate Changes
 
@@ -189,7 +183,7 @@ Usage: `benchmark.sh [-h] [SCENARIOS FILE]`:
 - **loom-netty**: Virtual Threads on [Netty](https://netty.io/) server
 - **webflux-netty**: WebFlux on Netty server
 
-All approaches use the same Spring Boot 3.2.x version.
+All approaches use the same Spring Boot 3.2 version.
 
 ### Scenarios
 

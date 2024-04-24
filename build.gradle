@@ -2,9 +2,9 @@ plugins {
     id 'java'
     id 'com.adarshr.test-logger' version '4.0.0'
     id 'io.freefair.lombok' version '8.6'
-    id 'io.spring.dependency-management' version '1.1.4'
-    id "org.jetbrains.kotlin.jvm" version "1.9.23"
-    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.+'
+    id "org.jetbrains.kotlin.jvm" version "1.9.+"
+    id 'org.springframework.boot' version '3.2.+'
 }
 
 
@@ -15,7 +15,6 @@ bootRun { jvmArgs(["-Xms2g", "-Xmx2g"]) }
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0'
     testImplementation 'io.github.hakky54:logcaptor:2.9.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter'

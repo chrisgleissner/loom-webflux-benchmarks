@@ -1,0 +1,67 @@
+name: build
+on:
+  workflow_call:
+    inputs:
+      scenarios-path:
+        required: true
+        type: string
+        default: config/scenarios.csv
+        description: Scenarios CSV file path
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: corretto
+          cache: 'gradle'
+
+      - name: Install k6
+        run: |
+          curl https://github.com/grafana/k6/releases/download/v0.47.0/k6-v0.47.0-linux-amd64.tar.gz -L | tar xvz --strip-components 1
+          sudo mv k6 /usr/bin
+
+      - name: Install Python and sysstat
+        run: |
+          sudo apt update && sudo apt install -y python3 python3-matplotlib sysstat      
+
+      - name: Build
+        run: ./gradlew -q dependencies | grep spring-boot | head -n1 && ./gradlew build
+
+      - name: Benchmark using ${{ inputs.scenarios-path }}
+        run: |
+          echo "Optimized system for benchmark"
+          sudo sysctl -w net.ipv4.ip_local_port_range="1024 65535"
+          sudo sysctl -w net.ipv4.tcp_tw_reuse=1          
+          sudo sysctl -w fs.file-max=1048576
+          sudo sysctl -p
+          sysctl net.ipv4.ip_local_port_range net.ipv4.tcp_tw_reuse fs.file-max
+          echo "Starting benchmark using scenario file ${{ inputs.scenarios-path }}"
+          ./benchmark.sh ${{ inputs.scenarios-path }}
+
+      - name: Verify results
+        run: |
+          for approach in loom-tomcat loom-netty webflux-netty; do
+            for scenarioPath in build/results/*; do
+              chartFilename=$scenarioPath/$approach.png
+              if ! file "$chartFilename" | grep -q "PNG image data"; then
+                echo "Verification error: Image $chartFilename missing or invalid"
+                exit 1
+              else 
+                echo "Chart $chartFilename exists"
+              fi
+            done
+          done
+
+      - name: Store results
+        uses: actions/upload-artifact@v4
+        with:
+          name: Benchmark results
+          path: build/results/

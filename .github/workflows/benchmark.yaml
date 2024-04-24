@@ -1,0 +1,9 @@
+name: benchmark
+on:
+  schedule:
+    - cron: '0 5 * * 0'
+jobs:
+  call-reusable-build:
+    uses: ./reusable-build.yml@main
+    with:
+      scenarios-path: config/scenarios.csv

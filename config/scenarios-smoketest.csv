@@ -1,2 +1,2 @@
 scenario,k6Config,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
-smoketest,get-time.js,1000,1000,100,5,30
+smoketest,get-time.js,100,5,5,0,5
