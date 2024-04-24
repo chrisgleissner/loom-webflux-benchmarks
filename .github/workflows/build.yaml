@@ -41,3 +41,9 @@ jobs:
               exit 1
             fi      
           done
+
+      - name: Store results
+        uses: actions/upload-artifact@v4
+        with:
+          name: Benchmark results
+          path: build/results/
