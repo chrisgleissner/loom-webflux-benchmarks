@@ -29,5 +29,12 @@ jobs:
       - name: Build
         run: ./gradlew build
 
-      - name: Benchmark smoke test
+      - name: Smoke test
         run: ./benchmark.sh config/scenarios-ci.csv
+
+      - name: Check charts
+        run: |
+          if [ ! -f output/results/smoketest/loom-tomcat.png ] || [ ! -f output/results/smoketest/loom-netty.png ] || [ ! -f output/results/smoketest/webflux-netty.png ]; then
+            echo "One or more output files do not exist. Failing the build."
+            exit 1
+          fi
