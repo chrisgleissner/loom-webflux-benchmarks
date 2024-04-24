@@ -31,7 +31,7 @@ public class MovieController implements LoomWebFluxController {
     private final AppProperties appProperties;
     private final MovieRepo movieRepo;
 
-    @GetMapping({LOOM_TOMCAT + API_PATH, LOOM_NETTY + API_PATH})
+    @GetMapping({PLATFORM_TOMCAT + API_PATH, LOOM_TOMCAT + API_PATH, LOOM_NETTY + API_PATH})
     @ResponseBody
     public Set<Movie> findMoviesByDirectorLastNameLoom(@RequestParam String directorLastName,
                                                        @RequestParam(required = false) Long delayInMillis) throws InterruptedException {
@@ -50,7 +50,7 @@ public class MovieController implements LoomWebFluxController {
                 .map(d -> movieRepo.findMoviesByDirector(directorLastName));
     }
 
-    @PostMapping({LOOM_TOMCAT + API_PATH, LOOM_NETTY + API_PATH})
+    @PostMapping({PLATFORM_TOMCAT + API_PATH, LOOM_TOMCAT + API_PATH, LOOM_NETTY + API_PATH})
     public List<Movie> saveMoviesLoom(@RequestBody List<Movie> movies,
                                       @RequestParam(required = false) Long delayInMillis) throws InterruptedException {
         log("saveMoviesLoom");
@@ -67,7 +67,7 @@ public class MovieController implements LoomWebFluxController {
                 .flatMap(movie -> Mono.just(movieRepo.save(movie)));
     }
 
-    @DeleteMapping({LOOM_TOMCAT + API_PATH + "/{id}", LOOM_NETTY + API_PATH + "/{id}"})
+    @DeleteMapping({PLARFORM_TOMCAT + API_PATH + "/{id}", LOOM_TOMCAT + API_PATH + "/{id}", LOOM_NETTY + API_PATH + "/{id}"})
     public void deleteMoviesByIdLoom(@PathVariable UUID id,
                                      @RequestParam(required = false) Long delayInMillis) throws InterruptedException {
         log("deleteMoviesByIdLoom");
