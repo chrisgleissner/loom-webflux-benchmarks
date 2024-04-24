@@ -34,7 +34,10 @@ jobs:
 
       - name: Check charts
         run: |
-          if [ ! -f output/results/smoketest/loom-tomcat.png ] || [ ! -f output/results/smoketest/loom-netty.png ] || [ ! -f output/results/smoketest/webflux-netty.png ]; then
-            echo "One or more output files do not exist. Failing the build."
-            exit 1
-          fi
+          for approach in loom-tomcat loom-netty webflux-netty; do
+            chartFile=output/results/smoketest/$approach.png
+            if [ ! -f $chartFile ]; then
+              echo "Could not find $$chartFile; failing the build."
+              exit 1
+            fi      
+          done
