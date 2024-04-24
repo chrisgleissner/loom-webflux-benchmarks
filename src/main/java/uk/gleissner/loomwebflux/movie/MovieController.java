@@ -67,7 +67,7 @@ public class MovieController implements LoomWebFluxController {
                 .flatMap(movie -> Mono.just(movieRepo.save(movie)));
     }
 
-    @DeleteMapping({PLARFORM_TOMCAT + API_PATH + "/{id}", LOOM_TOMCAT + API_PATH + "/{id}", LOOM_NETTY + API_PATH + "/{id}"})
+    @DeleteMapping({PLATFORM_TOMCAT + API_PATH + "/{id}", LOOM_TOMCAT + API_PATH + "/{id}", LOOM_NETTY + API_PATH + "/{id}"})
     public void deleteMoviesByIdLoom(@PathVariable UUID id,
                                      @RequestParam(required = false) Long delayInMillis) throws InterruptedException {
         log("deleteMoviesByIdLoom");
