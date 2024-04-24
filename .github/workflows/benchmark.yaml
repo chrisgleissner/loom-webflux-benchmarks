@@ -4,6 +4,6 @@ on:
     - cron: '0 5 * * 0'
 jobs:
   call-reusable-build:
-    uses: ./.github/workflows/reusable-build.yml
+    uses: ./.github/workflows/reusable-build.yaml
     with:
       scenarios-path: config/scenarios.csv
