@@ -38,6 +38,8 @@ startSeconds=$( date +%s )
 log "Started Loom and WebFlux benchmark"
 log "Scenarios file: $scenariosFile"
 
+./log-system-specs.sh
+
 first_line=true
 while IFS=',' read -r scenario k6Config delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
     if [[ -z "$scenario" || $scenario == "#"*  ]]; then
