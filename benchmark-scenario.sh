@@ -19,7 +19,7 @@ serviceHost=localhost
 servicePort=8080
 serviceHealthUrl="http://$serviceHost:$servicePort/actuator/health"
 serviceApiBaseUrl="http://$serviceHost:$servicePort/$approach"
-resultDir=results/"$scenario"
+resultDir=build/results/"$scenario"
 jvmCsvFilename="$resultDir/$approach"-jvm.csv
 latencyCsvFilename="$resultDir/$approach"-latency.csv
 systemCsvFilename="$resultDir/$approach"-system.csv
@@ -66,17 +66,26 @@ function load_and_measure_system() {
 
   sleep 2
   ./chart.py "$approach: $scenario" "$latencyCsvFilename" "$systemCsvFilename" "$jvmCsvFilename" "$chartFilename"
+  verify_chart_exists
   log "Saved $chartFilename"
 
   # Terminate system-measure.sh if it is misconfigured to run longer than k6
   if ps -p $systemMeasurePid > /dev/null; then
     kill $systemMeasurePid
-    echo "Terminated system-measure.sh process which may have overrun. Does config/scenarios.csv specify a duration which matches the corresponding k6 duration?"
+    log "Terminated system-measure.sh process which may have overrun. Does config/scenarios.csv specify a duration which matches the corresponding k6 duration?"
   fi
+
 
   rm -f "$latencyCsvFilename"
   rm -f "$systemCsvFilename"
   rm -f "$jvmCsvFilename"
+}
+
+function verify_chart_exists() {
+  if ! file "$chartFilename" | grep -q "PNG image data"; then
+    log "Chart file $chartFilename does not exist or is not a valid PNG image; terminating"
+    exit 1
+  fi
 }
 
 function load() {
@@ -93,10 +102,9 @@ function load() {
   log "Saved $latencyCsvFilename"
 }
 
-printf "\n\n\n"
+printf "\n\n"
 log "==> Benchmark of $scenario scenario for $approach approach <=="
 log "k6Config=$k6Config, delayInMillis=$delayInMillis, connections=$connections, requestsPerSecond=$requestsPerSecond, warmupDurationInSeconds=$warmupDurationInSeconds, testDurationInSeconds=$testDurationInSeconds"
-printf "\n"
 
 start_service
 benchmark_service

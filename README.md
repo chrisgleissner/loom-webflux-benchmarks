@@ -170,11 +170,16 @@ Log out and back in.
 ## Benchmark
 
 The following command runs the benchmark for each combination of approaches and scenarios. Results are recorded in
-the `results` folder:
+the `output/results` folder:
 
 ```shell
-./benchmark-all.sh 
+./benchmark.sh 
 ```
+
+Usage: `benchmark.sh [-h] [SCENARIOS FILE]`:
+
+- `-h`: Shows help
+- `SCENARIOS FILE`: CSV file with scenarios; defaults to `config/scenarios.csv`
 
 ### Approaches
 
@@ -205,8 +210,8 @@ The benchmark run for each `scenario` consists of the following steps:
 
 * Build and start Spring Boot service with specific `approach`: `loom-tomcat`, `loom-netty`, or `webflux-netty`.
 * Run the benchmark as configured in `config/scenarios.csv`.
-* Store CSV files at `results/$scenario/$approach-$resultType.csv` where `resultType` is `latency`, `system`, or `jvm`.
-* Convert all CSV files into `results/$scenario/$approach.png` and delete them.
+* Store CSV files at `output/results/$scenario/$approach-$resultType.csv` where `resultType` is `latency`, `system`, or `jvm`.
+* Convert all CSV files into `output/results/$scenario/$approach.png` and delete them.
 * Stop the service.
 
 ## Config
