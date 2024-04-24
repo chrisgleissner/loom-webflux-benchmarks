@@ -3,6 +3,6 @@ on: [ push ]
 
 jobs:
   call-reusable-build:
-    uses: ./.github/workflows/reusable-build.yml@main
+    uses: ./.github/workflows/reusable-build.yml
     with:
       scenarios-path: config/scenarios-smoketest.csv
