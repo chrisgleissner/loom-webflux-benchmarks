@@ -2,7 +2,7 @@
 # Performs a benchmark of Loom and WebFlux, using the scenarios defined in scenarios.csv.
 # Outputs are written to results/$scenario.
 
-approaches="loom-tomcat loom-netty webflux-netty"
+approaches="platform-tomcat loom-tomcat loom-netty webflux-netty"
 scenariosFile="config/scenarios.csv"
 
 function log() {
