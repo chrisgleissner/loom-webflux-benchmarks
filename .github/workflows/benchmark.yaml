@@ -2,6 +2,7 @@ name: benchmark
 on:
   schedule:
     - cron: '0 5 * * 0'
+  workflow_dispatch:
 jobs:
   call-reusable-build:
     uses: ./.github/workflows/reusable-build.yaml
