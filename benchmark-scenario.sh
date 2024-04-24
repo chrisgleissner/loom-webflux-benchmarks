@@ -31,7 +31,7 @@ function log() {
 
 function start_service() {
   log "Starting service"
-  APPROACH=$approach ./gradlew bootRun  --args='--spring.profiles.active=$approach' 2>&1 &
+  SPRING_PROFILES_ACTIVE=$approach ./gradlew bootRun 2>&1 &
   until curl --output /dev/null --silent --head --fail "$serviceHealthUrl"; do printf '.'; sleep 1; done
 }
 
