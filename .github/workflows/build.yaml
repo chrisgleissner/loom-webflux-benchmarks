@@ -24,7 +24,7 @@ jobs:
 
       - name: Install Python and sysstat
         run: |
-          sudo apt-get install -y python3-matplotlib   
+          sudo apt update && sudo apt install -y python3 python3-matplotlib sysstat      
 
       - name: Build
         run: ./gradlew build
