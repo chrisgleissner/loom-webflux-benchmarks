@@ -1,4 +1,4 @@
-name: benchmark
+name: soaktest
 on:
   schedule:
     - cron: '0 5 * * 0'
