@@ -1,7 +1,7 @@
 name: benchmark
 on:
   schedule:
-    - cron: '0 2 * * 0'
+    - cron: '0 2 2 * *' # 2nd of each month at 2am
   workflow_dispatch:
 jobs:
   call-reusable-build:
