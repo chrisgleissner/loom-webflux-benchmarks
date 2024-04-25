@@ -6,5 +6,6 @@ on:
 jobs:
   call-reusable-build:
     uses: ./.github/workflows/reusable-build.yaml
+    secrets: inherit
     with:
       scenarios-path: config/scenarios.csv
