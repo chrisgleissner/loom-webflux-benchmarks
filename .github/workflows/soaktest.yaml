@@ -1,10 +1,11 @@
 name: benchmark
 on:
   schedule:
-    - cron: '0 2 * * 0'
+    - cron: '0 5 * * 0'
   workflow_dispatch:
 jobs:
   call-reusable-build:
     uses: ./.github/workflows/reusable-build.yaml
     with:
-      scenarios-path: config/scenarios.csv
+      scenarios-path: config/scenarios-soaktest.csv
+      approaches: loom-netty,webflux-netty
