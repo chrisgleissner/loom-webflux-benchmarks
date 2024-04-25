@@ -40,7 +40,7 @@ jobs:
           sudo apt-get install -y python3 python3-matplotlib sysstat      
 
       - name: Build
-        run: ./gradlew -q dependencies | grep spring-boot | head -n1 && ./gradlew build
+        run: ./gradlew -q dependencies | grep spring-boot | head -n1 && ./gradlew build jacocoTestReport coverallsJacoco
 
       - name: Benchmark using ${{ inputs.scenarios-path }}
         run: |
