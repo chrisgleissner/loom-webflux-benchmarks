@@ -1,15 +1,14 @@
 package uk.gleissner.loomwebflux.movie
 
-import nl.altindag.log.LogCaptor
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gleissner.loomwebflux.config.AppProperties
-import uk.gleissner.loomwebflux.controller.LoomWebFluxController.*
 import uk.gleissner.loomwebflux.fixture.AbstractIntegrationTest
+import uk.gleissner.loomwebflux.fixture.ApproachesMethodSource
+import uk.gleissner.loomwebflux.fixture.LogCaptorFixture.assertCorrectThreadType
 import uk.gleissner.loomwebflux.movie.domain.*
 import uk.gleissner.loomwebflux.movie.repo.MovieRepo
 import java.time.Duration
@@ -26,19 +25,16 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
     private lateinit var appProperties: AppProperties
 
     @ParameterizedTest
-    @ValueSource(strings = [LOOM_TOMCAT, LOOM_NETTY, WEBFLUX_NETTY])
+    @ApproachesMethodSource
     fun `find movies by director last name`(approach: String) {
-        val logCaptor = logCaptor()
         val movies = getMovies(approach)
         assertThat(movies).containsExactlyElementsOf(movieRepo.findMoviesByDirector("Allen"))
         logCaptor.assertCorrectThreadType(approach)
     }
 
     @ParameterizedTest
-    @ValueSource(strings = [LOOM_TOMCAT, LOOM_NETTY, WEBFLUX_NETTY])
+    @ApproachesMethodSource
     fun `save and delete a movie`(approach: String) {
-        val logCaptor = logCaptor()
-
         val moviesByDavidLynch = listOf(mulhollandDrive, theStraightStory)
         moviesByDavidLynch.forEach {
             assertThat(it.id).isNull()
@@ -60,16 +56,6 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
         assertThat(getMovies(approach, davidLynch.lastName)).doesNotContainAnyElementsOf(savedMovies)
 
         logCaptor.assertCorrectThreadType(approach)
-    }
-
-    private fun logCaptor() = LogCaptor.forClass(MovieController::class.java)
-
-    private fun LogCaptor.assertCorrectThreadType(approach: String) {
-        val expectedThreadNameFragment =
-            if (approach == LOOM_TOMCAT || approach == LOOM_NETTY) "thread=VirtualThread" else "thread=Thread"
-        assertThat(debugLogs.filter { it.contains("thread=") }).allSatisfy {
-            assertThat(it).contains(expectedThreadNameFragment)
-        }
     }
 
     private fun getMovies(approach: String, directorLastName: String = "Allen"): MutableList<Movie>? {

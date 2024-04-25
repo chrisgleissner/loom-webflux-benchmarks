@@ -7,7 +7,6 @@ plugins {
     id 'org.springframework.boot' version '3.2.+'
 }
 
-
 java { sourceCompatibility = '21' }
 repositories { mavenCentral() }
 bootRun { jvmArgs(["-Xms2g", "-Xmx2g"]) }
@@ -22,7 +21,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-if (System.env.SPRING_PROFILES_ACTIVE == "platform-tomcat" || System.env.SPRING_PROFILES_ACTIVE == "loom-tomcat") {
+if (System.env.SPRING_PROFILES_ACTIVE in ["platform-tomcat", "loom-tomcat"]) {
     dependencies {
         // Takes precedence over spring-boot-starter-webflux if both on classpath
         implementation 'org.springframework.boot:spring-boot-starter-web'

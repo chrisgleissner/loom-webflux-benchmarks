@@ -1,7 +1,6 @@
 package uk.gleissner.loomwebflux.movie;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,8 +22,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@Slf4j
-public class MovieController implements LoomWebFluxController {
+public class MovieController extends LoomWebFluxController {
 
     private static final String API_PATH = "/movies";
 
@@ -83,11 +81,5 @@ public class MovieController implements LoomWebFluxController {
                 .delay(actualDelay(delayInMillis, appProperties))
                 .doOnSuccess(d -> movieRepo.deleteById(id))
                 .then();
-    }
-
-    private void log(String methodName) {
-        if (log.isDebugEnabled()) {
-            log.debug("{}: thread={}", methodName, Thread.currentThread());
-        }
     }
 }

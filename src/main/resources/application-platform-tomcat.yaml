@@ -1,3 +1,8 @@
+server:
+  tomcat:
+    threads:
+      max: 5000
+
 spring:
   threads:
     virtual:
