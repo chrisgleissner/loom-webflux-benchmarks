@@ -3,10 +3,15 @@ on:
   workflow_call:
     inputs:
       scenarios-path:
-        required: true
+        required: false
         type: string
         default: config/scenarios.csv
-        description: Scenarios CSV file path
+        description: Path of CSV file with test scenarios
+      approaches:
+        required: false
+        type: string
+        default: platform-tomcat,loom-tomcat,loom-netty,webflux-netty
+        description: Comma-separated server implementation approaches to test
 
 jobs:
   build:
