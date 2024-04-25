@@ -3,5 +3,5 @@ loom-webflux:
 
 logging:
   level:
-    uk.gleissner.loomwebflux.movie: debug
+    uk.gleissner.loomwebflux: debug
 
