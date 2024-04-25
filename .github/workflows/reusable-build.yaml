@@ -50,7 +50,7 @@ jobs:
           sudo sysctl -w fs.file-max=1048576
           sudo sysctl -p
           sysctl net.ipv4.ip_local_port_range net.ipv4.tcp_tw_reuse fs.file-max
-          echo "Starting benchmark using scenarios file ${{ inputs.scenarios-path }} and approaches ${{ inputs.approaches }} "
+          echo "Starting benchmark using scenarios file ${{ inputs.scenarios-path }} and approaches ${{ inputs.approaches }}"
           ./benchmark.sh -a ${{ inputs.approaches }} ${{ inputs.scenarios-path }}
 
       - name: Verify results
