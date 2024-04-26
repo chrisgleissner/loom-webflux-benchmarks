@@ -58,7 +58,9 @@ jobs:
 
       - name: Verify results
         run: |
-          for approach in loom-tomcat loom-netty webflux-netty; do
+
+          IFS=',' read -ra approach_array <<< "${{ inputs.approaches }}"
+          for approach in "${approach_array[@]}"; do
             for scenarioPath in build/results/*; do
               chartFilename=$scenarioPath/$approach.png
               if ! file "$chartFilename" | grep -q "PNG image data"; then
