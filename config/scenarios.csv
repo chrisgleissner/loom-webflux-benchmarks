@@ -7,3 +7,4 @@ smoketest,get-time.js,100,5,5,0,5
 25k-vus-stepped-spike-get-movies,get-movies-stepped-vus-spike.js,100,25000,,0,300
 25k-vus-smooth-spike-get-movies,get-movies-smooth-vus-spike.js,100,25000,,0,300
 25k-vus-smooth-spike-get-post-movies,get-post-movies-smooth-vus-spike.js,100,25000,,0,300
+50k-vus-smooth-spike-get-post-movies,get-post-movies-smooth-vus-spike.js,100,50000,,0,300
