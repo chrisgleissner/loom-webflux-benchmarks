@@ -100,6 +100,7 @@ function load() {
 
   log "Disk use:"
   du -h -d2 bin "$resultsDir"
+  df -h
   
   rm "$k6OutputFile"
   log "Saved $latencyCsvFilename"
