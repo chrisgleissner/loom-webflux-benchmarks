@@ -19,7 +19,8 @@ serviceHost=localhost
 servicePort=8080
 serviceHealthUrl="http://$serviceHost:$servicePort/actuator/health"
 serviceApiBaseUrl="http://$serviceHost:$servicePort/$approach"
-resultDir=build/results/"$scenario"
+resultsDir=build/results
+resultDir="$resultsDir"/"$scenario"
 jvmCsvFilename="$resultDir/$approach"-jvm.csv
 latencyCsvFilename="$resultDir/$approach"-latency.csv
 systemCsvFilename="$resultDir/$approach"-system.csv
@@ -54,7 +55,6 @@ function load_and_measure_system() {
   phase=$1
   durationInSeconds=$2
   log "Starting $phase"
-
   rm -f bin/jvm.csv
 
   # Start system-measure.sh after some delay to give k6 time to initialize
@@ -74,7 +74,6 @@ function load_and_measure_system() {
     kill $systemMeasurePid
     log "Terminated system-measure.sh process which may have overrun. Does config/scenarios.csv specify a duration which matches the corresponding k6 duration?"
   fi
-
 
   rm -f "$latencyCsvFilename"
   rm -f "$systemCsvFilename"
@@ -99,6 +98,10 @@ function load() {
   # csv: metric_name,timestamp,metric_value,check,error,error_code,expected_response,group,method,name,proto,scenario,service,status
   cat "$k6OutputFile" | grep http_req_duration | awk -F, '{print $2","$3","$14","$5","$6}' > "$latencyCsvFilename"
 
+  log "Disk use:"
+  du -h -d2 bin "$resultsDir"
+  
+  rm "$k6OutputFile"
   log "Saved $latencyCsvFilename"
 }
 
