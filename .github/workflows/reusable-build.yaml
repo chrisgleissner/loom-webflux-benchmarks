@@ -56,9 +56,11 @@ jobs:
           echo "Starting benchmark using scenarios file ${{ inputs.scenarios-path }} and approaches ${{ inputs.approaches }}"
           ./benchmark.sh -a ${{ inputs.approaches }} ${{ inputs.scenarios-path }}
 
+      - name: Show disk use
+        run: df -h && du -h
+
       - name: Verify results
         run: |
-
           IFS=',' read -ra approach_array <<< "${{ inputs.approaches }}"
           for approach in "${approach_array[@]}"; do
             for scenarioPath in build/results/*; do
