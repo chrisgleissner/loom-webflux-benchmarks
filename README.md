@@ -22,8 +22,8 @@ High-level, the results of this benchmark are:
   using [reactive code](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html)).
 - For both approaches, we are able to scale out to the same number of virtual users (and thus TCP connections) before
   exhausting the CPU and running into time-outs due to rejected TCP connection requests.
-- In some cases ([60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies)), the P90 and P99
-  latencies were considerably lower for Virtual Threads on Netty when compared with WebFlux on Netty.
+- In some cases ([60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies)), the 90th and 99th percentile latencies (P90 and P99)
+  were considerably lower for Virtual Threads on Netty when compared with WebFlux on Netty.
 - Using Virtual Threads on Tomcat is not recommended for high load: we see higher resource use compared with using
   Netty, as well as time-outs.
 
