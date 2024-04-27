@@ -1,8 +1,8 @@
 # Benchmark of Java Virtual Threads vs WebFlux
 
-[![build](https://github.com/chrisgleissner/loom-webflux/actions/workflows/build.yaml/badge.svg)](https://github.com/chrisgleissner/loom-webflux/actions)
-[![benchmark](https://github.com/chrisgleissner/loom-webflux/actions/workflows/benchmark.yaml/badge.svg)](https://github.com/chrisgleissner/loom-webflux/actions/workflows/benchmark.yaml)
-[![soaktest](https://github.com/chrisgleissner/loom-webflux/actions/workflows/soaktest.yaml/badge.svg)](https://github.com/chrisgleissner/loom-webflux/actions/workflows/soaktest.yaml)
+[![build](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/build.yaml/badge.svg)](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions)
+[![benchmark](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/benchmark.yaml/badge.svg)](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/benchmark.yaml)
+[![soaktest](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/soaktest.yaml/badge.svg)](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/soaktest.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/chrisgleissner/loom-webflux-benchmarks/badge.svg)](https://coveralls.io/github/chrisgleissner/loom-webflux-benchmarks)
 
 This Java 21 project benchmarks a simple [Spring Boot 3.2](https://spring.io/projects/spring-boot) HTTP endpoint using
