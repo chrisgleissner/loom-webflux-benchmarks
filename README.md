@@ -238,7 +238,12 @@ Virtual Threads, then for WebFlux.
 1. `scenario`: Name of scenario. Is printed on top of each diagram.
 2. `k6Config`: Name of the [K6 Config File](https://k6.io/docs/using-k6/http-requests/) which is assumed to be in
    the `config` folder
-3. `delayInMillis`: Server-side delay of each request, in milliseconds.
+3. `delayCallDepth`: Depth of recursive HTTP call stack to `$approach/epoch-millis` endpoint prior to server-side delay.
+    - Mimics calls to upstream services which allow for reuse of the current platform thread.
+    - For example, a value of `0` means that the service waits for `$delayInMillis` milliseconds immediately upon receiving a request.
+    - Otherwise, it calls the `$approach/epoch-millis` with `${delayCallDepth - 1}`.
+    - This results in a recursive HTTP-request-based descent into the service, creating a call stack of depth `$delayCallDepth`.
+3. `delayInMillis`: Server-side delay of each request, in milliseconds. Mimics a delay such as invoking a DB which allow for reuse of the current platform thread.
 4. `connections`: Number of TCP connections, i.e. virtual users.
 5. `requestsPerSecond`: Number of requests per second across all connections. Left empty for scenarios where the number
    of requests per second is organically derived based on the number of connections, the request latency, and any

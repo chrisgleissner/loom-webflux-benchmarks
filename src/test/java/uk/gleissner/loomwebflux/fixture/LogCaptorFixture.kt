@@ -5,13 +5,15 @@ import org.assertj.core.api.Assertions.assertThat
 import uk.gleissner.loomwebflux.controller.LoomWebFluxController.*
 
 object LogCaptorFixture {
-    fun LogCaptor.assertCorrectThreadType(approach: String) {
+    fun LogCaptor.assertCorrectThreadType(approach: String, expectedLogCount: Int = 1) {
         val expectedThreadNameFragment =
             // TODO cg The PLATFORM_TOMCAT approach uses platform threads in prd, but VirtualThreads during test.
             if (approach == PLATFORM_TOMCAT || approach == LOOM_TOMCAT || approach == LOOM_NETTY) ".*?thread=VirtualThread\\[#\\d+,task-\\d+\\]\\/runnable@ForkJoinPool-\\d+-worker-\\d+.*?"
             else ".*?thread=Thread\\[#\\d+,reactor-http-epoll-\\d+,\\d+,main].*?"
-        assertThat(debugLogs.filter { it.contains("thread=") }).allSatisfy {
-            assertThat(it).matches(expectedThreadNameFragment)
-        }
+        assertThat(debugLogs.filter { it.contains("thread=") })
+            .hasSize(expectedLogCount)
+            .allSatisfy {
+                assertThat(it).matches(expectedThreadNameFragment)
+            }
     }
 }

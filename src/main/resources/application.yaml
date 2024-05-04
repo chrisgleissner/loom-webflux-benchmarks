@@ -15,13 +15,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health, heapdump, shutdown, threaddump"
+        include: "health, shutdown"
   endpoint:
     shutdown:
       enabled: true
 
 loom-webflux:
-  default-delay: 100ms
   repo-read-only: true
   jvm-metrics-csv-path: bin/jvm.csv
 

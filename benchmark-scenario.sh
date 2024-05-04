@@ -1,19 +1,57 @@
 #!/bin/bash
 # Performs a benchmark of Loom and WebFlux for a single scenario.
 
-if [[ $# -ne 8 ]] ; then
-    echo 'Syntax: benchmark-scenario.sh <approach> <scenario> <k6Config> <delayInMillis> <connections> <requestsPerSecond> <testDurationInSeconds>'
+print_usage() {
+    echo "Syntax: $(basename "$0") [-h] -a <approaches> -s <scenario> -k <k6Config> -d <delayCallDepth> -m <delayInMillis> -c <connections> -r <requestsPerSecond> -w <warmupDurationInSeconds> -t <testDurationInSeconds> -C <keepCsvFiles>"
+    echo "Options:"
+    echo "  -a approaches:                Comma-separated list of approaches to test: platform-tomcat,loom-tomcat,loom-netty,webflux-netty"
+    echo "  -s <scenario>                 The scenario to benchmark."
+    echo "  -k <k6Config>                 The k6 configuration file."
+    echo "  -d <delayCallDepth>           The delay call depth. If > 0, the service calls itself recursively the specified number of times before delaying."
+    echo "  -m <delayInMillis>            The delay in milliseconds."
+    echo "  -c <connections>              The number of connections, i.e. virtual users."
+    echo "  -r <requestsPerSecond>        The number of requests per second across all connections."
+    echo "  -w <warmupDurationInSeconds>  The duration of the warmup phase in seconds."
+    echo "  -t <testDurationInSeconds>    The duration of the test phase in seconds."
+    echo "  -C <keepCsvFiles>             Keep CSV files used to create chart. Can be true or false."
+    echo "  -h                            Print this help"
     exit 1
-fi
+}
 
-approach=$1
-scenario=$2
-k6Config=$3
-delayInMillis=$4
-connections=$5
-requestsPerSecond=$6
-warmupDurationInSeconds=$7
-testDurationInSeconds=$8
+while getopts "h:a:s:k:d:m:c:r:w:t:C:" opt; do
+  case ${opt} in
+    a) approach=$OPTARG ;;
+    s) scenario=$OPTARG ;;
+    k) k6Config=$OPTARG ;;
+    d) delayCallDepth=$OPTARG ;;
+    m) delayInMillis=$OPTARG ;;
+    c) connections=$OPTARG ;;
+    r) requestsPerSecond=$OPTARG ;;
+    w) warmupDurationInSeconds=$OPTARG ;;
+    t) testDurationInSeconds=$OPTARG ;;
+    C) keep_csv=$OPTARG ;;
+    h)
+      print_usage
+      exit 0
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      print_usage
+      exit 1
+      ;;
+    : )
+      echo "Invalid option: $OPTARG requires an argument" 1>&2
+      print_usage
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [ -z "$approach" ] || [ -z "$scenario" ] || [ -z "$k6Config" ] || [ -z "$delayCallDepth" ] || [ -z "$delayInMillis" ] || [ -z "$connections" ] || [ -z "$requestsPerSecond" ] || [ -z "$warmupDurationInSeconds" ] || [ -z "$testDurationInSeconds" ]; then
+  echo "All arguments are required"
+  print_usage
+fi
 
 serviceHost=localhost
 servicePort=8080
@@ -75,9 +113,14 @@ function load_and_measure_system() {
     log "Terminated system-measure.sh process which may have overrun. Does config/scenarios.csv specify a duration which matches the corresponding k6 duration?"
   fi
 
-  rm -f "$latencyCsvFilename"
-  rm -f "$systemCsvFilename"
-  rm -f "$jvmCsvFilename"
+  if [ "$keep_csv" == "true" ]; then
+    log "Keeping CSV files"
+  else
+    log "Removing CSV files"
+    rm -f "$latencyCsvFilename"
+    rm -f "$systemCsvFilename"
+    rm -f "$jvmCsvFilename"
+  fi
 }
 
 function verify_chart_exists() {
@@ -93,9 +136,10 @@ function load() {
   k6OutputFile=bin/k6.csv
 
   log "Issuing requests for ${_durationInSeconds}s using ${k6ConfigFile}..."
-  k6 run --env DURATION_IN_SECONDS="${_durationInSeconds}" --out csv="$k6OutputFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env DELAY_IN_MILLIS="$delayInMillis" --env SERVICE_API_BASE_URL="$serviceApiBaseUrl" --env VUS="$connections" --env RPS="$requestsPerSecond" "$k6ConfigFile"
+  k6 run --env DURATION_IN_SECONDS="${_durationInSeconds}" --out csv="$k6OutputFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env APPROACH="$approach" --env DELAY_CALL_DEPTH="$delayCallDepth" --env DELAY_IN_MILLIS="$delayInMillis" --env SERVICE_API_BASE_URL="$serviceApiBaseUrl" --env VUS="$connections" --env RPS="$requestsPerSecond" "$k6ConfigFile"
 
   # csv: metric_name,timestamp,metric_value,check,error,error_code,expected_response,group,method,name,proto,scenario,service,status
+  # shellcheck disable=SC2002
   cat "$k6OutputFile" | grep http_req_duration | awk -F, '{print $2","$3","$14","$5","$6}' > "$latencyCsvFilename"
 
   log "Disk use:"
@@ -108,7 +152,7 @@ function load() {
 
 printf "\n\n"
 log "==> Benchmark of $scenario scenario for $approach approach <=="
-log "k6Config=$k6Config, delayInMillis=$delayInMillis, connections=$connections, requestsPerSecond=$requestsPerSecond, warmupDurationInSeconds=$warmupDurationInSeconds, testDurationInSeconds=$testDurationInSeconds"
+log "k6Config=$k6Config, delayCallDepth=$delayCallDepth, delayInMillis=$delayInMillis, connections=$connections, requestsPerSecond=$requestsPerSecond, warmupDurationInSeconds=$warmupDurationInSeconds, testDurationInSeconds=$testDurationInSeconds"
 
 start_service
 benchmark_service
