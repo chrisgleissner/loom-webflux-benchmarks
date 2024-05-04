@@ -71,6 +71,14 @@ sequenceDiagram
     service-->-k6s: movies
 ```
 
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+
 ### REST APIs
 
 The microservice under test exposes several RESTful APIs. In the following descriptions, `$approach` is the approach
