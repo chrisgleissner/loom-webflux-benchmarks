@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import uk.gleissner.loomwebflux.Approaches;
 import uk.gleissner.loomwebflux.controller.LoomWebFluxController;
 
 import static uk.gleissner.loomwebflux.Approaches.LOOM_NETTY;
 import static uk.gleissner.loomwebflux.Approaches.LOOM_TOMCAT;
 import static uk.gleissner.loomwebflux.Approaches.PLATFORM_TOMCAT;
+import static uk.gleissner.loomwebflux.Approaches.WEBFLUX_NETTY;
 
 @RestController
 public class TimeController extends LoomWebFluxController {
@@ -29,7 +29,7 @@ public class TimeController extends LoomWebFluxController {
         return waitOrFetchEpochMillis(delayCallDepth, delayInMillis);
     }
 
-    @GetMapping({REACTIVE + API_PATH, Approaches.WEBFLUX_NETTY + API_PATH})
+    @GetMapping({REACTIVE + API_PATH, WEBFLUX_NETTY + API_PATH})
     @ResponseBody
     public Mono<Long> epochMillisReactive(@RequestParam Long delayInMillis, @RequestParam Integer delayCallDepth) {
         log("epochMillisReactive");
