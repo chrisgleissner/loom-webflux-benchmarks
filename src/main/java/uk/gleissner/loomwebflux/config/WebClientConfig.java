@@ -12,7 +12,9 @@ class WebClientConfig {
     private final Environment environment;
 
     @Bean
-    WebClient webClient() {
-        return WebClient.create("http://localhost:" + environment.getProperty("local.server.port"));
+    WebClient webClient(WebClient.Builder builder) {
+        return builder
+                .baseUrl("http://localhost:" + environment.getProperty("local.server.port"))
+                .build();
     }
 }

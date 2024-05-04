@@ -1,10 +1,10 @@
 package uk.gleissner.loomwebflux.time;
 
-import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import uk.gleissner.loomwebflux.Approaches;
 import uk.gleissner.loomwebflux.controller.LoomWebFluxController;
@@ -18,8 +18,8 @@ public class TimeController extends LoomWebFluxController {
 
     public static final String API_PATH = "/epoch-millis";
 
-    TimeController(Environment environment) {
-        super(environment);
+    TimeController(WebClient webClient) {
+        super(webClient);
     }
 
     @GetMapping({IMPERATIVE + API_PATH, PLATFORM_TOMCAT + API_PATH, LOOM_TOMCAT + API_PATH, LOOM_NETTY + API_PATH})

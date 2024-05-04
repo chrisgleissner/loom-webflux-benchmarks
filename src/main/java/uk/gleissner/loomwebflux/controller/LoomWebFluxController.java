@@ -1,9 +1,7 @@
 package uk.gleissner.loomwebflux.controller;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.env.Environment;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import uk.gleissner.loomwebflux.time.TimeController;
@@ -17,17 +15,15 @@ public abstract class LoomWebFluxController {
     protected static final String REACTIVE = "reactive";
     protected static final String IMPERATIVE = "imperative";
 
-    private final Environment environment;
-
-    @Getter(lazy = true)
-    private final WebClient webClient = WebClient.create("http://localhost:" + environment.getProperty("local.server.port"));
+    private final WebClient webClient;
 
     protected Mono<Long> fetchEpochMillis(String approach, Integer delayCallDepth, Long delayInMillis) {
-        return getWebClient().get().uri(uriBuilder -> uriBuilder
+        return webClient.get().uri(uriBuilder -> uriBuilder
                         .path("/" + approach + TimeController.API_PATH)
                         .queryParam("delayCallDepth", delayCallDepth)
                         .queryParam("delayInMillis", delayInMillis)
-                        .build()).retrieve()
+                        .build())
+                .retrieve()
                 .bodyToMono(Long.class);
     }
 
