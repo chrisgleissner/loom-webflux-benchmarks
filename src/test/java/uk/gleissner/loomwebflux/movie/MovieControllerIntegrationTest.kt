@@ -71,7 +71,6 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
             client.get().uri {
                 it.path("$approach/movies")
                     .queryParam("directorLastName", directorLastName)
-                    .queryParam("approach", approach)
                     .queryParam("delayInMillis", delayInMillis)
                     .queryParam("delayCallDepth", delayCallDepth)
                     .build()
@@ -88,7 +87,6 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
             client.post().uri {
                 it
                     .path("$approach/movies")
-                    .queryParam("approach", approach)
                     .queryParam("delayInMillis", delayInMillis)
                     .queryParam("delayCallDepth", delayCallDepth)
                     .build()
@@ -107,7 +105,6 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
         client.delete().uri {
             it
                 .path("$approach/movies/$movieId")
-                .queryParam("approach", approach)
                 .queryParam("delayInMillis", delayInMillis)
                 .queryParam("delayCallDepth", delayCallDepth)
                 .build()

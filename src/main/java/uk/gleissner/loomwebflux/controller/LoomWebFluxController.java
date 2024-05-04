@@ -14,6 +14,9 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public abstract class LoomWebFluxController {
 
+    protected static final String REACTIVE = "reactive";
+    protected static final String IMPERATIVE = "imperative";
+
     private final Environment environment;
 
     @Getter(lazy = true)
@@ -28,20 +31,20 @@ public abstract class LoomWebFluxController {
                 .bodyToMono(Long.class);
     }
 
-    protected Long waitOrFetchEpochMillis(String approach, int delayCallDepth, long delayInMillis) throws InterruptedException {
+    protected Long waitOrFetchEpochMillis(int delayCallDepth, long delayInMillis) throws InterruptedException {
         if (delayCallDepth == 0) {
             Thread.sleep(Duration.ofMillis(delayInMillis));
             return System.currentTimeMillis();
         } else {
-            return fetchEpochMillis(approach, delayCallDepth - 1, delayInMillis).block();
+            return fetchEpochMillis(IMPERATIVE, delayCallDepth - 1, delayInMillis).block();
         }
     }
 
-    protected Mono<Long> waitOrFetchEpochMillisReactive(String approach, int delayCallDepth, long delayInMillis) {
+    protected Mono<Long> waitOrFetchEpochMillisReactive(int delayCallDepth, long delayInMillis) {
         return Mono
                 .delay(Duration.ofMillis(delayCallDepth == 0 ? delayInMillis : 0))
                 .flatMap(d -> delayCallDepth > 0
-                        ? fetchEpochMillis(approach, delayCallDepth - 1, delayInMillis)
+                        ? fetchEpochMillis(REACTIVE, delayCallDepth - 1, delayInMillis)
                         : Mono.just(System.currentTimeMillis()));
     }
 
