@@ -24,26 +24,26 @@ public class DeleteMovieController extends MovieController {
 
     @DeleteMapping(PLATFORM_TOMCAT + API_PATH + "/{id}")
     public void deleteMovieByIdPlatformTomcat(@PathVariable UUID id,
-                                              @RequestParam Long delayInMillis,
-                                              @RequestParam Integer delayCallDepth) throws InterruptedException {
-        deleteMovieById(id, delayInMillis, delayCallDepth, PLATFORM_TOMCAT);
+                                              @RequestParam Integer delayCallDepth,
+                                              @RequestParam Long delayInMillis) throws InterruptedException {
+        deleteMovieById(id, delayCallDepth, delayInMillis, PLATFORM_TOMCAT);
     }
 
     @DeleteMapping(LOOM_TOMCAT + API_PATH + "/{id}")
     public void deleteMovieByIdLoomTomcat(@PathVariable UUID id,
-                                          @RequestParam Long delayInMillis,
-                                          @RequestParam Integer delayCallDepth) throws InterruptedException {
-        deleteMovieById(id, delayInMillis, delayCallDepth, LOOM_TOMCAT);
+                                          @RequestParam Integer delayCallDepth,
+                                          @RequestParam Long delayInMillis) throws InterruptedException {
+        deleteMovieById(id, delayCallDepth, delayInMillis, LOOM_TOMCAT);
     }
 
     @DeleteMapping(LOOM_NETTY + API_PATH + "/{id}")
     public void deleteMovieByIdLoomNetty(@PathVariable UUID id,
-                                         @RequestParam Long delayInMillis,
-                                         @RequestParam Integer delayCallDepth) throws InterruptedException {
-        deleteMovieById(id, delayInMillis, delayCallDepth, LOOM_NETTY);
+                                         @RequestParam Integer delayCallDepth,
+                                         @RequestParam Long delayInMillis) throws InterruptedException {
+        deleteMovieById(id, delayCallDepth, delayInMillis, LOOM_NETTY);
     }
 
-    private void deleteMovieById(UUID id, Long delayInMillis, Integer delayCallDepth, String approach) throws InterruptedException {
+    private void deleteMovieById(UUID id, Integer delayCallDepth, Long delayInMillis, String approach) throws InterruptedException {
         log("deleteMoviesById");
         waitOrFetchEpochMillis(approach, delayCallDepth, delayInMillis);
         movieRepo.deleteById(id);
@@ -51,10 +51,10 @@ public class DeleteMovieController extends MovieController {
 
     @DeleteMapping(WEBFLUX_NETTY + API_PATH + "/{id}")
     public Mono<Void> deleteMovieByIdReactive(@PathVariable UUID id,
-                                              @RequestParam Long delayInMillis,
-                                              @RequestParam Integer delayCallDepth) {
+                                              @RequestParam Integer delayCallDepth,
+                                              @RequestParam Long delayInMillis) {
         log("deleteMoviesByIdReactive");
-        return waitOrFetchEpochMillisMono(WEBFLUX_NETTY, delayCallDepth, delayInMillis)
+        return waitOrFetchEpochMillisReactive(WEBFLUX_NETTY, delayCallDepth, delayInMillis)
                 .then(Mono.fromRunnable(() -> movieRepo.deleteById(id)));
     }
 }

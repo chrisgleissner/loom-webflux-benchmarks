@@ -19,10 +19,9 @@ public abstract class LoomWebFluxController {
     @Getter(lazy = true)
     private final WebClient webClient = WebClient.create("http://localhost:" + environment.getProperty("local.server.port"));
 
-    protected Mono<Long> fetchEpochMillisMono(String approach, Long delayInMillis, Integer delayCallDepth) {
+    protected Mono<Long> fetchEpochMillis(String approach, Integer delayCallDepth, Long delayInMillis) {
         return getWebClient().get().uri(uriBuilder -> uriBuilder
                         .path("/" + approach + TimeController.API_PATH)
-                        .queryParam("approach", approach)
                         .queryParam("delayCallDepth", delayCallDepth)
                         .queryParam("delayInMillis", delayInMillis)
                         .build()).retrieve()
@@ -32,16 +31,18 @@ public abstract class LoomWebFluxController {
     protected Long waitOrFetchEpochMillis(String approach, int delayCallDepth, long delayInMillis) throws InterruptedException {
         if (delayCallDepth == 0) {
             Thread.sleep(Duration.ofMillis(delayInMillis));
-            return 0L;
+            return System.currentTimeMillis();
         } else {
-            return fetchEpochMillisMono(approach, delayInMillis, delayCallDepth - 1).block();
+            return fetchEpochMillis(approach, delayCallDepth - 1, delayInMillis).block();
         }
     }
 
-    protected Mono<Long> waitOrFetchEpochMillisMono(String approach, int delayCallDepth, long delayInMillis) {
+    protected Mono<Long> waitOrFetchEpochMillisReactive(String approach, int delayCallDepth, long delayInMillis) {
         return Mono
                 .delay(Duration.ofMillis(delayCallDepth == 0 ? delayInMillis : 0))
-                .flatMap(d -> delayCallDepth > 0 ? fetchEpochMillisMono(approach, delayInMillis, delayCallDepth - 1) : Mono.just(0L));
+                .flatMap(d -> delayCallDepth > 0
+                        ? fetchEpochMillis(approach, delayCallDepth - 1, delayInMillis)
+                        : Mono.just(System.currentTimeMillis()));
     }
 
     protected void log(String methodName) {
