@@ -65,18 +65,9 @@ sequenceDiagram
     participant service
     k6s->>+service: GET /$approach/movies
     service->>+service: GET /$approach/epoch-millis
-
     service->>service: Wait $delayInMillis
     service-->>-service
-    service-->-k6s: movies
-```
-
-```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
+    service-->>-k6s: movies
 ```
 
 ### REST APIs
