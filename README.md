@@ -50,11 +50,26 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 
 * The benchmark is driven by [k6](https://k6.io/docs/) which repeatedly issues HTTP requests to a service listening
   at http://localhost:8080/
-* The service implementation consists of two steps:
-    1. It waits `$delayInMillis` (default: `100`) to mimic a network call, filesystem wait, or similar. Whilst the
+* The service implementation consists of 3 steps:
+    1. It calls its own `/$approach/epoch-millis` endpoint recursively `$delayCallDepth` times to mimic calls to upstream service(s). 
+    2. It waits `$delayInMillis` (default: `100`) to mimic a network call, filesystem wait, or similar. Whilst the
        request waits, its operating system thread can be reused by another request. Both Loom and WebFlux use their
        respective idiomatic ways to wait.
-    2. It then returns a response depending on the called REST endpoint.
+    3. It then returns a response depending on the called REST endpoint.
+
+For example, a call to get all movies with `$delayCallDepth=1` and `$delayInMillis=100` behaves as follows:
+
+```mermaid
+sequenceDiagram
+    participant k6s
+    participant service
+    k6s->>+service: GET /$approach/movies
+    service->>+service: GET /$approach/epoch-millis
+
+    service->>service: Wait $delayInMillis
+    service-->>-service
+    service-->-k6s: movies
+```
 
 ### REST APIs
 
