@@ -67,6 +67,7 @@ sequenceDiagram
     service->>+service: GET /$approach/epoch-millis
     service->>service: Wait $delayInMillis
     service-->>-service: Return epoch millis
+    service->>service: Find movies
     service-->>-k6s: Return movies
 ```
 
