@@ -8,8 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import uk.gleissner.loomwebflux.Approaches
 import uk.gleissner.loomwebflux.controller.LoomWebFluxController
-import uk.gleissner.loomwebflux.controller.LoomWebFluxController.*
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
@@ -28,7 +28,12 @@ abstract class AbstractIntegrationTest {
     companion object {
 
         @JvmStatic
-        fun approaches(): List<String> = listOf(PLATFORM_TOMCAT, LOOM_TOMCAT, LOOM_NETTY, WEBFLUX_NETTY)
+        fun approaches(): List<String> = listOf(
+            Approaches.PLATFORM_TOMCAT,
+            Approaches.LOOM_TOMCAT,
+            Approaches.LOOM_NETTY,
+            Approaches.WEBFLUX_NETTY
+        )
 
         @JvmStatic
         fun approachesAndDelayCallDepths(): ArgumentSets {

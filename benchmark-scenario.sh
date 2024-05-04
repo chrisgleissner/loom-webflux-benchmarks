@@ -136,7 +136,7 @@ function load() {
   k6OutputFile=bin/k6.csv
 
   log "Issuing requests for ${_durationInSeconds}s using ${k6ConfigFile}..."
-  k6 run --env DURATION_IN_SECONDS="${_durationInSeconds}" --out csv="$k6OutputFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env APPROACH="$approach" --env DELAY_CALL_DEPTH="$delayCallDepth" --env DELAY_IN_MILLIS="$delayInMillis" --env SERVICE_API_BASE_URL="$serviceApiBaseUrl" --env VUS="$connections" --env RPS="$requestsPerSecond" "$k6ConfigFile"
+  k6 run --env DURATION_IN_SECONDS="${_durationInSeconds}" --out csv="$k6OutputFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env DELAY_CALL_DEPTH="$delayCallDepth" --env DELAY_IN_MILLIS="$delayInMillis" --env SERVICE_API_BASE_URL="$serviceApiBaseUrl" --env VUS="$connections" --env RPS="$requestsPerSecond" "$k6ConfigFile"
 
   # csv: metric_name,timestamp,metric_value,check,error,error_code,expected_response,group,method,name,proto,scenario,service,status
   # shellcheck disable=SC2002

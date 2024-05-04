@@ -1,7 +1,9 @@
 package uk.gleissner.loomwebflux.controller;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpRequest;
+import org.springframework.core.env.Environment;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import uk.gleissner.loomwebflux.time.TimeController;
@@ -9,18 +11,16 @@ import uk.gleissner.loomwebflux.time.TimeController;
 import java.time.Duration;
 
 @Slf4j
+@RequiredArgsConstructor
 public abstract class LoomWebFluxController {
-    public static final String PLATFORM_TOMCAT = "platform-tomcat";
-    public static final String LOOM_TOMCAT = "loom-tomcat";
-    public static final String LOOM_NETTY = "loom-netty";
-    public static final String WEBFLUX_NETTY = "webflux-netty";
 
-    protected String approach(HttpRequest request) {
-        return request.getURI().getPath().split("/")[0];
-    }
+    private final Environment environment;
 
-    protected Mono<Long> fetchEpochMillisMono(WebClient webClient, String approach, Long delayInMillis, Integer delayCallDepth) {
-        return webClient.get().uri(uriBuilder -> uriBuilder
+    @Getter(lazy = true)
+    private final WebClient webClient = WebClient.create("http://localhost:" + environment.getProperty("local.server.port"));
+
+    protected Mono<Long> fetchEpochMillisMono(String approach, Long delayInMillis, Integer delayCallDepth) {
+        return getWebClient().get().uri(uriBuilder -> uriBuilder
                         .path("/" + approach + TimeController.API_PATH)
                         .queryParam("approach", approach)
                         .queryParam("delayCallDepth", delayCallDepth)
@@ -29,19 +29,19 @@ public abstract class LoomWebFluxController {
                 .bodyToMono(Long.class);
     }
 
-    protected Long waitOrFetchEpochMillis(WebClient webClient, String approach, int delayCallDepth, long delayInMillis) throws InterruptedException {
+    protected Long waitOrFetchEpochMillis(String approach, int delayCallDepth, long delayInMillis) throws InterruptedException {
         if (delayCallDepth == 0) {
             Thread.sleep(Duration.ofMillis(delayInMillis));
             return 0L;
         } else {
-            return fetchEpochMillisMono(webClient, approach, delayInMillis, delayCallDepth - 1).block();
+            return fetchEpochMillisMono(approach, delayInMillis, delayCallDepth - 1).block();
         }
     }
 
-    protected Mono<Long> waitOrFetchEpochMillisMono(WebClient webClient, String approach, int delayCallDepth, long delayInMillis) {
+    protected Mono<Long> waitOrFetchEpochMillisMono(String approach, int delayCallDepth, long delayInMillis) {
         return Mono
                 .delay(Duration.ofMillis(delayCallDepth == 0 ? delayInMillis : 0))
-                .flatMap(d -> delayCallDepth > 0 ? fetchEpochMillisMono(webClient, approach, delayInMillis, delayCallDepth - 1) : Mono.just(0L));
+                .flatMap(d -> delayCallDepth > 0 ? fetchEpochMillisMono(approach, delayInMillis, delayCallDepth - 1) : Mono.just(0L));
     }
 
     protected void log(String methodName) {

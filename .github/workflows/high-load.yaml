@@ -1,7 +1,7 @@
 name: high-load
 on:
   schedule:
-    - cron: '0 11 2 * *' # 2nd of each month at 11am
+    - cron: '0 13 2 * *' # 2nd of each month at 1pm
   workflow_dispatch:
 jobs:
   call-reusable-build:

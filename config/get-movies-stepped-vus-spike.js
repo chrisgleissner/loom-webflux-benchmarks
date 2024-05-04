@@ -1,7 +1,7 @@
 import http from 'k6/http';
 import {sleep} from 'k6';
 
-const url = __ENV.SERVICE_API_BASE_URL + "/movies?directorLastName=Allen&approach=" + __ENV.APPROACH + "&delayCallDepth=" + __ENV.DELAY_CALL_DEPTH + "&delayInMillis=" + __ENV.DELAY_IN_MILLIS
+const url = __ENV.SERVICE_API_BASE_URL + "/movies?directorLastName=Allen&delayCallDepth=" + __ENV.DELAY_CALL_DEPTH + "&delayInMillis=" + __ENV.DELAY_IN_MILLIS
 
 const rampUpStepCount = 4
 const rampUpStepSeconds = (0.8 * __ENV.DURATION_IN_SECONDS / rampUpStepCount)

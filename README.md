@@ -51,7 +51,7 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 * The benchmark is driven by [k6](https://k6.io/docs/) which repeatedly issues HTTP requests to a service listening
   at http://localhost:8080/
 * The service implementation consists of 3 steps:
-    1. It calls its own `/$approach/epoch-millis` endpoint recursively `$delayCallDepth` times to mimic calls to upstream service(s). 
+    1. It calls its own `/$approach/epoch-millis` endpoint recursively `$delayCallDepth` times to mimic calls to upstream service(s).
     2. It waits `$delayInMillis` (default: `100`) to mimic a network call, filesystem wait, or similar. Whilst the
        request waits, its operating system thread can be reused by another request. Both Loom and WebFlux use their
        respective idiomatic ways to wait.
@@ -78,7 +78,6 @@ under test and can be one of `loom-tomcat`, `loom-netty`, and `webflux-netty`.
 
 All REST APIs support the following query parameters:
 
-- `approach`: Approach under test. Needs to be specified both within path and as query parameter in order to allow for consistent parsing across approaches.
 - `delayCallDepth`: Depth of recursive HTTP call stack to `$approach/epoch-millis` endpoint prior to server-side delay; see [Scenario Columns](#Columns) for more details.
 - `delayInMillis`: Server-side delay in milliseconds; see [Scenario Columns](#Columns) for more details.
 
@@ -220,20 +219,15 @@ All approaches use the same Spring Boot 3.2 version.
 
 #### Standard Scenarios ([config/scenarios.csv](config/scenarios.csv))
 
-| Scenario                                                                                   | Domain | Description                           | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
-|--------------------------------------------------------------------------------------------|--------|---------------------------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
-| smoketest                                                                                  | Time   | Smoke test                            | 5                  | 5                           | 0                    | 100               | 0                |
-| [5k-vus-and-rps-get-time](#5k-vus-and-rps-get-time)                                        | Time   | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
-| [5k-vus-and-rps-get-movies](#5k-vus-and-rps-get-movies)                                    | Movies | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
-| [5k-vus-and-rps-get-movies-call-depth-1](#5k-vus-and-rps-get-movies)                       | Movies | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 1                |
-| [5k-vus-and-rps-get-movies-call-depth-2](#5k-vus-and-rps-get-movies)                       | Movies | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 2                |
-| [5k-vus-and-rps-get-movies-call-depth-5](#5k-vus-and-rps-get-movies)                       | Movies | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 5                |
-| [10k-vus-and-rps-get-movies](#10k-vus-and-rps-get-movies)                                  | Movies | Constant users, constant request rate | 10,000             | 10,000                      | 0                    | 100               | 0                |
-| [25k-vus-stepped-spike-get-movies](#25k-vus-stepped-spike-get-movies)                      | Movies | Stepped user spike                    | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
-| [25k-vus-smooth-spike-get-movies](#25k-vus-smooth-spike-get-movies)                        | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
-| [25k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies)              | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
-| [25k-vus-smooth-spike-get-post-movies-call-depth-1](#25k-vus-smooth-spike-get-post-movies) | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 1                |
-| [60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies)              | Movies | Smooth user spike                     | 0 - 60,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| Scenario                                                                      | Domain | Description                           | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
+|-------------------------------------------------------------------------------|--------|---------------------------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
+| smoketest                                                                     | Time   | Smoke test                            | 5                  | 5                           | 0                    | 100               | 0                |
+| [5k-vus-and-rps-get-time](#5k-vus-and-rps-get-time)                           | Time   | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
+| [5k-vus-and-rps-get-movies](#5k-vus-and-rps-get-movies)                       | Movies | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
+| [10k-vus-and-rps-get-movies](#10k-vus-and-rps-get-movies)                     | Movies | Constant users, constant request rate | 10,000             | 10,000                      | 0                    | 100               | 0                |
+| [25k-vus-stepped-spike-get-movies](#25k-vus-stepped-spike-get-movies)         | Movies | Stepped user spike                    | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| [25k-vus-smooth-spike-get-movies](#25k-vus-smooth-spike-get-movies)           | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| [25k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies) | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
 
 #### High-Load Scenarios ([config/scenarios-high-load.csv](config/scenarios-high-load.csv))
 
