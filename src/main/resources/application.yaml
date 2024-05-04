@@ -24,5 +24,8 @@ management:
 loom-webflux:
   repo-read-only: true
   jvm-metrics-csv-path: bin/jvm.csv
+  web-client:
+    max-connections: 65000
+    pending-acquire-max-count: ${loom-webflux.web-client.max-connections}
 
 
