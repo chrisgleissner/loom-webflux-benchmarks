@@ -66,8 +66,8 @@ sequenceDiagram
     k6s->>+service: GET /$approach/movies
     service->>+service: GET /$approach/epoch-millis
     service->>service: Wait $delayInMillis
-    service-->>-service
-    service-->>-k6s: movies
+    service-->>-service: Return epoch millis
+    service-->>-k6s: Return movies
 ```
 
 ### REST APIs
