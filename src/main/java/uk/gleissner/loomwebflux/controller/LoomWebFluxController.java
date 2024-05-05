@@ -13,7 +13,7 @@ import java.time.Duration;
 public abstract class LoomWebFluxController {
 
     protected static final String REACTIVE = "reactive";
-    protected static final String IMPERATIVE = "imperative";
+    protected static final String NON_REACTIVE = "non-reactive";
 
     private final WebClient webClient;
 
@@ -32,7 +32,7 @@ public abstract class LoomWebFluxController {
             Thread.sleep(Duration.ofMillis(delayInMillis));
             return System.currentTimeMillis();
         } else {
-            return fetchEpochMillis(IMPERATIVE, delayCallDepth - 1, delayInMillis).block();
+            return fetchEpochMillis(NON_REACTIVE, delayCallDepth - 1, delayInMillis).block();
         }
     }
 

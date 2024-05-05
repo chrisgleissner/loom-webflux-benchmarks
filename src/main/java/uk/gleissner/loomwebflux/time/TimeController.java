@@ -22,7 +22,7 @@ public class TimeController extends LoomWebFluxController {
         super(webClient);
     }
 
-    @GetMapping({IMPERATIVE + API_PATH, PLATFORM_TOMCAT + API_PATH, LOOM_TOMCAT + API_PATH, LOOM_NETTY + API_PATH})
+    @GetMapping({NON_REACTIVE + API_PATH, PLATFORM_TOMCAT + API_PATH, LOOM_TOMCAT + API_PATH, LOOM_NETTY + API_PATH})
     @ResponseBody
     public Long epochMillis(@RequestParam Long delayInMillis, @RequestParam Integer delayCallDepth) throws InterruptedException {
         log("epochMillis");
