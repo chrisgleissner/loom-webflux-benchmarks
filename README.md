@@ -11,7 +11,7 @@ by [Project Loom, JEP 444](https://openjdk.org/jeps/444)) using Tomcat and Netty
 with [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html) (relying
 on [Project Reactor](https://projectreactor.io/)) using Netty.
 
-### TL;DR
+## TL;DR
 
 High-level, the results of this benchmark are:
 
@@ -27,7 +27,7 @@ High-level, the results of this benchmark are:
 - Using Virtual Threads on Tomcat is not recommended for high load: we see higher resource use compared with using
   Netty, as well as time-outs.
 
-### Background
+## Background
 
 Both Spring WebFlux and Virtual Threads are alternative technologies to create Java microservices that support a high
 number of concurrent users, mapping all incoming requests to very few shared operating system threads. This reduces the
@@ -36,27 +36,29 @@ resource overhead incurred by dedicating a single operating system thread to eac
 Spring WebFlux was first introduced in September 2017. Virtual Threads were first introduced as preview feature with
 Java 19 and were fully rolled out with Java 21 in September 2023.
 
-### Features
+## Features
 
-* Fully automated and CLI-driven via `benchmark-all.sh`.
-* Test scenario support, see `config/scenario.csv`.
-* Produces single PNG plot using [Matplotlib](https://matplotlib.org/) for each scenario and approach (Loom or WebFlux),
-  containing:
+* Fully automated and CLI-driven by running a single command: `benchmark.sh`.
+* Different test scenario files, each containing one or more scenarios. Example: `config/scenario.csv`.
+* Operating system thread re-use by waiting and by performing transitive HTTP calls of configurable call depth.
+* Interacts with realistic JSON APIs.
+* Produces single PNG image via [Matplotlib](https://matplotlib.org/) for each combination of scenario and approach which contains:
     * Raw latencies and P50/90/99 percentiles, as well as any errors.
     * System metrics for CPU, RAM, sockets, and network throughput.
     * JVM metrics such as heap usage, garbage collections (GCs), and platform thread count.
 
-### Design
+## Design
 
-* The benchmark is driven by [k6](https://k6.io/docs/) which repeatedly issues HTTP requests to a service listening
-  at http://localhost:8080/
-* Each of the service's REST endpoints has of the same 3 stages:
-    1. **Call**: If `$delayCallDepth > 0`, call `GET /$approach/epoch-millis` recursively `$delayCallDepth` times to mimic calls to upstream service(s).
-        - All approaches use `Spring Boot`'s [WebFlux WebClient](https://docs.spring.io/spring-framework/reference/web/webflux-webclient.html) based on Netty.
-    2. **Wait**: If `$delayCallDepth = 0`, wait `$delayInMillis` (default: `100`) to mimic the delay incurred by a network call, filesystem access, or similar.
-        - Whilst the request waits, its operating system thread can be reused by another request.
-        - The imperative approaches (`platform-tomcat`, `loom-tomcat`, and `loom-netty`) use blocking wait whilst the reactive approach (`webflux-netty`) uses non-blocking wait.
-    3. **Return** a response.
+The benchmark is driven by [k6](https://k6.io/docs/) which repeatedly issues HTTP requests to a service listening at http://localhost:8080/
+
+The service exposes multiple REST endpoints. The implementation of each has the same 3 stages:
+
+1. **HTTP Call**: If `$delayCallDepth > 0`, call `GET /$approach/epoch-millis` recursively `$delayCallDepth` times to mimic calls to upstream service(s).
+    - All approaches use `Spring Boot`'s [WebFlux WebClient](https://docs.spring.io/spring-framework/reference/web/webflux-webclient.html) based on Netty.
+2. **Wait**: If `$delayCallDepth = 0`, wait `$delayInMillis` (default: `100`) to mimic the delay incurred by a network call, filesystem access, or similar.
+    - Whilst the request waits, its operating system thread can be reused by another request.
+    - The imperative approaches (`platform-tomcat`, `loom-tomcat`, and `loom-netty`) use blocking wait whilst the reactive approach (`webflux-netty`) uses non-blocking wait.
+3. **Calculate and Return Response** specific to REST endpoint.
 
 ### Sample Flow
 
