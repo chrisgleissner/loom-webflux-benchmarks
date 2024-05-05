@@ -219,15 +219,17 @@ All approaches use the same Spring Boot 3.2 version.
 
 #### Standard Scenarios ([config/scenarios.csv](config/scenarios.csv))
 
-| Scenario                                                                      | Domain | Description                           | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
-|-------------------------------------------------------------------------------|--------|---------------------------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
-| smoketest                                                                     | Time   | Smoke test                            | 5                  | 5                           | 0                    | 100               | 0                |
-| [5k-vus-and-rps-get-time](#5k-vus-and-rps-get-time)                           | Time   | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
-| [5k-vus-and-rps-get-movies](#5k-vus-and-rps-get-movies)                       | Movies | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
-| [10k-vus-and-rps-get-movies](#10k-vus-and-rps-get-movies)                     | Movies | Constant users, constant request rate | 10,000             | 10,000                      | 0                    | 100               | 0                |
-| [25k-vus-stepped-spike-get-movies](#25k-vus-stepped-spike-get-movies)         | Movies | Stepped user spike                    | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
-| [25k-vus-smooth-spike-get-movies](#25k-vus-smooth-spike-get-movies)           | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
-| [25k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies) | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| Scenario                                                                                                | Domain | Description                           | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
+|---------------------------------------------------------------------------------------------------------|--------|---------------------------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
+| smoketest                                                                                               | Time   | Smoke test                            | 5                  | 5                           | 0                    | 100               | 0                |
+| [5k-vus-and-rps-get-time](#5k-vus-and-rps-get-time)                                                     | Time   | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
+| [5k-vus-and-rps-get-movies](#5k-vus-and-rps-get-movies)                                                 | Movies | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
+| [10k-vus-and-rps-get-movies](#10k-vus-and-rps-get-movies)                                               | Movies | Constant users, constant request rate | 10,000             | 10,000                      | 0                    | 100               | 0                |
+| [10k-vus-and-rps-get-movies-call-depth-1](#10k-vus-and-rps-get-movies-call-depth-1)                     | Movies | Constant users, constant request rate | 10,000             | 10,000                      | 0                    | 100               | 1                |
+| [25k-vus-stepped-spike-get-movies](#25k-vus-stepped-spike-get-movies)                                   | Movies | Stepped user spike                    | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| [25k-vus-smooth-spike-get-movies](#25k-vus-smooth-spike-get-movies)                                     | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| [25k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies)                           | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| [25k-vus-smooth-spike-get-post-movies-call-depth-1](#25k-vus-smooth-spike-get-post-movies-call-depth-1) | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 1                |
 
 #### High-Load Scenarios ([config/scenarios-high-load.csv](config/scenarios-high-load.csv))
 
@@ -388,6 +390,25 @@ Like the previous scenario, but 10 virtual users and requests per second.
 
 ![WebFlux](results/10k-vus-and-rps-get-movies/webflux-netty.png)
 
+### 10k-vus-and-rps-get-movies-call-depth-1
+
+Like the previous scenario, but mimics a request to an upstream service.
+
+- On receiving an incoming HTTP request, the service calls itself via HTTP.
+- This secondary request then waits 100 milliseconds.
+
+#### Virtual Threads (Tomcat)
+
+![Loom](results/10k-vus-and-rps-get-movies-call-depth-1/loom-tomcat.png)
+
+#### Virtual Threads (Netty)
+
+![Loom](results/10k-vus-and-rps-get-movies-call-depth-1/loom-netty.png)
+
+#### WebFlux (Netty)
+
+![WebFlux](results/10k-vus-and-rps-get-movies-call-depth-1/webflux-netty.png)
+
 ### 25k-vus-stepped-spike-get-movies
 
 This scenario ramps up virtual users (and thus TCP connections) from 0 to 25k in multiple steps, then back down:
@@ -449,11 +470,30 @@ For further details, please see the [movies](#movies) section.
 
 ![WebFlux](results/25k-vus-smooth-spike-get-post-movies/webflux-netty.png)
 
+### 25k-vus-smooth-spike-get-post-movies-call-depth-1
+
+Like the previous scenario, but mimics call to upstream service as explained in [10k-vus-and-rps-get-movies-call-depth-1](#10k-vus-and-rps-get-movies-call-depth-1).
+
+> [!NOTE]
+> For `loom-netty` and `webflux-netty`, this scenario was CPU-contended on the test environment upon reaching ca. 5,000 RPS.
+> Whilst causing no errors, it drastically increased latencies.
+
+#### Virtual Threads (Tomcat)
+
+![Loom](results/25k-vus-smooth-spike-get-post-movies-call-depth-1/loom-tomcat.png)
+
+#### Virtual Threads (Netty)
+
+![Loom](results/25k-vus-smooth-spike-get-post-movies-call-depth-1/loom-netty.png)
+
+#### WebFlux (Netty)
+
+![WebFlux](results/25k-vus-smooth-spike-get-post-movies-call-depth-1/webflux-netty.png)
+
 ### 60k-vus-smooth-spike-get-post-movies
 
-Like the previous scenario, but scaling up to 60k users and executed within a VirtualBox VM on more powerful hardware,
-using a
-different Linux Kernel version. The rest of the setup is identical.
+Like [25k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies), but scaling up to 60k users and executed within a VirtualBox VM on more powerful hardware,
+using a different Linux Kernel version. The rest of the setup is identical.
 
 #### Hardware
 
@@ -481,12 +521,12 @@ The `scenario.csv` line for this run was:
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/60k-vus-smooth-spike-get-post-movies/loom-tomcat.png)
+![Loom](results/scenarios-high-load/60k-vus-smooth-spike-get-post-movies/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/60k-vus-smooth-spike-get-post-movies/loom-netty.png)
+![Loom](results/scenarios-high-load/60k-vus-smooth-spike-get-post-movies/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/60k-vus-smooth-spike-get-post-movies/webflux-netty.png)
+![WebFlux](results/scenarios-high-load/60k-vus-smooth-spike-get-post-movies/webflux-netty.png)
