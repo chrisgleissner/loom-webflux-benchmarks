@@ -14,7 +14,7 @@ on [Project Reactor](https://projectreactor.io/)) using Netty.
 ## TL;DR
 
 > [!NOTE]
-> The high-level results of this benchmark are:
+> In a nutshell, the benchmark results are:
 >
 > **Virtual Threads on Netty** (using [blocking code](https://docs.oracle.com/javase/8/docs/api/java/lang/Thread.html#sleep-long-)) showed almost identical performance characteristics (latency percentiles, requests per second,
 > system load) as **WebFlux on Netty** (using non-blocking code and relying on [Mono](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html)
