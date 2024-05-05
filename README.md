@@ -62,14 +62,14 @@ The service exposes multiple REST endpoints. The implementation of each has the 
 
 ### Sample Flow
 
-Get all [movies](#movies) with `$delayCallDepth=1` and `$delayInMillis=100`:
+Get all [movies](#movies) for `loom-netty` approach, using `$delayCallDepth=1` and `$delayInMillis=100`:
 
 ```mermaid
 sequenceDiagram
     participant k6s
     participant service
-    k6s->>+service: GET /$approach/movies?delayCallDepth=1&delayMillis=100
-    service->>+service: GET /$approach/epoch-millis?delayCallDepth=0&delayMillis=100
+    k6s->>+service: GET /loom-netty/movies?delayCallDepth=1&delayMillis=100
+    service->>+service: GET /loom-netty/epoch-millis?delayCallDepth=0&delayMillis=100
     service->>service: Wait 100 milliseconds
     service-->>-service: Return current epoch millis
     service->>service: Find movies
