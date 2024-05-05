@@ -50,23 +50,26 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 
 * The benchmark is driven by [k6](https://k6.io/docs/) which repeatedly issues HTTP requests to a service listening
   at http://localhost:8080/
-* The service implementation consists of 3 steps:
-    1. It calls its own `/$approach/epoch-millis` endpoint recursively `$delayCallDepth` times to mimic calls to upstream service(s).
-    2. It waits `$delayInMillis` (default: `100`) to mimic a network call, filesystem wait, or similar. Whilst the
-       request waits, its operating system thread can be reused by another request. Both Loom and WebFlux use their
-       respective idiomatic ways to wait.
-    3. It then returns a response depending on the called REST endpoint.
+* Each of the service's REST endpoints has of the same 3 stages:
+    1. **Call**: If `$delayCallDepth > 0`, call `GET /$approach/epoch-millis` recursively `$delayCallDepth` times to mimic calls to upstream service(s).
+        - All approaches use `Spring Boot`'s [WebFlux WebClient](https://docs.spring.io/spring-framework/reference/web/webflux-webclient.html) based on Netty.
+    2. **Wait**: If `$delayCallDepth = 0`, wait `$delayInMillis` (default: `100`) to mimic the delay incurred by a network call, filesystem access, or similar.
+        - Whilst the request waits, its operating system thread can be reused by another request.
+        - The imperative approaches (`platform-tomcat`, `loom-tomcat`, and `loom-netty`) use blocking wait whilst the reactive approach (`webflux-netty`) uses non-blocking wait.
+    3. **Return** a response.
 
-For example, a call to get all movies with `$delayCallDepth=1` and `$delayInMillis=100` behaves as follows:
+### Sample Flow
+
+Get all [movies](#movies) with `$delayCallDepth=1` and `$delayInMillis=100`:
 
 ```mermaid
 sequenceDiagram
     participant k6s
     participant service
-    k6s->>+service: GET /$approach/movies
-    service->>+service: GET /$approach/epoch-millis
-    service->>service: Wait $delayInMillis
-    service-->>-service: Return epoch millis
+    k6s->>+service: GET /$approach/movies?delayCallDepth=1&delayMillis=100
+    service->>+service: GET /$approach/epoch-millis?delayCallDepth=0&delayMillis=100
+    service->>service: Wait 100 milliseconds
+    service-->>-service: Return current epoch millis
     service->>service: Find movies
     service-->>-k6s: Return movies
 ```
