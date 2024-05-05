@@ -62,7 +62,7 @@ The service exposes multiple REST endpoints. The implementation of each has the 
 
 ### Sample Flow
 
-Get all [movies](#movies) for `loom-netty` approach, using `$delayCallDepth=1` and `$delayInMillis=100`:
+Get all [movies](#movies) using `loom-netty` approach, an HTTP call depth of `1` and a delay of `100` milliseconds:
 
 ```mermaid
 sequenceDiagram
