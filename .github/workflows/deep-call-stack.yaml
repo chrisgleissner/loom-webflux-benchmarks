@@ -1,0 +1,12 @@
+name: high-load
+on:
+  schedule:
+    - cron: '0 17 2 * *' # 2nd of each month at 5pm
+  workflow_dispatch:
+jobs:
+  call-reusable-build:
+    uses: ./.github/workflows/reusable-build.yaml
+    secrets: inherit
+    with:
+      scenarios-path: config/scenarios-deep-call-stack.csv
+      approaches: loom-netty,webflux-netty

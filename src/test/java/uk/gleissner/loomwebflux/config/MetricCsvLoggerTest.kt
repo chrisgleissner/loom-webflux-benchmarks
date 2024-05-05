@@ -2,16 +2,16 @@ package uk.gleissner.loomwebflux.config
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.gleissner.loomwebflux.config.AppProperties.WebClient
 import uk.gleissner.loomwebflux.config.MetricCsvLogger.HEADER_ROW
 import uk.gleissner.loomwebflux.config.MetricCsvLogger.JvmMetrics
 import java.nio.file.Files
 import java.nio.file.Path
-import java.time.Duration
 
 internal class MetricCsvLoggerTest {
     private val csvPath = Path.of("build/test-output/${javaClass.simpleName}/jvm.csv")
     private val csvRowRegex = "[\\d+,]+\n"
-    private val sut = MetricCsvLogger(AppProperties(Duration.ofMillis(100), false, csvPath))
+    private val sut = MetricCsvLogger(AppProperties(false, csvPath, WebClient(100, 100)))
 
     @Test
     fun `Given no CSV file When metrics are logged Then a header is written to the metric file And the metrics are appended`() {

@@ -10,7 +10,7 @@ plugins {
 
 java { sourceCompatibility = '21' }
 repositories { mavenCentral() }
-bootRun { jvmArgs(["-Xms2g", "-Xmx2g"]) }
+bootRun { jvmArgs(["-Xms2g", "-Xmx2g", "-XX:+ExitOnOutOfMemoryError", "-Djdk.tracePinnedThreads=full"]) }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -18,6 +18,7 @@ dependencies {
     testImplementation 'io.github.hakky54:logcaptor:2.9.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.junit-pioneer:junit-pioneer:2.2.0'
     testImplementation 'org.assertj:assertj-core'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

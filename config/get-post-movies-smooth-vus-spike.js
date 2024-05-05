@@ -4,14 +4,14 @@ import {sleep} from 'k6';
 const getMovies1Url = getMoviesUrl("Allen")
 const getMovies2Url = getMoviesUrl("Kubrick")
 const getMovies3Url = getMoviesUrl("Hitchcock")
-const postMoviesUrl = __ENV.SERVICE_API_BASE_URL + "/movies?delayInMillis=" + __ENV.DELAY_IN_MILLIS
+const postMoviesUrl = __ENV.SERVICE_API_BASE_URL + "/movies?delayCallDepth=" + __ENV.DELAY_CALL_DEPTH + "&delayInMillis=" + __ENV.DELAY_IN_MILLIS
 const moviesJson = JSON.stringify(JSON.parse(open("./movies.json")));
 
 const rampUpTime = 0.8 * __ENV.DURATION_IN_SECONDS + 's'
 const rampDownTime = 0.2 * __ENV.DURATION_IN_SECONDS + 's'
 
 function getMoviesUrl(directorLastName) {
-    return __ENV.SERVICE_API_BASE_URL + "/movies?directorLastName=" + directorLastName + "&delayInMillis=" + __ENV.DELAY_IN_MILLIS
+    return __ENV.SERVICE_API_BASE_URL + "/movies?directorLastName=" + directorLastName + "&delayCallDepth=" + __ENV.DELAY_CALL_DEPTH + "&delayInMillis=" + __ENV.DELAY_IN_MILLIS
 }
 
 export function getMovies1() {

@@ -50,16 +50,36 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 
 * The benchmark is driven by [k6](https://k6.io/docs/) which repeatedly issues HTTP requests to a service listening
   at http://localhost:8080/
-* The service implementation consists of two steps:
-    1. It waits `$delayInMillis` (default: `100`) to mimic a network call, filesystem wait, or similar. Whilst the
+* The service implementation consists of 3 steps:
+    1. It calls its own `/$approach/epoch-millis` endpoint recursively `$delayCallDepth` times to mimic calls to upstream service(s).
+    2. It waits `$delayInMillis` (default: `100`) to mimic a network call, filesystem wait, or similar. Whilst the
        request waits, its operating system thread can be reused by another request. Both Loom and WebFlux use their
        respective idiomatic ways to wait.
-    2. It then returns a response depending on the called REST endpoint.
+    3. It then returns a response depending on the called REST endpoint.
+
+For example, a call to get all movies with `$delayCallDepth=1` and `$delayInMillis=100` behaves as follows:
+
+```mermaid
+sequenceDiagram
+    participant k6s
+    participant service
+    k6s->>+service: GET /$approach/movies
+    service->>+service: GET /$approach/epoch-millis
+    service->>service: Wait $delayInMillis
+    service-->>-service: Return epoch millis
+    service->>service: Find movies
+    service-->>-k6s: Return movies
+```
 
 ### REST APIs
 
 The microservice under test exposes several RESTful APIs. In the following descriptions, `$approach` is the approach
 under test and can be one of `loom-tomcat`, `loom-netty`, and `webflux-netty`.
+
+All REST APIs support the following query parameters:
+
+- `delayCallDepth`: Depth of recursive HTTP call stack to `$approach/epoch-millis` endpoint prior to server-side delay; see [Scenario Columns](#Columns) for more details.
+- `delayInMillis`: Server-side delay in milliseconds; see [Scenario Columns](#Columns) for more details.
 
 #### epoch-millis
 
@@ -68,7 +88,7 @@ epoch, i.e. 1 Jan 1970:
 
 - This is one of the simplest possible APIs to provide a best-case performance scenario.
 - Supported requests:
-    - `GET http://localhost:8080/$approach/epoch-millis?delayInMillis={delayInMillis}`
+    - `GET /$approach/epoch-millis`
 
 #### movies
 
@@ -81,13 +101,13 @@ stored in an in-memory repository:
   contribute to CPU use. However, this can be controlled with the Spring Boot property `loom-webflux.repo-read-only`
   in `src/main/resources/application.yaml`.
 - Supported requests:
-    - `GET http://localhost:8080/$approach/movies?directorLastName={director}&delayInMillis={delayInMillis}`:
+    - `GET /$approach/movies?directorLastName={director}`:
         - Returns movies by the specified director.
         - Supported `{director}` values and their respective response body size in bytes, based on the default movies:
             - `Allen`: 1597 bytes (unindented)
             - `Hitchcock`: 1579 bytes (unindented)
             - `Kubrick`: 1198 bytes (unindented)
-    - `POST http://localhost:8080/$approach/movies?delayInMillis={delayInMillis}`:
+    - `POST /$approach/movies`:
         - Saves one or more movies.
         - The [sample movies](config/movies.json) saved during the load tests measure 7288 bytes (indented).
 
@@ -168,20 +188,27 @@ Log out and back in.
 
 ## Benchmark
 
-The following command runs the benchmark for each combination of approaches and scenarios. Results are recorded in
+The following command runs the benchmark for each combination of approaches and scenarios. Results are stored in
 the `build/results` folder:
 
 ```shell
 ./benchmark.sh 
 ```
 
-Usage: `benchmark.sh [-h] [SCENARIOS FILE]`:
+To see the available options, run `benchmark.sh -h`:
 
-- `-h`: Shows help
-- `SCENARIOS FILE`: CSV file with scenarios; defaults to `config/scenarios.csv`
+```
+Usage: benchmark.sh [-h] [-a <approaches>] [-C] [FILE]
+  FILE: Scenario CSV file. Default: config/scenarios.csv
+  -a <approaches>: Comma-separated list of approaches to test. Default: loom-tomcat,loom-netty,webflux-netty
+                   Supported approaches: platform-tomcat,loom-tomcat,loom-netty,webflux-netty
+  -C               Keep CSV files used to create chart. Default: false
+  -h               Print this help
+```
 
 ### Approaches
 
+- **platform-tomcat**: Platform threads using [Tomcat](https://tomcat.apache.org/) server
 - **loom-tomcat**: Virtual Threads using [Tomcat](https://tomcat.apache.org/) server
 - **loom-netty**: Virtual Threads on [Netty](https://netty.io/) server
 - **webflux-netty**: WebFlux on Netty server
@@ -190,27 +217,43 @@ All approaches use the same Spring Boot 3.2 version.
 
 ### Scenarios
 
-Scenarios configured in [config/scenarios.csv](config/scenarios.csv):
+#### Standard Scenarios ([config/scenarios.csv](config/scenarios.csv))
 
-| Scenario                                                                      | Domain | Description                           | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) |
-|-------------------------------------------------------------------------------|--------|---------------------------------------|--------------------|-----------------------------|----------------------|-------------------|
-| smoketest                                                                     | Time   | Smoke test                            | 5                  | 5                           | 0                    | 100               |
-| [5k-vus-and-rps-get-time](#5k-vus-and-rps-get-time)                           | Time   | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               |
-| [5k-vus-and-rps-get-movies](#5k-vus-and-rps-get-movies)                       | Movies | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               |
-| [10k-vus-and-rps-get-movies](#10k-vus-and-rps-get-movies)                     | Movies | Constant users, constant request rate | 10,000             | 10,000                      | 0                    | 100               |
-| [25k-vus-stepped-spike-get-movies](#25k-vus-stepped-spike-get-movies)         | Movies | Stepped user spike                    | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               |
-| [25k-vus-smooth-spike-get-movies](#25k-vus-smooth-spike-get-movies)           | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               |
-| [25k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies) | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               |
-| [60k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies) | Movies | Smooth user spike                     | 0 - 60,000         | Depends on users and delays | 1000 - 3000 (random) | 100               |
+| Scenario                                                                                                | Domain | Description                           | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
+|---------------------------------------------------------------------------------------------------------|--------|---------------------------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
+| smoketest                                                                                               | Time   | Smoke test                            | 5                  | 5                           | 0                    | 100               | 0                |
+| [5k-vus-and-rps-get-time](#5k-vus-and-rps-get-time)                                                     | Time   | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
+| [5k-vus-and-rps-get-movies](#5k-vus-and-rps-get-movies)                                                 | Movies | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
+| [10k-vus-and-rps-get-movies](#10k-vus-and-rps-get-movies)                                               | Movies | Constant users, constant request rate | 10,000             | 10,000                      | 0                    | 100               | 0                |
+| [10k-vus-and-rps-get-movies-call-depth-1](#10k-vus-and-rps-get-movies-call-depth-1)                     | Movies | Constant users, constant request rate | 10,000             | 10,000                      | 0                    | 100               | 1                |
+| [25k-vus-stepped-spike-get-movies](#25k-vus-stepped-spike-get-movies)                                   | Movies | Stepped user spike                    | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| [25k-vus-smooth-spike-get-movies](#25k-vus-smooth-spike-get-movies)                                     | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| [25k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies)                           | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| [25k-vus-smooth-spike-get-post-movies-call-depth-1](#25k-vus-smooth-spike-get-post-movies-call-depth-1) | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 1                |
+
+#### High-Load Scenarios ([config/scenarios-high-load.csv](config/scenarios-high-load.csv))
+
+| Scenario                                                                      | Domain | Description       | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
+|-------------------------------------------------------------------------------|--------|-------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
+| [60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies) | Movies | Smooth user spike | 0 - 60,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
 
 ### Steps
 
-The benchmark run for each `scenario` consists of the following steps:
+The benchmark run for each `$scenario` consists of the following phases and steps:
 
-* Build and start Spring Boot service with specific `approach`: `loom-tomcat`, `loom-netty`, or `webflux-netty`.
-* Run the benchmark as configured in `config/scenarios.csv`.
-* Store CSV files at `build/results/$scenario/$approach-$resultType.csv` where `resultType` is `latency`, `system`, or `jvm`.
-* Convert all CSV files into `build/results/$scenario/$approach.png` and delete them.
+#### Before Benchmark
+
+* Build and start the Spring Boot service with a specific `$approach` as Spring Boot profile, using the config in `src/main/resources/application.yaml` and overridden by `src/main/resources/application-$approach.yaml` if defined.
+
+#### Benchmark
+
+* Run the benchmark as configured by the `$scenario`.
+* For each `$resultType` (i.e. `latency`, `system`, or `jvm`), create a CSV file at `build/results/$scenario/$approach-$resultType.csv`.
+
+#### After Benchmark
+
+* Convert CSV files into `build/results/$scenario/$approach.png`
+* Delete the CSV files unless the `-C` CLI option was specified.
 * Stop the service.
 
 ## Config
@@ -228,17 +271,22 @@ Virtual Threads, then for WebFlux.
 
 #### Example
 
-| scenario                         | k6Config                               | delayInMillis | connections | requestsPerSecond | warmupDurationInSeconds | testDurationInSeconds |
-|----------------------------------|----------------------------------------|---------------|-------------|-------------------|-------------------------|-----------------------|
-| 5k-vus-and-rps-get-time          | get-time.js                            | 100           | 5000        | 5000              | 10                      | 300                   |
-| 20k-vus-smooth-spike-get-movies] | k6-20k-vus-smooth-spike-get-movies].js | 100           | 20000       |                   | 0                       | 300                   |
+| scenario                         | k6Config                               | delayCallDepth | delayInMillis | connections | requestsPerSecond | warmupDurationInSeconds | testDurationInSeconds |
+|----------------------------------|----------------------------------------|----------------|---------------|-------------|-------------------|-------------------------|-----------------------|
+| 5k-vus-and-rps-get-time          | get-time.js                            | 0              | 100           | 5000        | 5000              | 10                      | 300                   |
+| 20k-vus-smooth-spike-get-movies] | k6-20k-vus-smooth-spike-get-movies].js | 0              | 100           | 20000       |                   | 0                       | 300                   |
 
 #### Columns
 
 1. `scenario`: Name of scenario. Is printed on top of each diagram.
 2. `k6Config`: Name of the [K6 Config File](https://k6.io/docs/using-k6/http-requests/) which is assumed to be in
    the `config` folder
-3. `delayInMillis`: Server-side delay of each request, in milliseconds.
+3. `delayCallDepth`: Depth of recursive HTTP call stack to `$approach/epoch-millis` endpoint prior to server-side delay.
+    - Mimics calls to upstream services which allow for reuse of the current platform thread.
+    - For example, a value of `0` means that the service waits for `$delayInMillis` milliseconds immediately upon receiving a request.
+    - Otherwise, it calls the `$approach/epoch-millis` with `${delayCallDepth - 1}`.
+    - This results in a recursive HTTP-request-based descent into the service, creating a call stack of depth `$delayCallDepth`.
+3. `delayInMillis`: Server-side delay of each request, in milliseconds. Mimics a delay such as invoking a DB which allow for reuse of the current platform thread.
 4. `connections`: Number of TCP connections, i.e. virtual users.
 5. `requestsPerSecond`: Number of requests per second across all connections. Left empty for scenarios where the number
    of requests per second is organically derived based on the number of connections, the request latency, and any
@@ -342,6 +390,25 @@ Like the previous scenario, but 10 virtual users and requests per second.
 
 ![WebFlux](results/10k-vus-and-rps-get-movies/webflux-netty.png)
 
+### 10k-vus-and-rps-get-movies-call-depth-1
+
+Like the previous scenario, but mimics a request to an upstream service.
+
+- On receiving an incoming HTTP request, the service calls itself via HTTP.
+- This secondary request then waits 100 milliseconds.
+
+#### Virtual Threads (Tomcat)
+
+![Loom](results/10k-vus-and-rps-get-movies-call-depth-1/loom-tomcat.png)
+
+#### Virtual Threads (Netty)
+
+![Loom](results/10k-vus-and-rps-get-movies-call-depth-1/loom-netty.png)
+
+#### WebFlux (Netty)
+
+![WebFlux](results/10k-vus-and-rps-get-movies-call-depth-1/webflux-netty.png)
+
 ### 25k-vus-stepped-spike-get-movies
 
 This scenario ramps up virtual users (and thus TCP connections) from 0 to 25k in multiple steps, then back down:
@@ -403,11 +470,30 @@ For further details, please see the [movies](#movies) section.
 
 ![WebFlux](results/25k-vus-smooth-spike-get-post-movies/webflux-netty.png)
 
+### 25k-vus-smooth-spike-get-post-movies-call-depth-1
+
+Like the previous scenario, but mimics call to upstream service as explained in [10k-vus-and-rps-get-movies-call-depth-1](#10k-vus-and-rps-get-movies-call-depth-1).
+
+> [!NOTE]
+> For `loom-netty` and `webflux-netty`, this scenario was CPU-contended on the test environment upon reaching ca. 5,000 RPS.
+> Whilst causing no errors, it drastically increased latencies.
+
+#### Virtual Threads (Tomcat)
+
+![Loom](results/25k-vus-smooth-spike-get-post-movies-call-depth-1/loom-tomcat.png)
+
+#### Virtual Threads (Netty)
+
+![Loom](results/25k-vus-smooth-spike-get-post-movies-call-depth-1/loom-netty.png)
+
+#### WebFlux (Netty)
+
+![WebFlux](results/25k-vus-smooth-spike-get-post-movies-call-depth-1/webflux-netty.png)
+
 ### 60k-vus-smooth-spike-get-post-movies
 
-Like the previous scenario, but scaling up to 60k users and executed within a VirtualBox VM on more powerful hardware,
-using a
-different Linux Kernel version. The rest of the setup is identical.
+Like [25k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies), but scaling up to 60k users and executed within a VirtualBox VM on more powerful hardware,
+using a different Linux Kernel version. The rest of the setup is identical.
 
 #### Hardware
 
@@ -435,12 +521,12 @@ The `scenario.csv` line for this run was:
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/60k-vus-smooth-spike-get-post-movies/loom-tomcat.png)
+![Loom](results/scenarios-high-load/60k-vus-smooth-spike-get-post-movies/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/60k-vus-smooth-spike-get-post-movies/loom-netty.png)
+![Loom](results/scenarios-high-load/60k-vus-smooth-spike-get-post-movies/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/60k-vus-smooth-spike-get-post-movies/webflux-netty.png)
+![WebFlux](results/scenarios-high-load/60k-vus-smooth-spike-get-post-movies/webflux-netty.png)

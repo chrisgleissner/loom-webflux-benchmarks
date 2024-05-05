@@ -1,7 +1,7 @@
 name: soaktest
 on:
   schedule:
-    - cron: '0 5 2 * *' # 2nd of each month at 5am
+    - cron: '0 5 2 * *' # 2nd of each month at 6am
   workflow_dispatch:
 jobs:
   call-reusable-build:

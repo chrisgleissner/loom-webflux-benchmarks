@@ -1,6 +1,6 @@
 import http from 'k6/http';
 
-const url = __ENV.SERVICE_API_BASE_URL + "/epoch-millis?delayInMillis=" + __ENV.DELAY_IN_MILLIS
+const url = __ENV.SERVICE_API_BASE_URL + "/epoch-millis?delayCallDepth=" + __ENV.DELAY_CALL_DEPTH + "&delayInMillis=" + __ENV.DELAY_IN_MILLIS
 
 export default function () {
     http.get(url);

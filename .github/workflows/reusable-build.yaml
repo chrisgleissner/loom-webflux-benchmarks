@@ -19,7 +19,9 @@ jobs:
 
     strategy:
       matrix:
-        java-version: [21, 22]
+        java-version: [ 21 ]
+        # TODO cg Activate once Gradle runs on Java 22, see https://docs.gradle.org/current/userguide/compatibility.html
+        # java-version: [21, 22]
 
     steps:
       - name: Checkout

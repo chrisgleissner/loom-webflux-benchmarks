@@ -1,13 +1,12 @@
 package uk.gleissner.loomwebflux.movie
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.params.ParameterizedTest
+import org.junitpioneer.jupiter.cartesian.CartesianTest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gleissner.loomwebflux.config.AppProperties
 import uk.gleissner.loomwebflux.fixture.AbstractIntegrationTest
-import uk.gleissner.loomwebflux.fixture.ApproachesMethodSource
+import uk.gleissner.loomwebflux.fixture.CartesianTestApproachesAndDelayCallDepths
 import uk.gleissner.loomwebflux.fixture.LogCaptorFixture.assertCorrectThreadType
 import uk.gleissner.loomwebflux.movie.domain.*
 import uk.gleissner.loomwebflux.movie.repo.MovieRepo
@@ -21,29 +20,28 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
     @Autowired
     private lateinit var movieRepo: MovieRepo
 
-    @Autowired
-    private lateinit var appProperties: AppProperties
+    private val delayInMillis = 5L
 
-    @ParameterizedTest
-    @ApproachesMethodSource
-    fun `find movies by director last name`(approach: String) {
-        val movies = getMovies(approach)
+    @CartesianTest
+    @CartesianTestApproachesAndDelayCallDepths
+    fun `find movies by director last name`(approach: String, delayCallDepth: Int) {
+        val movies = getMovies(approach, delayCallDepth = delayCallDepth)
         assertThat(movies).containsExactlyElementsOf(movieRepo.findMoviesByDirector("Allen"))
-        logCaptor.assertCorrectThreadType(approach)
+        logCaptor.assertCorrectThreadType(approach, delayCallDepth + 1)
     }
 
-    @ParameterizedTest
-    @ApproachesMethodSource
-    fun `save and delete a movie`(approach: String) {
+    @CartesianTest
+    @CartesianTestApproachesAndDelayCallDepths
+    fun `save and delete a movie`(approach: String, delayCallDepth: Int) {
         val moviesByDavidLynch = listOf(mulhollandDrive, theStraightStory)
         moviesByDavidLynch.forEach {
             assertThat(it.id).isNull()
         }
 
-        val movies = getMovies(approach, davidLynch.lastName)
+        val movies = getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)
         assertThat(movies).isEmpty()
 
-        val savedMovies = saveMovies(approach, moviesByDavidLynch)
+        val savedMovies = saveMovies(approach, moviesByDavidLynch, delayCallDepth = delayCallDepth)
         assertThat(savedMovies).hasSize(moviesByDavidLynch.size)
         savedMovies.forEach {
             assertThat(it.id).isNotNull()
@@ -51,40 +49,67 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
         assertThat(savedMovies).usingRecursiveComparison().ignoringFields("id").isEqualTo(moviesByDavidLynch)
 
         savedMovies.forEach {
-            deleteMovie(approach, it.id)
+            deleteMovie(approach, movieId = it.id, delayCallDepth = delayCallDepth)
         }
-        assertThat(getMovies(approach, davidLynch.lastName)).doesNotContainAnyElementsOf(savedMovies)
-
-        logCaptor.assertCorrectThreadType(approach)
+        assertThat(
+            getMovies(
+                approach,
+                directorLastName = davidLynch.lastName,
+                delayCallDepth = delayCallDepth
+            )
+        ).doesNotContainAnyElementsOf(savedMovies)
+        logCaptor.assertCorrectThreadType(approach, expectedLogCount = (delayCallDepth + 1) * 5)
     }
 
-    private fun getMovies(approach: String, directorLastName: String = "Allen"): MutableList<Movie>? {
-        val start = now()
-        val movies = client.get().uri("$approach/movies?directorLastName=$directorLastName").exchange()
-            .expectStatus().isOk()
-            .expectBodyList(Movie::class.java).returnResult().responseBody
-        assertThat(Duration.between(start, now())).isGreaterThan(appProperties.defaultDelay)
+    private fun getMovies(
+        approach: String,
+        directorLastName: String = "Allen",
+        delayCallDepth: Int = 1
+    ): MutableList<Movie>? {
+        val startTime = now()
+        val movies =
+            client.get().uri {
+                it.path("$approach/movies")
+                    .queryParam("directorLastName", directorLastName)
+                    .queryParam("delayInMillis", delayInMillis)
+                    .queryParam("delayCallDepth", delayCallDepth)
+                    .build()
+            }.exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Movie::class.java).returnResult().responseBody
+        assertThat(Duration.between(startTime, now())).isGreaterThan(Duration.ofMillis(delayInMillis))
         return movies
     }
 
-    private fun saveMovies(approach: String, movies: List<Movie>): List<Movie> {
-        val start = now()
-        val savedMovies = client.post().uri("$approach/movies")
-            .contentType(APPLICATION_JSON)
-            .accept(APPLICATION_JSON)
-            .body(
-                BodyInserters.fromValue(movies)
-            ).exchange().expectStatus().isOk
-            .expectBodyList(Movie::class.java).returnResult().responseBody?.toList() ?: listOf()
-        assertThat(Duration.between(start, now())).isGreaterThan(appProperties.defaultDelay)
+    private fun saveMovies(approach: String, movies: List<Movie>, delayCallDepth: Int = 1): List<Movie> {
+        val startTime = now()
+        val savedMovies =
+            client.post().uri {
+                it
+                    .path("$approach/movies")
+                    .queryParam("delayInMillis", delayInMillis)
+                    .queryParam("delayCallDepth", delayCallDepth)
+                    .build()
+            }
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .body(BodyInserters.fromValue(movies)).exchange()
+                .expectStatus().isOk
+                .expectBodyList(Movie::class.java).returnResult().responseBody?.toList() ?: listOf()
+        assertThat(Duration.between(startTime, now())).isGreaterThan(Duration.ofMillis(delayInMillis))
         return savedMovies
     }
 
-    private fun deleteMovie(approach: String, movieId: UUID) {
-        val start = now()
-        client.delete().uri("$approach/movies/${movieId}")
-            .exchange().expectStatus().isOk
-        assertThat(Duration.between(start, now())).isGreaterThan(appProperties.defaultDelay)
+    private fun deleteMovie(approach: String, movieId: UUID, delayCallDepth: Int = 1) {
+        val startTime = now()
+        client.delete().uri {
+            it
+                .path("$approach/movies/$movieId")
+                .queryParam("delayInMillis", delayInMillis)
+                .queryParam("delayCallDepth", delayCallDepth)
+                .build()
+        }.exchange().expectStatus().isOk
+        assertThat(Duration.between(startTime, now())).isGreaterThan(Duration.ofMillis(delayInMillis))
     }
 
     private val davidLynch = Person.of("David Lynch", LocalDate.of(1946, 1, 20))
