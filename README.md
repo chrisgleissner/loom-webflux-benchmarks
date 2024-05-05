@@ -222,7 +222,9 @@ All approaches use the same Spring Boot 3.2 version.
 
 ### Scenarios
 
-#### Standard Scenarios ([config/scenarios.csv](config/scenarios.csv))
+#### Standard Scenarios
+
+see [config/scenarios.csv](config/scenarios.csv)
 
 | Scenario                                                                                                | Domain | Description                           | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
 |---------------------------------------------------------------------------------------------------------|--------|---------------------------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
@@ -236,7 +238,9 @@ All approaches use the same Spring Boot 3.2 version.
 | [25k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies)                           | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
 | [25k-vus-smooth-spike-get-post-movies-call-depth-1](#25k-vus-smooth-spike-get-post-movies-call-depth-1) | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 1                |
 
-#### High-Load Scenarios ([config/scenarios-high-load.csv](config/scenarios-high-load.csv))
+#### High-Load Scenarios
+
+see [config/scenarios-high-load.csv](config/scenarios-high-load.csv)
 
 | Scenario                                                                      | Domain | Description       | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
 |-------------------------------------------------------------------------------|--------|-------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
@@ -515,14 +519,6 @@ using a different Linux Kernel version. The rest of the setup is identical.
 - Client Kernel: 6.5.0-28-generic
 - Java: Amazon Corretto JDK 21.0.2+13-LTS
 - Spring Boot 3.2.5
-
-#### Config
-
-The `scenario.csv` line for this run was:
-
-```csv
-60k-vus-smooth-spike-get-post-movies,get-post-movies-smooth-vus-spike.js,100,60000,,0,300
-```
 
 #### Virtual Threads (Tomcat)
 
