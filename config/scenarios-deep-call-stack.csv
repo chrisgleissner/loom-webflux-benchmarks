@@ -1,8 +1,9 @@
 scenario,k6Config,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
-5k-vus-and-rps-get-movies-call-depth-1,get-movies.js,1,100,5000,5000,10,300
-5k-vus-and-rps-get-movies-call-depth-2,get-movies.js,2,100,5000,5000,10,300
-5k-vus-and-rps-get-movies-call-depth-5,get-movies.js,5,100,5000,5000,10,300
-5k-vus-and-rps-get-movies-call-depth-10,get-movies.js,10,100,5000,5000,10,300
-25k-vus-smooth-spike-get-post-movies-call-depth-0,get-post-movies-smooth-vus-spike.js,0,100,25000,,0,300
-25k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,1,100,25000,,0,300
-25k-vus-smooth-spike-get-post-movies-call-depth-2,get-post-movies-smooth-vus-spike.js,2,100,25000,,0,300
+5k-vus-and-1k-rps-get-movies-call-depth-0,get-movies.js,0,100,5000,1000,10,300
+5k-vus-and-1k-rps-get-movies-call-depth-1,get-movies.js,1,100,5000,1000,10,300
+5k-vus-and-1k-rps-get-movies-call-depth-2,get-movies.js,2,100,5000,1000,10,300
+5k-vus-and-1k-rps-get-movies-call-depth-5,get-movies.js,5,100,5000,1000,10,300
+5k-vus-smooth-spike-get-post-movies-call-depth-0,get-post-movies-smooth-vus-spike.js,0,100,5000,,0,300
+5k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,1,100,5000,,0,300
+5k-vus-smooth-spike-get-post-movies-call-depth-2,get-post-movies-smooth-vus-spike.js,2,100,5000,,0,300
+5k-vus-smooth-spike-get-post-movies-call-depth-5,get-post-movies-smooth-vus-spike.js,5,100,5000,,0,300
