@@ -22,8 +22,7 @@ High-level, the results of this benchmark are:
       exhausting the CPU and running into time-outs due to rejected TCP connection requests.
     - In some cases ([60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies)), the 90th and 99th percentile latencies (P90 and P99)
       were considerably lower for Virtual Threads on Netty when compared with WebFlux on Netty.
-- Using **Virtual Threads on Tomcat** is not recommended for high load. We see higher resource use compared with using
-  Netty, as well as time-outs.
+- **Virtual Threads on Tomcat** are not recommended for high load. We see higher resource use compared with the two Netty-based approaches, as well as time-outs.
 
 ## Background
 
