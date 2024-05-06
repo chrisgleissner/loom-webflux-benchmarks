@@ -131,7 +131,7 @@ load_and_measure_system() {
   mv "$jvmCsvTmpFile" "$jvmCsvFile" && log "Saved $jvmCsvFile"
 
   sleep 2
-  ./chart.py "$approach: $scenario" "$latencyCsvFile" "$systemCsvFile" "$jvmCsvFile" "$chartFile"
+  ./src/main/python/chart.py "$approach: $scenario" "$latencyCsvFile" "$systemCsvFile" "$jvmCsvFile" "$chartFile"
   verify_chart_exists
   log "Saved $chartFile"
 
