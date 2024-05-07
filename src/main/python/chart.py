@@ -262,7 +262,7 @@ def format(value):
         return round(value)
 
 
-def appendScenarioStats(scenario, approach, latency_metrics, system_metrics, jvm_metrics, results_csv_file):
+def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metrics, results_csv_file):
     values_by_name = {
         'time_epoch_millis': int(time.time() * 1000),
         'scenario': scenario,
@@ -327,7 +327,7 @@ def main():
         plot(approach + ": " + scenario, latency_metrics, system_metrics, jvm_metrics, output_png_file)
         log("Saved " + output_png_file + " in " + str(int((time.time() - start_time) * 1000)) + "ms")
 
-        appendScenarioStats(scenario, approach, latency_metrics, system_metrics, jvm_metrics, results_csv_file)
+        append_results(scenario, approach, latency_metrics, system_metrics, jvm_metrics, results_csv_file)
         log("Updated " + results_csv_file)
 
 
