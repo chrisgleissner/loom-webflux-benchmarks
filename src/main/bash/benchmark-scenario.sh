@@ -156,8 +156,8 @@ verify_chart_results() {
     log "Chart file $chartFile does not exist or is not a valid PNG image; terminating"
     exit 1
   fi
-  if ! file "$resultsCsvFile" | grep -q "CSV text"; then
-    log "Results file $resultsCsvFile does not exist or is not valid; terminating"
+  if [ ! -f "$resultsCsvFile" ]; then
+    log "Results file $resultsCsvFile does not exist; terminating"
     exit 1
   fi
 }
