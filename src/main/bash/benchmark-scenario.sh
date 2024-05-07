@@ -124,7 +124,7 @@ load_and_measure_system() {
   rm -f "$jvmCsvTmpFile"
 
   # Start system-measure.sh after some delay to give k6 time to initialize
-  (sleep 2 && ./system-measure.sh "$systemCsvFile" "$durationInSeconds") &
+  (sleep 2 && ./src/main/bash/system-measure.sh "$systemCsvFile" "$durationInSeconds") &
   systemMeasurePid=$!
 
   load "$durationInSeconds"
@@ -138,7 +138,7 @@ load_and_measure_system() {
   # Terminate system-measure.sh if it is misconfigured to run longer than k6
   if ps -p $systemMeasurePid > /dev/null; then
     kill $systemMeasurePid
-    log "Terminated system-measure.sh process which may have overrun. Does config/scenarios.csv specify a duration which matches the corresponding k6 duration?"
+    log "Terminated system-measure.sh process which may have overrun. Does the scenario specify a duration which matches the corresponding k6 duration?"
   fi
 
   if [ "$keep_csv" == "true" ]; then
@@ -160,7 +160,7 @@ verify_chart_exists() {
 
 load() {
   _durationInSeconds=$1
-  k6ConfigFile=config/"$k6Config"
+  k6ConfigFile=src/main/resources/scenarios/"$k6Config"
 
   log "Issuing requests for ${_durationInSeconds}s using ${k6ConfigFile}..."
   k6 run --env DURATION_IN_SECONDS="${_durationInSeconds}" --out csv="$k6OutputTmpFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env DELAY_CALL_DEPTH="$delayCallDepth" --env DELAY_IN_MILLIS="$delayInMillis" --env SERVICE_API_BASE_URL="$serviceApiBaseUrl" --env VUS="$connections" --env RPS="$requestsPerSecond" "$k6ConfigFile" 2>&1 | tee "$k6LogTmpFile"

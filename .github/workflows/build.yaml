@@ -6,4 +6,4 @@ jobs:
     uses: ./.github/workflows/reusable-build.yaml
     secrets: inherit
     with:
-      scenarios-path: config/scenarios-smoketest.csv
+      scenarios-path: scenarios-smoketest.csv

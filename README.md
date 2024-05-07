@@ -42,7 +42,7 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 ## Features
 
 * Fully automated and CLI-driven by running a single command: `benchmark.sh`.
-* Different test scenario files, each containing one or more scenarios. Example: `config/scenario.csv`.
+* Different test scenario files, each containing one or more scenarios. Example: `src/main/resources/scenarios/scenario.csv`.
 * Operating system thread re-use by waiting and by performing transitive HTTP calls of configurable call depth.
 * Interacts with realistic JSON APIs.
 * Produces single PNG image via [Matplotlib](https://matplotlib.org/) for each combination of scenario and approach which contains:
@@ -117,7 +117,7 @@ stored in an in-memory repository:
             - `Kubrick`: 1198 bytes (unindented)
     - `POST /$approach/movies`:
         - Saves one or more movies.
-        - The [sample movies](config/movies.json) saved during the load tests measure 7288 bytes (indented).
+        - The [sample movies](src/main/resources/scenarios/movies.json) saved during the load tests measure 7288 bytes (indented).
 
 ## Requirements
 
@@ -131,7 +131,7 @@ stored in an in-memory repository:
 
 ### Hardware
 
-The hardware requirements depend purely on the scenarios configured in `config/scenarios.csv`. The following is
+The hardware requirements depend purely on the scenarios configured in `src/main/resources/scenarios/scenarios.csv`. The following is
 recommended to run the default scenarios committed to this repo:
 
 * CPU comparable to Intel 6700K or above
@@ -207,7 +207,7 @@ To see the available options, run `benchmark.sh -h`:
 
 ```
 Usage: benchmark.sh [-h] [-a <approaches>] [-C] [FILE]
-  FILE: Scenario CSV file. Default: config/scenarios.csv
+  FILE: Scenario CSV file. Default: src/main/resources/scenarios/scenarios.csv
   -a <approaches>: Comma-separated list of approaches to test. Default: loom-tomcat,loom-netty,webflux-netty
                    Supported approaches: platform-tomcat,loom-tomcat,loom-netty,webflux-netty
   -C               Keep CSV files used to create chart. Default: false
@@ -227,7 +227,7 @@ All approaches use the same Spring Boot 3.2 version.
 
 #### Standard Scenarios
 
-see [config/scenarios.csv](config/scenarios.csv)
+see [src/main/resources/scenarios/scenarios.csv](src/main/resources/scenarios/scenarios.csv)
 
 | Scenario                                                                                                | Domain | Description                           | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
 |---------------------------------------------------------------------------------------------------------|--------|---------------------------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
@@ -243,7 +243,7 @@ see [config/scenarios.csv](config/scenarios.csv)
 
 #### High-Load Scenarios
 
-see [config/scenarios-high-load.csv](config/scenarios-high-load.csv)
+see [src/main/resources/scenarios/scenarios-high-load.csv](src/main/resources/scenarios/scenarios-high-load.csv)
 
 | Scenario                                                                      | Domain | Description       | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
 |-------------------------------------------------------------------------------|--------|-------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
@@ -278,7 +278,7 @@ The benchmark run for each `$scenario` consists of the following phases and step
 
 ### Scenario-specific
 
-Each line in [config/scenarios.csv](config/scenarios.csv) configures a test scenario which is performed first for Java
+Each line in [src/main/resources/scenarios/scenarios.csv](src/main/resources/scenarios/scenarios.csv) configures a test scenario which is performed first for Java
 Virtual Threads, then for WebFlux.
 
 #### Example

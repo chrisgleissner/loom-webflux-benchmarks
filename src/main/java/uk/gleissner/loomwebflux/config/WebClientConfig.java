@@ -11,7 +11,7 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.resources.ConnectionProvider;
 
-import static java.util.function.Function.identity;
+import static io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS;
 
 @Configuration
 @RequiredArgsConstructor
@@ -24,9 +24,14 @@ class WebClientConfig {
     WebClient webClient(WebClient.Builder builder, ReactorResourceFactory reactorResourceFactory) {
         val baseUrl = "http://localhost:" + environment.getProperty("local.server.port");
         log.info("Create WebClient for {}", baseUrl);
+        val props = appProperties.webClient();
         return builder
                 .baseUrl(baseUrl)
-                .clientConnector(new ReactorClientHttpConnector(reactorResourceFactory, identity()))
+                .clientConnector(new ReactorClientHttpConnector(reactorResourceFactory,
+                        httpClient -> httpClient
+                                .responseTimeout(props.responseTimeout())
+                                .option(CONNECT_TIMEOUT_MILLIS, (int) (props.connectTimeout().toMillis()))
+                ))
                 .build();
     }
 
@@ -34,9 +39,12 @@ class WebClientConfig {
     public ReactorResourceFactory reactorResourceFactory() {
         val factory = new ReactorResourceFactory();
         factory.setUseGlobalResources(false);
+        val props = appProperties.webClient();
         factory.setConnectionProvider(ConnectionProvider.builder("custom")
-                .maxConnections(appProperties.webClient().maxConnections())
-                .pendingAcquireMaxCount(appProperties.webClient().pendingAcquireMaxCount()).build());
+                .maxConnections(props.maxConnections())
+                .pendingAcquireMaxCount(props.pendingAcquireMaxCount())
+                .pendingAcquireTimeout(props.pendingAcquireTimeout())
+                .build());
         return factory;
     }
 }

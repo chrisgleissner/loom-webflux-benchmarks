@@ -8,4 +8,4 @@ jobs:
     uses: ./.github/workflows/reusable-build.yaml
     secrets: inherit
     with:
-      scenarios-path: config/scenarios.csv
+      scenarios-path: scenarios-ci.csv # Trimmed version of scenarios.csv since GitHub builds limited to 6h run-time and producing max ca. 16 GiB of disk data

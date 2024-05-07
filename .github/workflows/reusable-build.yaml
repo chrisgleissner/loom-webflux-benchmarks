@@ -5,7 +5,7 @@ on:
       scenarios-path:
         required: false
         type: string
-        default: config/scenarios.csv
+        default: scenarios.csv
         description: Path of CSV file with test scenarios
       approaches:
         required: false

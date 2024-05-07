@@ -8,5 +8,5 @@ jobs:
     uses: ./.github/workflows/reusable-build.yaml
     secrets: inherit
     with:
-      scenarios-path: config/scenarios-high-load.csv
+      scenarios-path: scenarios-high-load.csv
       approaches: loom-netty,webflux-netty
