@@ -28,7 +28,7 @@ on [Project Reactor](https://projectreactor.io/)) using Netty.
 > - We saw considerably higher resource use compared with the two Netty-based approaches.
 > - We experienced many time-out errors as visualized by red dots in the charts, even when the CPU use was far below 100%. In contrast, none the Netty-based scenarios experienced any errors, even with a CPU use of 100%.
 
-For details, see the [charts](#Charts) below.
+For more information, see [detailed charts](#Charts) and [high-level results](results/results.csv).
 
 ## Background
 
