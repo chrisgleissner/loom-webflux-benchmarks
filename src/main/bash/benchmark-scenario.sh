@@ -65,6 +65,7 @@ jvmCsvFile="$resultDir/$approach"-jvm.csv
 latencyCsvFile="$resultDir/$approach"-latency.csv
 systemCsvFile="$resultDir/$approach"-system.csv
 chartFile="$resultDir/$approach".png
+resultsCsvFile="$resultsDir/results.csv"
 clientErrorLogFile="$resultDir/$approach"-client-error.log
 serviceErrorLogFile="$resultDir/$approach"-service-error.log
 
@@ -131,8 +132,8 @@ load_and_measure_system() {
   mv "$jvmCsvTmpFile" "$jvmCsvFile" && log "Saved $jvmCsvFile"
 
   sleep 2
-  ./src/main/python/chart.py "$approach: $scenario" "$latencyCsvFile" "$systemCsvFile" "$jvmCsvFile" "$chartFile"
-  verify_chart_exists
+  ./src/main/python/chart.py "$approach" "$scenario" "$latencyCsvFile" "$systemCsvFile" "$jvmCsvFile" "$chartFile" "$resultsCsvFile"
+  verify_chart_results
   log "Saved $chartFile"
 
   # Terminate system-measure.sh if it is misconfigured to run longer than k6
@@ -151,9 +152,13 @@ load_and_measure_system() {
   fi
 }
 
-verify_chart_exists() {
+verify_chart_results() {
   if ! file "$chartFile" | grep -q "PNG image data"; then
     log "Chart file $chartFile does not exist or is not a valid PNG image; terminating"
+    exit 1
+  fi
+  if ! file "$resultsCsvFile" | grep -q "CSV text"; then
+    log "Results file $resultsCsvFile does not exist or is not valid; terminating"
     exit 1
   fi
 }

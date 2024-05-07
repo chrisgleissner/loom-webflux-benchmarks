@@ -79,7 +79,14 @@ jobs:
                 echo "Chart $chartFilename exists"
               fi
             done
-          done
+          done        
+          resultsCsvFilename=build/results/results.csv
+          if ! file $resultsCsvFilename | grep -q "CSV text"; then
+            echo "Verification error: $resultsCsvFilename missing or invalid"
+            exit 1
+          else 
+            echo "Results file $resultsCsvFilename exists"
+          fi
 
       - name: Store results
         uses: actions/upload-artifact@v4

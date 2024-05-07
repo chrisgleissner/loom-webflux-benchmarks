@@ -2,6 +2,7 @@
 # Converts latency, JVM metric, and system metric CSV files to a PNG file.
 
 import csv
+import os
 import sys
 import time
 from datetime import datetime
@@ -140,106 +141,106 @@ class JvmMetrics:
                 self.platform_thread_count.append(int(row['platformThreadCount']))
 
 
-class ScenarioChart:
+def plot(title, latency_metrics, system_metrics, jvm_metrics, output_png_file):
+    fig, (latency, rps, cpu, ram, socket, throughput) = plt.subplots(6, 1, figsize=(25, 20), sharex=True)
+    fig.suptitle(title, fontsize=18)
+    fig.subplots_adjust(top=0.93)
+    plots = (latency, rps, cpu, ram, socket, throughput)
 
-    def plot(self, title, latency_metrics, system_metrics, jvm_metrics, output_png_file):
-        fig, (latency, rps, cpu, ram, socket, throughput) = plt.subplots(6, 1, figsize=(25, 20), sharex=True)
-        fig.suptitle(title, fontsize=18)
-        fig.subplots_adjust(top=0.93)
-        plots = (latency, rps, cpu, ram, socket, throughput)
+    _add_request_plots(latency_metrics, latency, rps)
+    _add_system_plots(system_metrics, jvm_metrics, cpu, ram, socket, throughput)
 
-        self._add_request_plots(latency_metrics, latency, rps)
-        self._add_system_plots(system_metrics, jvm_metrics, cpu, ram, socket, throughput)
+    for plot in plots:
+        plot.xaxis.set_major_formatter(ScalarFormatter(useMathText=False))
+        plot.grid(True, which='both', linestyle=':', linewidth=0.5)
+        plot.legend(loc='upper left')
 
-        for plot in plots:
-            plot.xaxis.set_major_formatter(ScalarFormatter(useMathText=False))
-            plot.grid(True, which='both', linestyle=':', linewidth=0.5)
-            plot.legend(loc='upper left')
+    for plot in (latency, rps, socket, throughput):
+        plot.yaxis.set_major_formatter(ScalarFormatter(useMathText=False))
+        plot.yaxis.set_minor_formatter(ScalarFormatter(useMathText=False))
+        plot.ticklabel_format(style='plain')
 
-        for plot in (latency, rps, socket, throughput):
-            plot.yaxis.set_major_formatter(ScalarFormatter(useMathText=False))
-            plot.yaxis.set_minor_formatter(ScalarFormatter(useMathText=False))
-            plot.ticklabel_format(style='plain')
+    for plot in (cpu, ram):
+        plot.yaxis.set_major_formatter(mtick.PercentFormatter(100.0))
 
-        for plot in (cpu, ram):
-            plot.yaxis.set_major_formatter(mtick.PercentFormatter(100.0))
+    plt.savefig(output_png_file, format='png', bbox_inches='tight')
 
-        plt.savefig(output_png_file, format='png', bbox_inches='tight')
 
-    def _add_request_plots(self, latency_metrics, latency_plot, rps_plot):
-        latency_plot.scatter(latency_metrics.seconds_elapsed, latency_metrics.latencies,
-                             label=legend_label('Latency', latency_metrics.latencies, 'ms'), color='silver', alpha=0.7, s=1)
-        latency_plot.scatter(latency_metrics.error_seconds_elapsed, latency_metrics.error_latencies,
-                             label='Errors: ' + str(len(latency_metrics.error_latencies)), color='red')
+def _add_request_plots(latency_metrics, latency_plot, rps_plot):
+    latency_plot.scatter(latency_metrics.seconds_elapsed, latency_metrics.latencies,
+                         label=legend_label('Latency', latency_metrics.latencies, 'ms'), color='silver', alpha=0.7, s=1)
+    latency_plot.scatter(latency_metrics.error_seconds_elapsed, latency_metrics.error_latencies,
+                         label='Errors: ' + str(len(latency_metrics.error_latencies)), color='red')
 
-        latency_plot.plot(latency_metrics.percentile_time_buckets, latency_metrics.p99_values,
-                          label='p99: {:,.0f}ms'.format(np.percentile(latency_metrics.latencies, 99)), color='blue', linewidth=1)
-        latency_plot.plot(latency_metrics.percentile_time_buckets, latency_metrics.p90_values,
-                          label='p90: {:,.0f}ms'.format(np.percentile(latency_metrics.latencies, 90)), color='green', linewidth=1)
-        latency_plot.plot(latency_metrics.percentile_time_buckets, latency_metrics.p50_values,
-                          label='p50: {:,.0f}ms'.format(np.percentile(latency_metrics.latencies, 50)), color='black', linewidth=2)
+    latency_plot.plot(latency_metrics.percentile_time_buckets, latency_metrics.p99_values,
+                      label='p99: {:,.0f}ms'.format(np.percentile(latency_metrics.latencies, 99)), color='blue', linewidth=1)
+    latency_plot.plot(latency_metrics.percentile_time_buckets, latency_metrics.p90_values,
+                      label='p90: {:,.0f}ms'.format(np.percentile(latency_metrics.latencies, 90)), color='green', linewidth=1)
+    latency_plot.plot(latency_metrics.percentile_time_buckets, latency_metrics.p50_values,
+                      label='p50: {:,.0f}ms'.format(np.percentile(latency_metrics.latencies, 50)), color='black', linewidth=2)
 
-        latency_plot.set_ylabel('Latency (ms)', color='black')
-        latency_plot.set_title(title_label('Latency', latency_metrics.latencies, 'ms'), weight='bold')
-        latency_plot.set_yscale('log')
-        latency_plot.yaxis.set_minor_locator(LogLocator(subs=(1.0, 3.0)))
+    latency_plot.set_ylabel('Latency (ms)', color='black')
+    latency_plot.set_title(title_label('Latency', latency_metrics.latencies, 'ms'), weight='bold')
+    latency_plot.set_yscale('log')
+    latency_plot.yaxis.set_minor_locator(LogLocator(subs=(1.0, 3.0)))
 
-        if len(latency_metrics.error_latencies) > 0:
-            rps_plot.plot(list(range(latency_metrics.rps_bin_count)), latency_metrics.rps_error,
-                          label=legend_label('RPS (Failed)', latency_metrics.rps_error), color='orange', linewidth=2)
+    if len(latency_metrics.error_latencies) > 0:
+        rps_plot.plot(list(range(latency_metrics.rps_bin_count)), latency_metrics.rps_error,
+                      label=legend_label('RPS (Failed)', latency_metrics.rps_error), color='orange', linewidth=2)
 
-        rps_plot.plot(list(range(latency_metrics.rps_bin_count)), latency_metrics.rps, label=legend_label('RPS', latency_metrics.rps), color='black', linewidth=2)
-        rps_plot.set_ylabel('Requests per second', color='black')
-        title_postfix = '. Total requests: {:,.0f} ok, {:,.0f} failed.'.format(len(latency_metrics.latencies) - len(latency_metrics.error_latencies),
-                                                                               len(latency_metrics.error_latencies))
-        rps_plot.set_title(title_label(prefix='RPS', measurements=latency_metrics.rps, unit='', postfix=title_postfix), weight='bold')
+    rps_plot.plot(list(range(latency_metrics.rps_bin_count)), latency_metrics.rps, label=legend_label('RPS', latency_metrics.rps), color='black', linewidth=2)
+    rps_plot.set_ylabel('Requests per second', color='black')
+    title_postfix = '. Total requests: {:,.0f} ok, {:,.0f} failed.'.format(len(latency_metrics.latencies) - len(latency_metrics.error_latencies),
+                                                                           len(latency_metrics.error_latencies))
+    rps_plot.set_title(title_label(prefix='RPS', measurements=latency_metrics.rps, unit='', postfix=title_postfix), weight='bold')
 
-    def _add_system_plots(self, system_metrics, jvm_metrics, cpu, ram, socket, throughput):
-        cpu.plot(system_metrics.seconds_elapsed, system_metrics.total_cpu,
-                 label=legend_label('Total', system_metrics.total_cpu, '%'), color='black', linestyle='solid', linewidth=2)
-        cpu.plot(system_metrics.seconds_elapsed, system_metrics.user_cpu,
-                 label=legend_label('User', system_metrics.user_cpu, '%'), color='green', linestyle='solid', linewidth=1)
-        cpu.plot(system_metrics.seconds_elapsed, system_metrics.system_cpu,
-                 label=legend_label('System', system_metrics.system_cpu, '%'), color='blue', linestyle='solid', linewidth=1)
-        cpu.plot(system_metrics.seconds_elapsed, system_metrics.iowait_cpu,
-                 label=legend_label('IO Wait', system_metrics.iowait_cpu, '%'), color='red', linestyle='solid', linewidth=1)
-        cpu.plot(jvm_metrics.seconds_elapsed, jvm_metrics.gc_times_percentage,
-                 label=legend_label('JVM GC Time', jvm_metrics.gc_times_percentage, '%'), color='orange', linestyle='solid', linewidth=1)
 
-        cpu.set_ylabel('CPU', color='black')
-        cpu.set_title(title_label('CPU', system_metrics.total_cpu, '%'), weight='bold')
-        title_postfix = ('. JVM platform threads: {:,.0f} avg, {:,.0f} max. {:,.0f} GCs totalling {:,.1f}s'
-                         .format(np.average(jvm_metrics.platform_thread_count), np.max(jvm_metrics.platform_thread_count),
-                                 jvm_metrics.gc_counts[-1], jvm_metrics.gc_times[-1] / 1000))
-        cpu.set_title(title_label(prefix='CPU', measurements=system_metrics.total_cpu, unit='%', postfix=title_postfix), weight='bold')
+def _add_system_plots(system_metrics, jvm_metrics, cpu, ram, socket, throughput):
+    cpu.plot(system_metrics.seconds_elapsed, system_metrics.total_cpu,
+             label=legend_label('Total', system_metrics.total_cpu, '%'), color='black', linestyle='solid', linewidth=2)
+    cpu.plot(system_metrics.seconds_elapsed, system_metrics.user_cpu,
+             label=legend_label('User', system_metrics.user_cpu, '%'), color='green', linestyle='solid', linewidth=1)
+    cpu.plot(system_metrics.seconds_elapsed, system_metrics.system_cpu,
+             label=legend_label('System', system_metrics.system_cpu, '%'), color='blue', linestyle='solid', linewidth=1)
+    cpu.plot(system_metrics.seconds_elapsed, system_metrics.iowait_cpu,
+             label=legend_label('IO Wait', system_metrics.iowait_cpu, '%'), color='red', linestyle='solid', linewidth=1)
+    cpu.plot(jvm_metrics.seconds_elapsed, jvm_metrics.gc_times_percentage,
+             label=legend_label('JVM GC Time', jvm_metrics.gc_times_percentage, '%'), color='orange', linestyle='solid', linewidth=1)
 
-        ram.plot(jvm_metrics.seconds_elapsed, jvm_metrics.heap_used,
-                 label=legend_label('JVM Heap Used', jvm_metrics.heap_used, '%'), color='black', linestyle='solid', linewidth=1)
-        ram.plot(system_metrics.seconds_elapsed, system_metrics.mem_used,
-                 label=legend_label('RAM Used', system_metrics.mem_used, '%'), color='green', linestyle='solid', linewidth=2)
+    cpu.set_ylabel('CPU', color='black')
+    cpu.set_title(title_label('CPU', system_metrics.total_cpu, '%'), weight='bold')
+    title_postfix = ('. JVM platform threads: {:,.0f} avg, {:,.0f} max. {:,.0f} GCs totalling {:,.1f}s'
+                     .format(np.average(jvm_metrics.platform_thread_count), np.max(jvm_metrics.platform_thread_count),
+                             jvm_metrics.gc_counts[-1], jvm_metrics.gc_times[-1] / 1000))
+    cpu.set_title(title_label(prefix='CPU', measurements=system_metrics.total_cpu, unit='%', postfix=title_postfix), weight='bold')
 
-        ram.set_ylabel('Memory', color='black')
-        ram.yaxis.set_major_formatter(mtick.PercentFormatter())
-        ram.set_title(title_label('JVM Heap', jvm_metrics.heap_used, '%'), weight='bold')
+    ram.plot(jvm_metrics.seconds_elapsed, jvm_metrics.heap_used,
+             label=legend_label('JVM Heap Used', jvm_metrics.heap_used, '%'), color='black', linestyle='solid', linewidth=1)
+    ram.plot(system_metrics.seconds_elapsed, system_metrics.mem_used,
+             label=legend_label('RAM Used', system_metrics.mem_used, '%'), color='green', linestyle='solid', linewidth=2)
 
-        socket.plot(system_metrics.seconds_elapsed, system_metrics.tcpsck,
-                    label=legend_label('TCP', system_metrics.tcpsck), linestyle='solid', linewidth=2)
-        socket.plot(system_metrics.seconds_elapsed, system_metrics.active_s,
-                    label=legend_label('TCP Active Opens / s', system_metrics.active_s), linestyle='solid', linewidth=1)
-        socket.plot(system_metrics.seconds_elapsed, system_metrics.passive_s,
-                    label=legend_label('TCP Passive Opens / s', system_metrics.passive_s), linestyle='solid', linewidth=1)
-        socket.set_ylabel('Sockets', color='black')
-        socket.set_title(title_label('Sockets', system_metrics.tcpsck, ''), weight='bold')
+    ram.set_ylabel('Memory', color='black')
+    ram.yaxis.set_major_formatter(mtick.PercentFormatter())
+    ram.set_title(title_label('JVM Heap', jvm_metrics.heap_used, '%'), weight='bold')
 
-        throughput.plot(system_metrics.seconds_elapsed, system_metrics.total_seg_s,
-                        label=legend_label('Total', system_metrics.total_seg_s, ''), color='black', linestyle='solid', linewidth=2)
-        throughput.plot(system_metrics.seconds_elapsed, system_metrics.iseg_s,
-                        label=legend_label('Received / s', system_metrics.iseg_s), color='tab:gray', linestyle='solid', linewidth=1)
-        throughput.plot(system_metrics.seconds_elapsed, system_metrics.oseg_s,
-                        label=legend_label('Sent / s', system_metrics.oseg_s), color='tab:green', linestyle='solid', linewidth=1)
-        throughput.set_ylabel('TCP Segments', color='black')
-        throughput.set_title(title_label('Throughput', system_metrics.total_seg_s, ''), weight='bold')
-        throughput.set_xlabel('Seconds')
+    socket.plot(system_metrics.seconds_elapsed, system_metrics.tcpsck,
+                label=legend_label('TCP', system_metrics.tcpsck), linestyle='solid', linewidth=2)
+    socket.plot(system_metrics.seconds_elapsed, system_metrics.active_s,
+                label=legend_label('TCP Active Opens / s', system_metrics.active_s), linestyle='solid', linewidth=1)
+    socket.plot(system_metrics.seconds_elapsed, system_metrics.passive_s,
+                label=legend_label('TCP Passive Opens / s', system_metrics.passive_s), linestyle='solid', linewidth=1)
+    socket.set_ylabel('Sockets', color='black')
+    socket.set_title(title_label('Sockets', system_metrics.tcpsck, ''), weight='bold')
+
+    throughput.plot(system_metrics.seconds_elapsed, system_metrics.total_seg_s,
+                    label=legend_label('Total', system_metrics.total_seg_s, ''), color='black', linestyle='solid', linewidth=2)
+    throughput.plot(system_metrics.seconds_elapsed, system_metrics.iseg_s,
+                    label=legend_label('Received / s', system_metrics.iseg_s), color='tab:gray', linestyle='solid', linewidth=1)
+    throughput.plot(system_metrics.seconds_elapsed, system_metrics.oseg_s,
+                    label=legend_label('Sent / s', system_metrics.oseg_s), color='tab:green', linestyle='solid', linewidth=1)
+    throughput.set_ylabel('TCP Segments', color='black')
+    throughput.set_title(title_label('Throughput', system_metrics.total_seg_s, ''), weight='bold')
+    throughput.set_xlabel('Seconds')
 
 
 def title_label(prefix, measurements, unit=None, postfix=''):
@@ -252,25 +253,82 @@ def legend_label(name, measurements, unit=''):
     return '{}: {:,.0f} / {:,.0f} / {:,.0f}{}'.format(name, np.min(measurements), np.average(measurements), np.max(measurements), unit)
 
 
+def format(value):
+    if value < 10:
+        return round(value, 2)
+    elif value < 100:
+        return round(value, 1)
+    else:
+        return round(value)
+
+
+def appendScenarioStats(scenario, approach, latency_metrics, system_metrics, jvm_metrics, results_csv_file):
+    values_by_name = {
+        'time_epoch_millis': int(time.time() * 1000),
+        'scenario': scenario,
+        'approach': approach,
+        'latency_min': min(latency_metrics.latencies),
+        'latency_avg': sum(latency_metrics.latencies) / len(latency_metrics.latencies),
+        'latency_p50': np.percentile(latency_metrics.latencies, 50),
+        'latency_p90': np.percentile(latency_metrics.latencies, 90),
+        'latency_p99': np.percentile(latency_metrics.latencies, 99),
+        'latency_max': max(latency_metrics.latencies),
+        'rps_min': min(latency_metrics.rps),
+        'rps_avg': sum(latency_metrics.rps) / len(latency_metrics.rps),
+        'rps_max': max(latency_metrics.rps),
+        'total_cpu_use_percent_min': min(system_metrics.total_cpu),
+        'total_cpu_use_percent_avg': sum(system_metrics.total_cpu) / len(system_metrics.total_cpu),
+        'total_cpu_use_percent_max': max(system_metrics.total_cpu),
+        'heap_use_percent_min': min(jvm_metrics.heap_used),
+        'heap_use_percent_avg': sum(jvm_metrics.heap_used) / len(jvm_metrics.heap_used),
+        'heap_use_percent_max': max(jvm_metrics.heap_used),
+        'sockets_min': int(min(system_metrics.tcpsck)),
+        'sockets_avg': int(sum(system_metrics.tcpsck) / len(system_metrics.tcpsck)),
+        'sockets_max': int(max(system_metrics.tcpsck)),
+        'throughput_segments_min': int(min(system_metrics.total_seg_s)),
+        'throughput_segments_avg': int(sum(system_metrics.total_seg_s) / len(system_metrics.total_seg_s)),
+        'throughput_segments_max': int(max(system_metrics.total_seg_s)),
+        'platform_threads_avg': int(np.average(jvm_metrics.platform_thread_count)),
+        'platform_threads_max': int(np.max(jvm_metrics.platform_thread_count)),
+        'gc_count': sum(jvm_metrics.gc_counts),
+        'gc_time_millis': sum(jvm_metrics.gc_times),
+        'errors': len(latency_metrics.error_latencies)
+    }
+    file_exists = os.path.isfile(results_csv_file)
+    with open(results_csv_file, 'a', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=values_by_name.keys())
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow({key: format(value) if isinstance(value, (int, float)) else value for key, value in values_by_name.items()})
+
+
+def log(msg):
+    print(datetime.now().strftime("%H:%M:%S") + " " + msg)
+
+
 def main():
-    if len(sys.argv) != 6:
-        print("Syntax: chart.py <title> <latencyCsvFile> <systemCsvFile> <jvmCsvFile> <outputPngFile>")
+    if len(sys.argv) != 8:
+        print("Syntax: chart.py <scenario> <approach> <latencyCsvFile> <systemCsvFile> <jvmCsvFile> <outputPngFile> <scenarioStatsFile>")
     else:
         start_time = time.time()
 
-        title = sys.argv[1]
-        latency_csv_file = sys.argv[2]
-        system_csv_file = sys.argv[3]
-        jvm_csv_file = sys.argv[4]
-        output_png_file = sys.argv[5]
+        scenario = sys.argv[1]
+        approach = sys.argv[2]
+        latency_csv_file = sys.argv[3]
+        system_csv_file = sys.argv[4]
+        jvm_csv_file = sys.argv[5]
+        output_png_file = sys.argv[6]
+        results_csv_file = sys.argv[7]
 
         latency_metrics = LatencyMetrics(latency_csv_file)
         system_metrics = SystemMetrics(system_csv_file)
         jvm_metrics = JvmMetrics(jvm_csv_file)
 
-        ScenarioChart().plot(title, latency_metrics, system_metrics, jvm_metrics, output_png_file)
+        plot(approach + ": " + scenario, latency_metrics, system_metrics, jvm_metrics, output_png_file)
+        log("Created scenario chart in " + str(int((time.time() - start_time) * 1000)) + "ms")
 
-        print(datetime.now().strftime("%H:%M:%S") + " Created scenario chart in", int((time.time() - start_time) * 1000), "ms")
+        appendScenarioStats(scenario, approach, latency_metrics, system_metrics, jvm_metrics, results_csv_file)
+        log("Appended results to " + results_csv_file)
 
 
 if __name__ == "__main__":
