@@ -2,9 +2,9 @@
 # Performs a benchmark of Loom and WebFlux for a single scenario.
 
 print_usage() {
-    echo "Syntax: $(basename "$0") [-h] -a <approaches> -s <scenario> -k <k6Config> -d <delayCallDepth> -m <delayInMillis> -c <connections> [-r <requestsPerSecond>] -w <warmupDurationInSeconds> -t <testDurationInSeconds> -C <keepCsvFiles>"
+    echo "Syntax: $(basename "$0") [-h] -a <approach> -s <scenario> -k <k6Config> -d <delayCallDepth> -m <delayInMillis> -c <connections> [-r <requestsPerSecond>] -w <warmupDurationInSeconds> -t <testDurationInSeconds> -C <keepCsvFiles>"
     echo "Options:"
-    echo "  -a approaches:                Comma-separated list of approaches to test: platform-tomcat,loom-tomcat,loom-netty,webflux-netty"
+    echo "  -a approach:                  Approach to test: platform-tomcat, loom-tomcat, loom-netty or webflux-netty"
     echo "  -s <scenario>                 The scenario to benchmark."
     echo "  -k <k6Config>                 The k6 configuration file."
     echo "  -d <delayCallDepth>           The delay call depth. If > 0, the service calls itself recursively the specified number of times before delaying."
@@ -132,7 +132,7 @@ load_and_measure_system() {
   mv "$jvmCsvTmpFile" "$jvmCsvFile" && log "Saved $jvmCsvFile"
 
   sleep 2
-  ./src/main/python/chart.py "$approach" "$scenario" "$latencyCsvFile" "$systemCsvFile" "$jvmCsvFile" "$chartFile" "$resultsCsvFile"
+  ./src/main/python/chart.py "$scenario" "$approach" "$latencyCsvFile" "$systemCsvFile" "$jvmCsvFile" "$chartFile" "$resultsCsvFile"
   verify_chart_results
   log "Saved $chartFile"
 
