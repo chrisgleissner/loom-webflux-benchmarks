@@ -130,10 +130,12 @@ load_and_measure_system() {
 
   load "$durationInSeconds"
   mv "$jvmCsvTmpFile" "$jvmCsvFile" && log "Saved $jvmCsvFile"
-
   sleep 2
-  ./src/main/python/chart.py "$scenario" "$approach" "$latencyCsvFile" "$systemCsvFile" "$jvmCsvFile" "$chartFile" "$resultsCsvFile"
-  verify_chart_results
+
+  if [ "$phase" == "test" ]; then
+    ./src/main/python/chart.py "$scenario" "$approach" "$latencyCsvFile" "$systemCsvFile" "$jvmCsvFile" "$chartFile" "$resultsCsvFile"
+    verify_chart_results
+  fi
 
   # Terminate system-measure.sh if it is misconfigured to run longer than k6
   if ps -p $systemMeasurePid > /dev/null; then
