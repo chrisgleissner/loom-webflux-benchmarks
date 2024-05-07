@@ -134,7 +134,6 @@ load_and_measure_system() {
   sleep 2
   ./src/main/python/chart.py "$scenario" "$approach" "$latencyCsvFile" "$systemCsvFile" "$jvmCsvFile" "$chartFile" "$resultsCsvFile"
   verify_chart_results
-  log "Saved $chartFile"
 
   # Terminate system-measure.sh if it is misconfigured to run longer than k6
   if ps -p $systemMeasurePid > /dev/null; then

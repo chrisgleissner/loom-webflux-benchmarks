@@ -325,10 +325,10 @@ def main():
         jvm_metrics = JvmMetrics(jvm_csv_file)
 
         plot(approach + ": " + scenario, latency_metrics, system_metrics, jvm_metrics, output_png_file)
-        log("Created scenario chart in " + str(int((time.time() - start_time) * 1000)) + "ms")
+        log("Saved " + output_png_file + " in " + str(int((time.time() - start_time) * 1000)) + "ms")
 
         appendScenarioStats(scenario, approach, latency_metrics, system_metrics, jvm_metrics, results_csv_file)
-        log("Appended results to " + results_csv_file)
+        log("Updated " + results_csv_file)
 
 
 if __name__ == "__main__":
