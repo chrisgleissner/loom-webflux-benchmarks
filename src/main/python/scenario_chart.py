@@ -2,16 +2,19 @@
 # Converts latency, JVM metric, and system metric CSV files to a PNG file.
 
 import csv
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+import numpy as np
 import os
 import sys
 import time
 from datetime import datetime
-
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mtick
-import numpy as np
 from matplotlib.ticker import LogLocator
 from matplotlib.ticker import ScalarFormatter
+
+
+def log(msg):
+    print(datetime.now().strftime("%H:%M:%S") + " " + msg)
 
 
 class LatencyMetrics:
@@ -253,7 +256,7 @@ def legend_label(name, measurements, unit=''):
     return '{}: {:,.0f} / {:,.0f} / {:,.0f}{}'.format(name, np.min(measurements), np.average(measurements), np.max(measurements), unit)
 
 
-def format(value):
+def variable_round(value):
     if value < 10:
         return round(value, 2)
     elif value < 100:
@@ -299,16 +302,12 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
         writer = csv.DictWriter(file, fieldnames=values_by_name.keys())
         if not file_exists:
             writer.writeheader()
-        writer.writerow({key: format(value) if isinstance(value, (int, float)) else value for key, value in values_by_name.items()})
-
-
-def log(msg):
-    print(datetime.now().strftime("%H:%M:%S") + " " + msg)
+        writer.writerow({key: variable_round(value) if isinstance(value, (int, float)) else value for key, value in values_by_name.items()})
 
 
 def main():
     if len(sys.argv) != 8:
-        print("Syntax: chart.py <scenario> <approach> <latencyCsvFile> <systemCsvFile> <jvmCsvFile> <outputPngFile> <scenarioStatsFile>")
+        print("Syntax: scenario_chart.py <scenario> <approach> <latencyCsvFile> <systemCsvFile> <jvmCsvFile> <outputPngFile> <scenarioStatsFile>")
     else:
         start_time = time.time()
 

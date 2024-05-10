@@ -133,7 +133,7 @@ load_and_measure_system() {
   sleep 2
 
   if [ "$phase" == "test" ]; then
-    ./src/main/python/chart.py "$scenario" "$approach" "$latencyCsvFile" "$systemCsvFile" "$jvmCsvFile" "$chartFile" "$resultsCsvFile"
+    ./src/main/python/scenario_chart.py "$scenario" "$approach" "$latencyCsvFile" "$systemCsvFile" "$jvmCsvFile" "$chartFile" "$resultsCsvFile"
     verify_chart_results
   fi
 
