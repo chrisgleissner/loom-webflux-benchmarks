@@ -128,7 +128,6 @@ class CSVRenderer:
 
         for row, color_row in enumerate(color_rows):
             for col, color in enumerate(color_row):
-                # log("Set color for row {row} and col {col} to {name} / {sat}".format(row=row, col=col, name=color.name, sat=color.saturation))
                 ax.add_patch(plt.Rectangle((col, row), 1, 1, color=color.name, alpha=color.saturation))
 
         ax.set_xticks(range(num_cols))
@@ -142,7 +141,7 @@ class CSVRenderer:
             legend_handles.append(plt.Rectangle((0, 0), 1, 1, color=(self.color_name_by_approach[approach]), label=approach))
         ax.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1.05, 0.5), fontsize='small')
 
-        ax.set_title('Best Approaches by Metric and Scenario', weight='bold')
+        ax.set_title('Best Approaches by Metric and Scenario\n(Color saturation based on win margin.)', weight='bold')
 
         plt.savefig(self.output_file, bbox_inches='tight')
         plt.close()
