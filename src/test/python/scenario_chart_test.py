@@ -55,8 +55,14 @@ def assert_file_exists(file):
     assert os.path.exists(file), f"File '{file}' does not exist"
 
 
+def normalize_newlines(content):
+    return content.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
+
+
 def assert_files_match(actual_file, expected_file):
     assert os.path.exists(actual_file), f"File '{actual_file}' does not exist"
     assert os.path.exists(expected_file), f"File '{expected_file}' does not exist"
     with open(actual_file, 'rb') as f, open(expected_file, 'rb') as expected_f:
-        assert f.read() == expected_f.read(), f"Contents of '{actual_file}' do not match '{expected_file}'"
+        actual_content = normalize_newlines(f.read())
+        expected_content = normalize_newlines(expected_f.read())
+        assert actual_content == expected_content, f"Contents of '{actual_file}' do not match '{expected_file}'"
