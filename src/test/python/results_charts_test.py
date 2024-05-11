@@ -9,7 +9,7 @@ from results_chart import CSVRenderer
 from results_chart import Color
 
 PROJECT_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
-TEST_RELATIVE_DIR = "results_charts_test_py"
+TEST_RELATIVE_DIR = "results_chart_test_py"
 RESOURCES_DIR = PROJECT_ROOT_DIR + "/src/test/resources/" + TEST_RELATIVE_DIR + "/"
 TEST_OUTPUT_DIR = PROJECT_ROOT_DIR + "/build/test-output/" + TEST_RELATIVE_DIR + "/"
 

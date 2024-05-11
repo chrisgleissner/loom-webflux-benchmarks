@@ -85,7 +85,7 @@ class LatencyMetrics:
 
 class SystemMetrics:
 
-    def __init__(self, filename):
+    def __init__(self, filename, latency_metrics):
         self.system_times = []
         self.user_cpu = []
         self.system_cpu = []
@@ -102,6 +102,11 @@ class SystemMetrics:
         self.total_seg_s = [iseg_s + oseg_s for iseg_s, oseg_s in zip(self.iseg_s, self.oseg_s)]
         self.total_cpu = [user + system + iowait for user, system, iowait in zip(self.user_cpu, self.system_cpu, self.iowait_cpu)]
         self.seconds_elapsed = [(timestamp - self.system_times[0]).total_seconds() for timestamp in self.system_times]
+
+        tcp_segments_len = min(len(self.total_seg_s), len(latency_metrics.rps))
+        self.tcp_segments_per_request_total = np.divide(self.total_seg_s[:tcp_segments_len], latency_metrics.rps[:tcp_segments_len])
+        self.tcp_segments_per_request_rcv = np.divide(self.iseg_s[:tcp_segments_len], latency_metrics.rps[:tcp_segments_len])
+        self.tcp_segments_per_request_snt = np.divide(self.oseg_s[:tcp_segments_len], latency_metrics.rps[:tcp_segments_len])
 
     def _parse_csv(self, filename):
         with open(filename, 'r') as file:
@@ -268,10 +273,7 @@ def variable_round(value):
 
 
 def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metrics, results_csv_file):
-    tcp_segments_len = min(len(system_metrics.total_seg_s), len(latency_metrics.rps))
-    tcp_segments_per_request = np.divide(system_metrics.total_seg_s[:tcp_segments_len], latency_metrics.rps[:tcp_segments_len])
     values_by_name = {
-        'time_epoch_millis': int(time.time() * 1000),
         'scenario': scenario,
         'approach': approach,
         'latency_min': min(latency_metrics.latencies),
@@ -292,9 +294,9 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
         'sockets_min': int(min(system_metrics.tcpsck)),
         'sockets_avg': int(sum(system_metrics.tcpsck) / len(system_metrics.tcpsck)),
         'sockets_max': int(max(system_metrics.tcpsck)),
-        'tcp_segments_per_req_min': int(min(tcp_segments_per_request)),
-        'tcp_segments_per_req_avg': int(np.average(tcp_segments_per_request)),
-        'tcp_segments_per_req_max': int(max(tcp_segments_per_request)),
+        'tcp_segments_per_req_min': int(min(system_metrics.tcp_segments_per_request_total)),
+        'tcp_segments_per_req_avg': int(np.average(system_metrics.tcp_segments_per_request_total)),
+        'tcp_segments_per_req_max': int(max(system_metrics.tcp_segments_per_request_total)),
         'platform_threads_avg': int(np.average(jvm_metrics.platform_thread_count)),
         'platform_threads_max': int(np.max(jvm_metrics.platform_thread_count)),
         'gc_count': sum(jvm_metrics.gc_counts),
@@ -325,7 +327,7 @@ def main():
         results_csv_file = sys.argv[7]
 
         latency_metrics = LatencyMetrics(latency_csv_file)
-        system_metrics = SystemMetrics(system_csv_file)
+        system_metrics = SystemMetrics(system_csv_file, latency_metrics)
         jvm_metrics = JvmMetrics(jvm_csv_file)
 
         plot(approach + ": " + scenario, latency_metrics, system_metrics, jvm_metrics, output_png_file)

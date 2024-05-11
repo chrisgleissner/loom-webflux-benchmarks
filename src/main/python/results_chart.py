@@ -10,7 +10,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Dict, Tuple
 
-TIME = 'time_epoch_millis'
 SCENARIO = 'scenario'
 APPROACH = 'approach'
 
@@ -62,7 +61,7 @@ class CSVRenderer:
         self.csv_rows = csv_rows
         self.approaches = sorted(list(set(row[APPROACH] for row in csv_rows)))
         self.scenarios = sorted(list(set(row[SCENARIO] for row in csv_rows)))
-        self.metrics = [key for key in csv_rows[0].keys() if key not in [TIME, APPROACH, SCENARIO]]
+        self.metrics = [key for key in csv_rows[0].keys() if key not in [APPROACH, SCENARIO]]
 
         self.color_name_by_approach = {}
         for index, approach in enumerate(self.approaches):

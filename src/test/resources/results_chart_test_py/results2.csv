@@ -1,0 +1,5 @@
+scenario,approach,edge1,edge2
+s1,a1,100,0
+s1,a2,0,0
+s2,a1,100,1.5
+s2,a2,50,2
