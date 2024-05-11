@@ -38,7 +38,7 @@ class LatencyMetrics:
 
         min_time = np.array(self.times).min()
         self.seconds_elapsed = [t - min_time for t in self.times]
-        self._calculate_percentiles_and_errors()
+        self._calculate_latency()
         self._calculate_rps()
         self.percentile_time_buckets = np.arange(len(self.p50_values))
 
@@ -50,7 +50,7 @@ class LatencyMetrics:
                 self.latencies.append(float(row[1]))
                 self.status_codes.append(int(row[2]))
 
-    def _calculate_percentiles_and_errors(self):
+    def _calculate_latency(self):
         latency_bucket_start = self.seconds_elapsed[0]
         latency_bucket_end = latency_bucket_start + 1
         bucket_latencies = []
@@ -61,11 +61,13 @@ class LatencyMetrics:
             self.p99_values.append(np.percentile(bucket_latencies, 99))
 
         for seconds_elapsed, status_code, latency in zip(self.seconds_elapsed, self.status_codes, self.latencies):
-            if int(status_code / 100) != 2:
+            status_ok = int(status_code / 100) == 2
+            if not status_ok:
                 self.error_seconds_elapsed.append(seconds_elapsed)
                 self.error_latencies.append(latency + 0.1)  # Ensure latency 0 is plotted
             if seconds_elapsed < latency_bucket_end:
-                bucket_latencies.append(latency)
+                if status_ok:
+                    bucket_latencies.append(latency)
             else:
                 _append_percentile_values()
                 latency_bucket_start = seconds_elapsed
