@@ -11,6 +11,15 @@ by [Project Loom, JEP 444](https://openjdk.org/jeps/444)) using Tomcat and Netty
 with [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html) (relying
 on [Project Reactor](https://projectreactor.io/)) using Netty.
 
+## Background
+
+Both Spring WebFlux and Virtual Threads are alternative technologies to create Java microservices that support a high
+number of concurrent users, mapping all incoming requests to very few shared operating system threads. This reduces the
+resource overhead incurred by dedicating a single operating system thread to each user.
+
+Spring WebFlux was first introduced in September 2017. Virtual Threads were first introduced as preview feature with
+Java 19 and were fully rolled out with Java 21 in September 2023.
+
 ## TL;DR
 
 > [!NOTE]
@@ -47,15 +56,6 @@ This compares Project Loom (on both Tomcat and Netty) with Project Reactor (on N
 Based on same benchmark as before, but only comparing Netty-based approaches.
 
 ![Results](results/results-netty.png)
-
-## Background
-
-Both Spring WebFlux and Virtual Threads are alternative technologies to create Java microservices that support a high
-number of concurrent users, mapping all incoming requests to very few shared operating system threads. This reduces the
-resource overhead incurred by dedicating a single operating system thread to each user.
-
-Spring WebFlux was first introduced in September 2017. Virtual Threads were first introduced as preview feature with
-Java 19 and were fully rolled out with Java 21 in September 2023.
 
 ## Features
 
