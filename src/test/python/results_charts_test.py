@@ -8,12 +8,10 @@ sys.path.append("../../main/python")
 from results_chart import CSVRenderer
 from results_chart import Color
 
-# from results_chart import CSVRenderer
-# from src.main.python.results_chart import Color
-
-TEST_OUTPUT_DIR = "/build/test-output/results_charts_test_py/"
-RESOURCES_DIR = "/src/test/resources/"
 PROJECT_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+TEST_RELATIVE_DIR = "results_charts_test_py"
+RESOURCES_DIR = PROJECT_ROOT_DIR + "/src/test/resources/" + TEST_RELATIVE_DIR + "/"
+TEST_OUTPUT_DIR = PROJECT_ROOT_DIR + "/build/test-output/" + TEST_RELATIVE_DIR + "/"
 
 parameterization = [
     ("results1.csv",
@@ -253,42 +251,42 @@ parameterization = [
        Color(name='b', saturation=0.0),
        Color(name='b', saturation=0.0),
        Color(name='b', saturation=0.0)],
-      [Color(name='c', saturation=0.91),
-       Color(name='c', saturation=0.97),
-       Color(name='c', saturation=0.81),
-       Color(name='b', saturation=0.99),
-       Color(name='c', saturation=0.9),
+      [Color(name='g', saturation=0.86),
+       Color(name='g', saturation=0.05),
+       Color(name='b', saturation=0.98),
+       Color(name='c', saturation=0.18),
+       Color(name='g', saturation=0.95),
        Color(name='b', saturation=0.0),
        Color(name='b', saturation=0.0),
        Color(name='b', saturation=0.0),
-       Color(name='c', saturation=0.53),
-       Color(name='c', saturation=0.89),
+       Color(name='g', saturation=0.58),
+       Color(name='g', saturation=0.9),
+       Color(name='g', saturation=0.08),
+       Color(name='g', saturation=0.0)],
+      [Color(name='g', saturation=0.9),
+       Color(name='g', saturation=0.53),
+       Color(name='b', saturation=0.52),
+       Color(name='c', saturation=0.0),
+       Color(name='b', saturation=0.73),
+       Color(name='b', saturation=0.76),
+       Color(name='g', saturation=0.13),
+       Color(name='g', saturation=0.5),
+       Color(name='b', saturation=0.79),
+       Color(name='g', saturation=0.91),
+       Color(name='g', saturation=0.0),
+       Color(name='g', saturation=0.0)],
+      [Color(name='g', saturation=0.94),
+       Color(name='b', saturation=0.33),
+       Color(name='b', saturation=0.83),
+       Color(name='c', saturation=0.37),
        Color(name='b', saturation=0.96),
-       Color(name='b', saturation=0.97)],
-      [Color(name='c', saturation=0.91),
-       Color(name='c', saturation=0.82),
-       Color(name='c', saturation=0.88),
-       Color(name='b', saturation=0.99),
-       Color(name='c', saturation=1.0),
-       Color(name='c', saturation=1.0),
-       Color(name='c', saturation=0.84),
-       Color(name='c', saturation=0.6),
-       Color(name='c', saturation=1.0),
-       Color(name='c', saturation=0.89),
-       Color(name='b', saturation=0.97),
-       Color(name='b', saturation=0.98)],
-      [Color(name='c', saturation=0.1),
-       Color(name='g', saturation=0.16),
-       Color(name='c', saturation=0.07),
-       Color(name='b', saturation=1.0),
-       Color(name='c', saturation=0.99),
-       Color(name='c', saturation=0.96),
-       Color(name='c', saturation=0.79),
-       Color(name='c', saturation=0.01),
-       Color(name='c', saturation=0.99),
-       Color(name='b', saturation=0.51),
-       Color(name='b', saturation=1.0),
-       Color(name='b', saturation=1.0)],
+       Color(name='b', saturation=0.96),
+       Color(name='g', saturation=0.08),
+       Color(name='g', saturation=0.57),
+       Color(name='b', saturation=0.95),
+       Color(name='g', saturation=0.95),
+       Color(name='c', saturation=0.45),
+       Color(name='g', saturation=0.0)],
       [Color(name='c', saturation=0.53),
        Color(name='c', saturation=0.53),
        Color(name='c', saturation=0.53),
@@ -567,41 +565,41 @@ parameterization = [
        Color(name='g', saturation=0.0),
        Color(name='g', saturation=0.0),
        Color(name='g', saturation=0.0)],
-      [Color(name='b', saturation=1.0),
-       Color(name='b', saturation=0.97),
-       Color(name='b', saturation=0.81),
-       Color(name='g', saturation=0.18),
-       Color(name='b', saturation=1.0),
+      [Color(name='g', saturation=0.96),
+       Color(name='g', saturation=0.9),
+       Color(name='g', saturation=0.74),
+       Color(name='b', saturation=0.18),
+       Color(name='g', saturation=0.98),
        Color(name='g', saturation=0.0),
        Color(name='g', saturation=0.0),
        Color(name='g', saturation=0.0),
-       Color(name='b', saturation=0.85),
-       Color(name='b', saturation=1.0),
-       Color(name='b', saturation=0.08),
+       Color(name='g', saturation=0.77),
+       Color(name='g', saturation=0.97),
+       Color(name='g', saturation=0.08),
        Color(name='g', saturation=0.0)],
-      [Color(name='b', saturation=1.0),
-       Color(name='b', saturation=0.94),
-       Color(name='b', saturation=0.88),
-       Color(name='g', saturation=0.0),
-       Color(name='b', saturation=1.0),
-       Color(name='b', saturation=1.0),
-       Color(name='b', saturation=0.87),
-       Color(name='b', saturation=0.83),
-       Color(name='b', saturation=1.0),
-       Color(name='b', saturation=1.0),
+      [Color(name='g', saturation=0.97),
+       Color(name='g', saturation=0.86),
+       Color(name='g', saturation=0.81),
        Color(name='b', saturation=0.0),
+       Color(name='g', saturation=0.97),
+       Color(name='g', saturation=0.95),
+       Color(name='g', saturation=0.79),
+       Color(name='g', saturation=0.76),
+       Color(name='g', saturation=0.97),
+       Color(name='g', saturation=0.97),
+       Color(name='g', saturation=0.0),
        Color(name='g', saturation=0.0)],
-      [Color(name='b', saturation=0.99),
-       Color(name='g', saturation=0.16),
-       Color(name='b', saturation=0.07),
-       Color(name='g', saturation=0.4),
-       Color(name='b', saturation=0.99),
-       Color(name='b', saturation=0.96),
-       Color(name='b', saturation=0.81),
-       Color(name='b', saturation=0.62),
-       Color(name='b', saturation=0.99),
-       Color(name='b', saturation=1.0),
-       Color(name='g', saturation=0.48),
+      [Color(name='g', saturation=0.95),
+       Color(name='b', saturation=0.16),
+       Color(name='g', saturation=0.07),
+       Color(name='b', saturation=0.37),
+       Color(name='g', saturation=0.95),
+       Color(name='g', saturation=0.89),
+       Color(name='g', saturation=0.74),
+       Color(name='g', saturation=0.57),
+       Color(name='g', saturation=0.95),
+       Color(name='g', saturation=0.95),
+       Color(name='b', saturation=0.45),
        Color(name='g', saturation=0.0)],
       [Color(name='b', saturation=0.87),
        Color(name='b', saturation=0.87),
@@ -669,24 +667,25 @@ parameterization = [
 
 @pytest.mark.parametrize("csv_filename, expected_color_rows", parameterization)
 def test_get_colors(csv_filename, expected_color_rows):
-    sut = CSVRenderer(filename(RESOURCES_DIR + csv_filename), "test_output.png")
+    png_file, sut = create_sut(csv_filename)
     assert sut.get_color_rows() == expected_color_rows
 
 
 @pytest.mark.parametrize("csv_filename", [param[0] for param in parameterization])
 def test_render_png(csv_filename):
-    png_file = filename(TEST_OUTPUT_DIR + os.path.basename(csv_filename).replace('.csv', '.png'))
-
-    os.makedirs(os.path.dirname(png_file), exist_ok=True)
-    if os.path.exists(png_file):
-        os.remove(png_file)
-    sut = CSVRenderer(filename(RESOURCES_DIR + csv_filename), png_file)
-
+    png_file, sut = create_sut(csv_filename)
     sut.render_png()
 
     assert os.path.exists(png_file), f"Output file '{png_file}' does not exist"
     assert imghdr.what(png_file) == "png", f"Output file '{png_file}' is not a valid PNG file"
 
 
-def filename(relative_filename):
-    return PROJECT_ROOT_DIR + relative_filename
+def create_sut(csv_filename):
+    csv_file = RESOURCES_DIR + csv_filename
+    png_filename = csv_filename.replace(".csv", ".png")
+    png_file = TEST_OUTPUT_DIR + png_filename
+
+    os.makedirs(os.path.dirname(png_file), exist_ok=True)
+    if os.path.exists(png_file):
+        os.remove(png_file)
+    return png_file, CSVRenderer(csv_file, png_file)

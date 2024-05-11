@@ -266,6 +266,8 @@ def variable_round(value):
 
 
 def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metrics, results_csv_file):
+    tcp_segments_len = min(len(system_metrics.total_seg_s), len(latency_metrics.rps))
+    tcp_segments_per_request = np.divide(system_metrics.total_seg_s[:tcp_segments_len], latency_metrics.rps[:tcp_segments_len])
     values_by_name = {
         'time_epoch_millis': int(time.time() * 1000),
         'scenario': scenario,
@@ -288,9 +290,9 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
         'sockets_min': int(min(system_metrics.tcpsck)),
         'sockets_avg': int(sum(system_metrics.tcpsck) / len(system_metrics.tcpsck)),
         'sockets_max': int(max(system_metrics.tcpsck)),
-        'throughput_segments_min': int(min(system_metrics.total_seg_s)),
-        'throughput_segments_avg': int(sum(system_metrics.total_seg_s) / len(system_metrics.total_seg_s)),
-        'throughput_segments_max': int(max(system_metrics.total_seg_s)),
+        'tcp_segments_per_req_min': int(min(tcp_segments_per_request)),
+        'tcp_segments_per_req_avg': int(np.average(tcp_segments_per_request)),
+        'tcp_segments_per_req_max': int(max(tcp_segments_per_request)),
         'platform_threads_avg': int(np.average(jvm_metrics.platform_thread_count)),
         'platform_threads_max': int(np.max(jvm_metrics.platform_thread_count)),
         'gc_count': sum(jvm_metrics.gc_counts),
@@ -308,6 +310,7 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
 def main():
     if len(sys.argv) != 8:
         print("Syntax: scenario_chart.py <scenario> <approach> <latencyCsvFile> <systemCsvFile> <jvmCsvFile> <outputPngFile> <scenarioStatsFile>")
+        sys.exit(1)
     else:
         start_time = time.time()
 

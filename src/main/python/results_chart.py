@@ -52,6 +52,7 @@ class CSVRenderer:
             "latency": False,
             "ram": False,
             "rps": True,
+            "tcp": False
         }
         self.colors = ['g', 'b', 'c', 'r', 'm', 'y', 'orange', 'purple', 'brown', 'pink']
 
