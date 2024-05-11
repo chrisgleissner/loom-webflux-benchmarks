@@ -57,18 +57,19 @@ Based on same benchmark as before, but only comparing Netty-based approaches.
 
 ![Results](results/results-netty.png)
 
-## Features
+## Benchmark Features
 
 * Fully automated and CLI-driven by running a single command: `benchmark.sh`.
 * Different test scenario files, each containing one or more scenarios. Example: `src/main/resources/scenarios/scenario.csv`.
 * Operating system thread re-use by waiting and by performing transitive HTTP calls of configurable call depth.
 * Interacts with realistic JSON APIs.
-* Produces single PNG image via [Matplotlib](https://matplotlib.org/) for each combination of scenario and approach which contains:
+* Creates single PNG image via [Matplotlib](https://matplotlib.org/) for each combination of scenario and approach which contains:
     * Raw latencies and P50/90/99 percentiles, as well as any errors.
     * System metrics for CPU, RAM, sockets, and network throughput.
     * JVM metrics such as heap usage, garbage collections (GCs), and platform thread count.
+* Creates summary PNG image of all scenarios which shows best approaches.
 
-## Design
+## Benchmark Design
 
 The benchmark is driven by [k6](https://k6.io/docs/) which repeatedly issues HTTP requests to a service listening at http://localhost:8080/
 
