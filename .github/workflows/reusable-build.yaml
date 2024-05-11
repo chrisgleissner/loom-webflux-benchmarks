@@ -50,7 +50,7 @@ jobs:
         run: ./gradlew -q dependencies | grep spring-boot | head -n1 && ./gradlew build jacocoTestReport
 
       - name: Test Python
-        run: pytest
+        run: python -m pytest
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
