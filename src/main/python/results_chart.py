@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import sys
 from dataclasses import dataclass
 from datetime import datetime
-from matplotlib.patches import Rectangle
 from typing import List, Dict, Tuple
 
 TIME = 'time_epoch_millis'
@@ -54,7 +53,7 @@ class CSVRenderer:
             "ram": False,
             "rps": True,
         }
-        self.colors = ['b', 'g', 'r', 'c', 'm', 'y', 'orange', 'purple', 'brown', 'pink']
+        self.colors = ['g', 'b', 'c', 'r', 'm', 'y', 'orange', 'purple', 'brown', 'pink']
 
         csv_headers, csv_rows = self.read_csv()
         self.csv_rows = csv_rows
@@ -105,7 +104,8 @@ class CSVRenderer:
                 winning_approach = ranked_approaches[0]
                 runner_up_approach = ranked_approaches[1]
                 winning_result_delta_perc = calculate_winning_result_delta_perc(result_by_approach[winning_approach], result_by_approach[runner_up_approach])
-                saturation = round((max(0.0, min(1.0, winning_result_delta_perc))), 2)
+                saturation = max(0.0, min(1.0, winning_result_delta_perc))
+                saturation = round(1 - math.exp(-7 * saturation), 2)  # Skew small differences to make colors easier to distinguish
 
                 color_name = self.color_name_by_approach[winning_approach]
                 color_row.append(Color(color_name, saturation))
@@ -116,24 +116,31 @@ class CSVRenderer:
 
     def render_png(self):
         color_rows = self.get_color_rows()
-        fig, ax = plt.subplots()
+        num_rows = len(color_rows)
+        num_cols = len(color_rows[0]) if color_rows else 0
+
+        fig, ax = plt.subplots(figsize=(10, 10))
+        plt.xlim([0, num_cols])
+        plt.ylim([0, num_rows])
+        plt.gca().invert_yaxis()
 
         for row, color_row in enumerate(color_rows):
             for col, color in enumerate(color_row):
-                ax.add_patch(Rectangle((col, row), 1, 1, color=color.name, alpha=color.saturation))
+                # log("Set color for row {row} and col {col} to {name} / {sat}".format(row=row, col=col, name=color.name, sat=color.saturation))
+                ax.add_patch(plt.Rectangle((col, row), 1, 1, color=color.name, alpha=color.saturation))
 
-        ax.set_xticks(range(len(self.scenarios)))
+        ax.set_xticks(range(num_cols))
         ax.set_xticklabels(self.scenarios, rotation=20, ha='right', rotation_mode='anchor')
 
-        ax.set_yticks(range(len(self.metrics)))
+        ax.set_yticks(range(num_rows))
         ax.set_yticklabels(self.metrics)
-        ax.set_title('Best Approaches by Metric and Scenario')
 
         legend_handles = []
         for approach in sorted(self.color_name_by_approach):
-            color_name = self.color_name_by_approach[approach]
-            legend_handles.append(plt.Rectangle((0, 0), 1, 1, color=color_name, label=approach))
+            legend_handles.append(plt.Rectangle((0, 0), 1, 1, color=(self.color_name_by_approach[approach]), label=approach))
         ax.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1.05, 0.5), fontsize='small')
+
+        ax.set_title('Best Approaches by Metric and Scenario', weight='bold')
 
         plt.savefig(self.output_file, bbox_inches='tight')
         plt.close()
