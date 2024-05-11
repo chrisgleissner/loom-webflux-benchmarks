@@ -26,7 +26,7 @@ loom-webflux:
   jvm-metrics-csv-path: bin/jvm.csv
   web-client:
     max-connections: 65000
-    connect-timeout: 5000
+    connect-timeout: 20s
     pending-acquire-timeout: 60s
     pending-acquire-max-count: ${loom-webflux.web-client.max-connections}
     response-timeout: ${loom-webflux.web-client.pending-acquire-timeout}

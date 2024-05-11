@@ -6,6 +6,7 @@ import csv
 import math
 import matplotlib.pyplot as plt
 import sys
+from collections import OrderedDict
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Dict, Tuple
@@ -41,7 +42,7 @@ def calculate_winning_result_delta_perc(winning_result, runner_up_result):
 
 
 class CSVRenderer:
-    def __init__(self, csv_file: str, output_file: str):
+    def __init__(self, csv_file: str, output_file: str, approaches: List[str] = []):
         self.csv_file = csv_file
         self.output_file = output_file
         self.more_is_better_by_metric_name = {
@@ -55,12 +56,12 @@ class CSVRenderer:
             "rps": True,
             "tcp": False
         }
-        self.colors = ['g', 'b', 'c', 'r', 'm', 'y', 'orange', 'purple', 'brown', 'pink']
+        self.colors = ['forestgreen', 'royalblue', 'goldenrod', 'maroon', 'black']
 
         csv_headers, csv_rows = self.read_csv()
         self.csv_rows = csv_rows
-        self.approaches = sorted(list(set(row[APPROACH] for row in csv_rows)))
-        self.scenarios = sorted(list(set(row[SCENARIO] for row in csv_rows)))
+        self.approaches = approaches if approaches else sorted(list(set(row[APPROACH] for row in csv_rows)))
+        self.scenarios = list(OrderedDict.fromkeys(row[SCENARIO] for row in csv_rows))
         self.metrics = [key for key in csv_rows[0].keys() if key not in [APPROACH, SCENARIO]]
 
         self.color_name_by_approach = {}
@@ -102,9 +103,10 @@ class CSVRenderer:
                 result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
                 more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), True)
 
-                ranked_approaches = sorted(result_by_approach.keys(), key=lambda x: result_by_approach[x], reverse=more_is_better)
+                ranked_approaches = sorted([approach for approach in result_by_approach.keys() if approach in self.approaches],
+                                           key=lambda x: result_by_approach[x], reverse=more_is_better)
                 winning_approach = ranked_approaches[0]
-                runner_up_approach = ranked_approaches[1]
+                runner_up_approach = ranked_approaches[min(len(ranked_approaches) - 1, 1)]
                 winning_result_delta_perc = calculate_winning_result_delta_perc(result_by_approach[winning_approach], result_by_approach[runner_up_approach])
                 saturation = max(0.0, min(1.0, winning_result_delta_perc))
                 saturation = round(1 - math.exp(-7 * saturation), 2)  # Skew small differences to make colors easier to distinguish
@@ -141,8 +143,8 @@ class CSVRenderer:
             legend_handles.append(plt.Rectangle((0, 0), 1, 1, color=(self.color_name_by_approach[approach]), label=approach))
         ax.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1.05, 0.5), fontsize='small')
 
-        ax.set_title('Best Approaches by Metric and Scenario\n(Color saturation based on win margin.)', weight='bold')
-
+        plt.suptitle('Best Approaches by Metric and Scenario', weight='bold', y=0.94)
+        plt.title('Color saturation based on win margin', size='small')
         plt.savefig(self.output_file, bbox_inches='tight')
         plt.close()
         log("Saved " + self.output_file)
@@ -150,13 +152,15 @@ class CSVRenderer:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Render PNG from CSV')
-    parser.add_argument('-i', '--csvFile', type=str, help='Input CSV file', required=True)  # Mark as required
-    parser.add_argument('-o', '--pngFile', type=str, help='Output PNG file', required=True)  # Mark as required
+    parser.add_argument('-i', '--csvFile', type=str, help='Input CSV file', required=True)
+    parser.add_argument('-o', '--pngFile', type=str, help='Output PNG file', required=True)
+    parser.add_argument('-a', '--approaches', type=str, help='Comma-separated list of approaches (optional)')
     args = parser.parse_args()
 
     if not (args.csvFile and args.pngFile):
         print("Error: Both input CSV file and output PNG file are required.")
         sys.exit(1)
 
-    csv_parser = CSVRenderer(args.csvFile, args.pngFile)
+    approaches = [] if args.approaches is None else args.approaches.split(',')
+    csv_parser = CSVRenderer(args.csvFile, args.pngFile, approaches)
     csv_parser.render_png()

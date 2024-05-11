@@ -7,6 +7,7 @@ relativeScenariosPath="scenarios.csv"
 resultsDir=build/results
 resultsCsvFile="$resultsDir/results.csv"
 resultsPngFile="$resultsDir/results.png"
+resultsNettyPngFile="$resultsDir/results-netty.png"
 keep_csv=false
 
 log() {
@@ -76,6 +77,7 @@ while IFS=',' read -r scenario k6Config delayCallDepth delayInMillis connections
 done < "$scenariosFile"
 
 ./src/main/python/results_chart.py -i "$resultsCsvFile" -o "$resultsPngFile"
+./src/main/python/results_chart.py -i "$resultsCsvFile" -o "$resultsNettyPngFile" -a "loom-netty,webflux-netty" || true
 
 endSeconds=$( date +%s )
 testDurationInSeconds=$(( endSeconds - startSeconds ))
