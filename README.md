@@ -28,6 +28,20 @@ on [Project Reactor](https://projectreactor.io/)) using Netty.
 > - We saw considerably higher resource use compared with the two Netty-based approaches.
 > - We experienced many time-out errors as visualized by red dots in the charts, even when the CPU use was far below 100%. In contrast, none the Netty-based scenarios experienced any errors, even with a CPU use of 100%.
 
+## Benchmark Winners
+
+The following chart shows the best-performing approaches by metric and test scenario:
+
+- The more saturated the color, the higher the lead of the winning approach over the runner-up.
+- White or pale cells indicate a test without a clear winner.
+- This is a summary of the detailed charts which are shown in the second half of this document.
+
+![Results](results/results.png)
+
+The following chart removes the Tomcat approach and compares only the two Netty-based approaches, i.e. Project Loom on Netty vs. Project Reactor on Netty:
+
+![Results](results/results-netty.png)
+
 For more information, see [detailed charts](#Charts) and [high-level results](results/results.csv).
 
 ## Background
