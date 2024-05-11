@@ -1,0 +1,5 @@
+scenario,approach,rps,latency_avg,gc_time
+s1,a1,0.5,2,1
+s1,a2,1.0,2,1
+s2,a1,10,15,20
+s2,a2,11,100,21

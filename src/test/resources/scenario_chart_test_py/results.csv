@@ -1,0 +1,2 @@
+scenario,approach,latency_min,latency_avg,latency_p50,latency_p90,latency_p99,latency_max,rps_min,rps_avg,rps_max,cpu_use_percent_min,cpu_use_percent_avg,cpu_use_percent_max,heap_use_percent_min,heap_use_percent_avg,heap_use_percent_max,sockets_min,sockets_avg,sockets_max,tcp_segments_per_req_min,tcp_segments_per_req_avg,tcp_segments_per_req_max,platform_threads_avg,platform_threads_max,gc_count,gc_time_millis,errors
+smoketest,loom-netty,2.33,6.76,6.52,8.36,9.76,10.0,0,8.33,10,4.15,10.6,15.7,2.94,3.04,3.14,23,23,23,6,6,6,23,23,48,96,0

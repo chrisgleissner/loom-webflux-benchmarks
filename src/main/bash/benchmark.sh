@@ -4,6 +4,9 @@
 approaches="loom-tomcat,loom-netty,webflux-netty"
 scenariosDir="src/main/resources/scenarios"
 relativeScenariosPath="scenarios.csv"
+resultsDir=build/results
+resultsCsvFile="$resultsDir/results.csv"
+resultsPngFile="$resultsDir/results.png"
 keep_csv=false
 
 log() {
@@ -71,6 +74,8 @@ while IFS=',' read -r scenario k6Config delayCallDepth delayInMillis connections
       ./src/main/bash/benchmark-scenario.sh -a "$approach" -s "$scenario" -k "$k6Config" -d "$delayCallDepth" -m "$delayInMillis" -c "$connections" -r "$requestsPerSecond" -w "$warmupDurationInSeconds" -t "$testDurationInSeconds" -C "$keep_csv"
     done
 done < "$scenariosFile"
+
+./src/main/python/results_chart.py -i "$resultsCsvFile" -o "$resultsPngFile"
 
 endSeconds=$( date +%s )
 testDurationInSeconds=$(( endSeconds - startSeconds ))

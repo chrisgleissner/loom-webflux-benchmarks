@@ -2,16 +2,19 @@
 # Converts latency, JVM metric, and system metric CSV files to a PNG file.
 
 import csv
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+import numpy as np
 import os
 import sys
 import time
 from datetime import datetime
-
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mtick
-import numpy as np
 from matplotlib.ticker import LogLocator
 from matplotlib.ticker import ScalarFormatter
+
+
+def log(msg):
+    print(datetime.now().strftime("%H:%M:%S") + " " + msg)
 
 
 class LatencyMetrics:
@@ -35,7 +38,7 @@ class LatencyMetrics:
 
         min_time = np.array(self.times).min()
         self.seconds_elapsed = [t - min_time for t in self.times]
-        self._calculate_percentiles_and_errors()
+        self._calculate_latency()
         self._calculate_rps()
         self.percentile_time_buckets = np.arange(len(self.p50_values))
 
@@ -47,7 +50,7 @@ class LatencyMetrics:
                 self.latencies.append(float(row[1]))
                 self.status_codes.append(int(row[2]))
 
-    def _calculate_percentiles_and_errors(self):
+    def _calculate_latency(self):
         latency_bucket_start = self.seconds_elapsed[0]
         latency_bucket_end = latency_bucket_start + 1
         bucket_latencies = []
@@ -58,11 +61,13 @@ class LatencyMetrics:
             self.p99_values.append(np.percentile(bucket_latencies, 99))
 
         for seconds_elapsed, status_code, latency in zip(self.seconds_elapsed, self.status_codes, self.latencies):
-            if int(status_code / 100) != 2:
+            status_ok = int(status_code / 100) == 2
+            if not status_ok:
                 self.error_seconds_elapsed.append(seconds_elapsed)
                 self.error_latencies.append(latency + 0.1)  # Ensure latency 0 is plotted
             if seconds_elapsed < latency_bucket_end:
-                bucket_latencies.append(latency)
+                if status_ok:
+                    bucket_latencies.append(latency)
             else:
                 _append_percentile_values()
                 latency_bucket_start = seconds_elapsed
@@ -80,7 +85,7 @@ class LatencyMetrics:
 
 class SystemMetrics:
 
-    def __init__(self, filename):
+    def __init__(self, filename, latency_metrics):
         self.system_times = []
         self.user_cpu = []
         self.system_cpu = []
@@ -97,6 +102,11 @@ class SystemMetrics:
         self.total_seg_s = [iseg_s + oseg_s for iseg_s, oseg_s in zip(self.iseg_s, self.oseg_s)]
         self.total_cpu = [user + system + iowait for user, system, iowait in zip(self.user_cpu, self.system_cpu, self.iowait_cpu)]
         self.seconds_elapsed = [(timestamp - self.system_times[0]).total_seconds() for timestamp in self.system_times]
+
+        tcp_segments_len = min(len(self.total_seg_s), len(latency_metrics.rps))
+        self.tcp_segments_per_request_total = np.divide(self.total_seg_s[:tcp_segments_len], latency_metrics.rps[:tcp_segments_len])
+        self.tcp_segments_per_request_rcv = np.divide(self.iseg_s[:tcp_segments_len], latency_metrics.rps[:tcp_segments_len])
+        self.tcp_segments_per_request_snt = np.divide(self.oseg_s[:tcp_segments_len], latency_metrics.rps[:tcp_segments_len])
 
     def _parse_csv(self, filename):
         with open(filename, 'r') as file:
@@ -253,7 +263,7 @@ def legend_label(name, measurements, unit=''):
     return '{}: {:,.0f} / {:,.0f} / {:,.0f}{}'.format(name, np.min(measurements), np.average(measurements), np.max(measurements), unit)
 
 
-def format(value):
+def variable_round(value):
     if value < 10:
         return round(value, 2)
     elif value < 100:
@@ -264,7 +274,6 @@ def format(value):
 
 def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metrics, results_csv_file):
     values_by_name = {
-        'time_epoch_millis': int(time.time() * 1000),
         'scenario': scenario,
         'approach': approach,
         'latency_min': min(latency_metrics.latencies),
@@ -276,18 +285,18 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
         'rps_min': min(latency_metrics.rps),
         'rps_avg': sum(latency_metrics.rps) / len(latency_metrics.rps),
         'rps_max': max(latency_metrics.rps),
-        'total_cpu_use_percent_min': min(system_metrics.total_cpu),
-        'total_cpu_use_percent_avg': sum(system_metrics.total_cpu) / len(system_metrics.total_cpu),
-        'total_cpu_use_percent_max': max(system_metrics.total_cpu),
+        'cpu_use_percent_min': min(system_metrics.total_cpu),
+        'cpu_use_percent_avg': sum(system_metrics.total_cpu) / len(system_metrics.total_cpu),
+        'cpu_use_percent_max': max(system_metrics.total_cpu),
         'heap_use_percent_min': min(jvm_metrics.heap_used),
         'heap_use_percent_avg': sum(jvm_metrics.heap_used) / len(jvm_metrics.heap_used),
         'heap_use_percent_max': max(jvm_metrics.heap_used),
         'sockets_min': int(min(system_metrics.tcpsck)),
         'sockets_avg': int(sum(system_metrics.tcpsck) / len(system_metrics.tcpsck)),
         'sockets_max': int(max(system_metrics.tcpsck)),
-        'throughput_segments_min': int(min(system_metrics.total_seg_s)),
-        'throughput_segments_avg': int(sum(system_metrics.total_seg_s) / len(system_metrics.total_seg_s)),
-        'throughput_segments_max': int(max(system_metrics.total_seg_s)),
+        'tcp_segments_per_req_min': int(min(system_metrics.tcp_segments_per_request_total)),
+        'tcp_segments_per_req_avg': int(np.average(system_metrics.tcp_segments_per_request_total)),
+        'tcp_segments_per_req_max': int(max(system_metrics.tcp_segments_per_request_total)),
         'platform_threads_avg': int(np.average(jvm_metrics.platform_thread_count)),
         'platform_threads_max': int(np.max(jvm_metrics.platform_thread_count)),
         'gc_count': sum(jvm_metrics.gc_counts),
@@ -299,16 +308,13 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
         writer = csv.DictWriter(file, fieldnames=values_by_name.keys())
         if not file_exists:
             writer.writeheader()
-        writer.writerow({key: format(value) if isinstance(value, (int, float)) else value for key, value in values_by_name.items()})
-
-
-def log(msg):
-    print(datetime.now().strftime("%H:%M:%S") + " " + msg)
+        writer.writerow({key: variable_round(value) if isinstance(value, (int, float)) else value for key, value in values_by_name.items()})
 
 
 def main():
     if len(sys.argv) != 8:
-        print("Syntax: chart.py <scenario> <approach> <latencyCsvFile> <systemCsvFile> <jvmCsvFile> <outputPngFile> <scenarioStatsFile>")
+        print("Syntax: scenario_chart.py <scenario> <approach> <latencyCsvFile> <systemCsvFile> <jvmCsvFile> <outputPngFile> <scenarioStatsFile>")
+        sys.exit(1)
     else:
         start_time = time.time()
 
@@ -321,7 +327,7 @@ def main():
         results_csv_file = sys.argv[7]
 
         latency_metrics = LatencyMetrics(latency_csv_file)
-        system_metrics = SystemMetrics(system_csv_file)
+        system_metrics = SystemMetrics(system_csv_file, latency_metrics)
         jvm_metrics = JvmMetrics(jvm_csv_file)
 
         plot(approach + ": " + scenario, latency_metrics, system_metrics, jvm_metrics, output_png_file)
