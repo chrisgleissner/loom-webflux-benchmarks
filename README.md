@@ -30,19 +30,23 @@ on [Project Reactor](https://projectreactor.io/)) using Netty.
 
 ## Benchmark Winners
 
-The following chart shows the best-performing approaches by metric and test scenario:
+Here are top-performing approaches of this benchmark. The following charts highlight the best methods based on different metrics and test scenarios, using data from [results/results.csv](results/results.csv):
 
-- The more saturated the color, the higher the lead of the winning approach over the runner-up.
-- White or pale cells indicate a test without a clear winner.
-- This is a summary of the detailed charts which are shown in the second half of this document.
+- The darker the color, the bigger the lead of the winning approach over the runner-up.
+- If cells are white or faded, there's no clear winner as the top two approaches performed similarly.
+- For [detailed charts](#Charts) on each approach and test scenario combination, have a look at the second half of this document.
+
+### All Approaches
+
+This compares Project Loom (on both Tomcat and Netty) with Project Reactor (on Netty).
 
 ![Results](results/results.png)
 
-The following chart removes the Tomcat approach and compares only the two Netty-based approaches, i.e. Project Loom on Netty vs. Project Reactor on Netty:
+### Netty-based Approaches
+
+Based on same benchmark as before, but only comparing Netty-based approaches.
 
 ![Results](results/results-netty.png)
-
-For more information, see [detailed charts](#Charts) and [high-level results](results/results.csv).
 
 ## Background
 
