@@ -271,14 +271,16 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
     values_by_name = {
         'scenario': scenario,
         'approach': approach,
+        'requests_ok': sum(latency_metrics.rps),
+        'requests_error': len(latency_metrics.error_latencies),
+        'rps_avg': sum(latency_metrics.rps) / len(latency_metrics.rps),
+        'rps_max': max(latency_metrics.rps),
         'latency_min': min(latency_metrics.latencies),
         'latency_avg': sum(latency_metrics.latencies) / len(latency_metrics.latencies),
         'latency_p50': np.percentile(latency_metrics.latencies, 50),
         'latency_p90': np.percentile(latency_metrics.latencies, 90),
         'latency_p99': np.percentile(latency_metrics.latencies, 99),
         'latency_max': max(latency_metrics.latencies),
-        'rps_avg': sum(latency_metrics.rps) / len(latency_metrics.rps),
-        'rps_max': max(latency_metrics.rps),
         'cpu_total_use_percent_avg': sum(system_metrics.total_cpu) / len(system_metrics.total_cpu),
         'cpu_total_use_percent_max': max(system_metrics.total_cpu),
         'cpu_system_use_percent_avg': sum(system_metrics.system_cpu) / len(system_metrics.system_cpu),
@@ -297,8 +299,7 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
         'sockets_max': int(max(system_metrics.tcpsck)),
         'tcp_segments_per_req_min': int(min(system_metrics.tcp_segments_per_request_total)),
         'tcp_segments_per_req_avg': int(np.average(system_metrics.tcp_segments_per_request_total)),
-        'tcp_segments_per_req_max': int(max(system_metrics.tcp_segments_per_request_total)),
-        'errors': len(latency_metrics.error_latencies)
+        'tcp_segments_per_req_max': int(max(system_metrics.tcp_segments_per_request_total))
     }
     file_exists = os.path.isfile(results_csv_file)
     with open(results_csv_file, 'a', newline='') as file:
