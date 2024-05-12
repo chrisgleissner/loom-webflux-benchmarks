@@ -141,7 +141,7 @@ class CSVRenderer:
         ax.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1.05, 0.5), fontsize='small')
 
         plt.suptitle('Best Approaches by Metric and Scenario', weight='bold', y=0.94)
-        plt.title('Cells show metric value for best approach above runner-up, with color saturation based on win margin.', size='small')
+        plt.title('Cells show metric value for best approach above runner-up. Color saturation is based on win margin.', size='small')
         plt.savefig(self.output_file, bbox_inches='tight')
         plt.close()
         log("Saved " + self.output_file)
