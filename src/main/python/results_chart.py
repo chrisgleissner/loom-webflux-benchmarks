@@ -52,12 +52,12 @@ class CSVRenderer:
         self.output_file = output_file
         self.more_is_better_by_metric_name = {
             "cpu": False,
-            "errors": False,
             "gc": False,
             "heap": False,
             "latency": False,
             "platform": False,
             "ram": False,
+            "requests": True,
             "rps": True,
             "tcp": False
         }
@@ -95,9 +95,8 @@ class CSVRenderer:
             color_row = []
             for scenario in self.scenarios:
                 result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
-                more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), True)
-                ranked_approaches = sorted([approach for approach in result_by_approach.keys() if approach in self.approaches],
-                                           key=lambda x: result_by_approach[x], reverse=more_is_better)
+                more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), not 'error' in metric)
+                ranked_approaches = sorted([approach for approach in result_by_approach.keys() if approach in self.approaches],key=lambda x: result_by_approach[x], reverse=more_is_better)
                 ranked_results = [result_by_approach[approach] for approach in ranked_approaches]
                 winning_approach = ranked_approaches[0]
                 runner_up_approach = ranked_approaches[min(len(ranked_approaches) - 1, 1)]
