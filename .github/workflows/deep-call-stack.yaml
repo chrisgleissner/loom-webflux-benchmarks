@@ -1,4 +1,4 @@
-name: high-load
+name: deep-call-stack
 on:
   schedule:
     - cron: '0 17 2 * *' # 2nd of each month at 5pm
