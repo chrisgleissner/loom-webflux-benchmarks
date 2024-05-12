@@ -52,12 +52,12 @@ class CSVRenderer:
         self.output_file = output_file
         self.more_is_better_by_metric_name = {
             "cpu": False,
-            "errors": False,
             "gc": False,
             "heap": False,
             "latency": False,
             "platform": False,
             "ram": False,
+            "requests": True,
             "rps": True,
             "tcp": False
         }
@@ -95,9 +95,9 @@ class CSVRenderer:
             color_row = []
             for scenario in self.scenarios:
                 result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
-                more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), True)
-                ranked_approaches = sorted([approach for approach in result_by_approach.keys() if approach in self.approaches],
-                                           key=lambda x: result_by_approach[x], reverse=more_is_better)
+                more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), not 'error' in metric)
+                ranked_approaches = sorted([approach for approach in result_by_approach.keys() if approach in self.approaches], key=lambda x: result_by_approach[x],
+                                           reverse=more_is_better)
                 ranked_results = [result_by_approach[approach] for approach in ranked_approaches]
                 winning_approach = ranked_approaches[0]
                 runner_up_approach = ranked_approaches[min(len(ranked_approaches) - 1, 1)]
@@ -141,7 +141,7 @@ class CSVRenderer:
         ax.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1.05, 0.5), fontsize='small')
 
         plt.suptitle('Best Approaches by Metric and Scenario', weight='bold', y=0.94)
-        plt.title('Cells show values of best approach above runner-up. Color saturation based on win margin.', size='small')
+        plt.title('Cells show metric value for best approach above runner-up. Color saturation is based on win margin.', size='small')
         plt.savefig(self.output_file, bbox_inches='tight')
         plt.close()
         log("Saved " + self.output_file)
