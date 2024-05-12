@@ -297,7 +297,6 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
         'platform_threads_max': int(np.max(jvm_metrics.platform_thread_count)),
         'sockets_avg': int(sum(system_metrics.tcpsck) / len(system_metrics.tcpsck)),
         'sockets_max': int(max(system_metrics.tcpsck)),
-        'tcp_segments_per_req_min': int(min(system_metrics.tcp_segments_per_request_total)),
         'tcp_segments_per_req_avg': int(np.average(system_metrics.tcp_segments_per_request_total)),
         'tcp_segments_per_req_max': int(max(system_metrics.tcp_segments_per_request_total))
     }
