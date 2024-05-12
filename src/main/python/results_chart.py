@@ -113,7 +113,7 @@ class CSVRenderer:
         color_rows = self.get_color_rows()
         num_rows = len(color_rows)
         num_cols = len(color_rows[0]) if color_rows else 0
-        fig, ax = plt.subplots(figsize=(12, 12))
+        fig, ax = plt.subplots(figsize=(12, 14))
         plt.xlim([0, num_cols])
         plt.ylim([0, num_rows])
         plt.gca().invert_yaxis()
