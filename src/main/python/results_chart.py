@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Converts results.csv to a PNG file.
+# Converts results CSV file to a PNG file.
 
 import argparse
 import csv
@@ -89,17 +89,6 @@ class CSVRenderer:
             print(f"Error: {ve}")
             sys.exit(1)
 
-    def get_winning_approach(self, approaches: List[str], scenario: Dict[str, str]) -> str:
-        best_approach = None
-        best_grade = -math.inf if self.more_is_better_by_metric_name else math.inf
-        for approach in approaches:
-            grade = float(scenario[approach])
-            if (self.more_is_better_by_metric_name.get(approach, True) and grade > best_grade) or \
-                    (not self.more_is_better_by_metric_name.get(approach, True) and grade < best_grade):
-                best_approach = approach
-                best_grade = grade
-        return best_approach
-
     def get_color_rows(self) -> List[List[Color]]:
         color_rows = []
         for metric in self.metrics:
@@ -107,7 +96,6 @@ class CSVRenderer:
             for scenario in self.scenarios:
                 result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
                 more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), True)
-
                 ranked_approaches = sorted([approach for approach in result_by_approach.keys() if approach in self.approaches],
                                            key=lambda x: result_by_approach[x], reverse=more_is_better)
                 ranked_results = [result_by_approach[approach] for approach in ranked_approaches]
@@ -116,19 +104,15 @@ class CSVRenderer:
                 winning_result_delta_perc = calculate_winning_result_delta_perc(result_by_approach[winning_approach], result_by_approach[runner_up_approach])
                 saturation = max(0.0, min(1.0, winning_result_delta_perc))
                 saturation = round(1 - math.exp(-7 * saturation), 2)  # Skew small differences to make colors easier to distinguish
-
                 color_name = self.color_name_by_approach[winning_approach]
                 color_row.append(Color(color_name, saturation, ranked_results))
-
             color_rows.append(color_row)
-
         return color_rows
 
     def render_png(self):
         color_rows = self.get_color_rows()
         num_rows = len(color_rows)
         num_cols = len(color_rows[0]) if color_rows else 0
-
         fig, ax = plt.subplots(figsize=(12, 12))
         plt.xlim([0, num_cols])
         plt.ylim([0, num_rows])
@@ -148,7 +132,6 @@ class CSVRenderer:
 
         ax.set_xticks([tick + 0.5 for tick in range(num_cols)])
         ax.set_xticklabels(self.scenarios, rotation=20, ha='right', rotation_mode='anchor')
-
         ax.set_yticks([tick + 0.5 for tick in range(num_rows)])
         ax.set_yticklabels(self.metrics)
 
