@@ -7,7 +7,7 @@ import math
 import matplotlib.pyplot as plt
 import sys
 from collections import OrderedDict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Dict, Tuple
 
@@ -19,6 +19,11 @@ APPROACH = 'approach'
 class Color:
     name: str
     saturation: float
+    results: List[float] = field(default_factory=list)
+
+
+def format_float(value):
+    return f"{value:.0f}" if value % 1 == 0 or value > 100 else (f"{value:.1f}" if value > 10 else f"{value:.2f}")
 
 
 def log(msg):
@@ -105,6 +110,7 @@ class CSVRenderer:
 
                 ranked_approaches = sorted([approach for approach in result_by_approach.keys() if approach in self.approaches],
                                            key=lambda x: result_by_approach[x], reverse=more_is_better)
+                ranked_results = [result_by_approach[approach] for approach in ranked_approaches]
                 winning_approach = ranked_approaches[0]
                 runner_up_approach = ranked_approaches[min(len(ranked_approaches) - 1, 1)]
                 winning_result_delta_perc = calculate_winning_result_delta_perc(result_by_approach[winning_approach], result_by_approach[runner_up_approach])
@@ -112,7 +118,7 @@ class CSVRenderer:
                 saturation = round(1 - math.exp(-7 * saturation), 2)  # Skew small differences to make colors easier to distinguish
 
                 color_name = self.color_name_by_approach[winning_approach]
-                color_row.append(Color(color_name, saturation))
+                color_row.append(Color(color_name, saturation, ranked_results))
 
             color_rows.append(color_row)
 
@@ -123,7 +129,7 @@ class CSVRenderer:
         num_rows = len(color_rows)
         num_cols = len(color_rows[0]) if color_rows else 0
 
-        fig, ax = plt.subplots(figsize=(10, 10))
+        fig, ax = plt.subplots(figsize=(12, 12))
         plt.xlim([0, num_cols])
         plt.ylim([0, num_rows])
         plt.gca().invert_yaxis()
@@ -131,11 +137,19 @@ class CSVRenderer:
         for row, color_row in enumerate(color_rows):
             for col, color in enumerate(color_row):
                 ax.add_patch(plt.Rectangle((col, row), 1, 1, color=color.name, alpha=color.saturation))
+                for idx, result in enumerate(color.results[:2] if len(color.results) >= 2 else color.results):
+                    text_col = col + 0.5
+                    text_row = row + 0.35
+                    formatted_result = format_float(result)
+                    if idx == 0:
+                        ax.text(text_col, text_row, f"{formatted_result}", ha='center', va='center', fontsize='small', weight='bold')
+                    else:
+                        ax.text(text_col, text_row + 0.40 * idx, f"{formatted_result}", ha='center', va='center', fontsize='x-small')
 
-        ax.set_xticks(range(num_cols))
+        ax.set_xticks([tick + 0.5 for tick in range(num_cols)])
         ax.set_xticklabels(self.scenarios, rotation=20, ha='right', rotation_mode='anchor')
 
-        ax.set_yticks(range(num_rows))
+        ax.set_yticks([tick + 0.5 for tick in range(num_rows)])
         ax.set_yticklabels(self.metrics)
 
         legend_handles = []
@@ -144,7 +158,7 @@ class CSVRenderer:
         ax.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1.05, 0.5), fontsize='small')
 
         plt.suptitle('Best Approaches by Metric and Scenario', weight='bold', y=0.94)
-        plt.title('Color saturation based on win margin', size='small')
+        plt.title('Cells show values of best approach above runner-up. Color saturation based on win margin.', size='small')
         plt.savefig(self.output_file, bbox_inches='tight')
         plt.close()
         log("Saved " + self.output_file)

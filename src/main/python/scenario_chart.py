@@ -263,13 +263,8 @@ def legend_label(name, measurements, unit=''):
     return '{}: {:,.0f} / {:,.0f} / {:,.0f}{}'.format(name, np.min(measurements), np.average(measurements), np.max(measurements), unit)
 
 
-def variable_round(value):
-    if value < 10:
-        return round(value, 2)
-    elif value < 100:
-        return round(value, 1)
-    else:
-        return round(value)
+def format_float(value):
+    return f"{value:.0f}" if value % 1 == 0 or value > 100 else (f"{value:.1f}" if value > 10 else f"{value:.2f}")
 
 
 def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metrics, results_csv_file):
@@ -282,7 +277,6 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
         'latency_p90': np.percentile(latency_metrics.latencies, 90),
         'latency_p99': np.percentile(latency_metrics.latencies, 99),
         'latency_max': max(latency_metrics.latencies),
-        'rps_min': min(latency_metrics.rps),
         'rps_avg': sum(latency_metrics.rps) / len(latency_metrics.rps),
         'rps_max': max(latency_metrics.rps),
         'cpu_use_percent_min': min(system_metrics.total_cpu),
@@ -291,7 +285,6 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
         'heap_use_percent_min': min(jvm_metrics.heap_used),
         'heap_use_percent_avg': sum(jvm_metrics.heap_used) / len(jvm_metrics.heap_used),
         'heap_use_percent_max': max(jvm_metrics.heap_used),
-        'sockets_min': int(min(system_metrics.tcpsck)),
         'sockets_avg': int(sum(system_metrics.tcpsck) / len(system_metrics.tcpsck)),
         'sockets_max': int(max(system_metrics.tcpsck)),
         'tcp_segments_per_req_min': int(min(system_metrics.tcp_segments_per_request_total)),
@@ -308,7 +301,7 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
         writer = csv.DictWriter(file, fieldnames=values_by_name.keys())
         if not file_exists:
             writer.writeheader()
-        writer.writerow({key: variable_round(value) if isinstance(value, (int, float)) else value for key, value in values_by_name.items()})
+        writer.writerow({key: format_float(value) if isinstance(value, (int, float)) else value for key, value in values_by_name.items()})
 
 
 def main():

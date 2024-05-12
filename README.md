@@ -41,19 +41,21 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 
 Here are top-performing approaches of this benchmark. The following charts highlight the best methods based on different metrics and test scenarios, using data from [results/results.csv](results/results.csv):
 
-- The darker the color, the bigger the lead of the winning approach over the runner-up.
+- Each cell shows the metric values of best approach (on top) and runner-up.
+- What "best" is depends on the metric: A lower value is better for all metrics except for metric names starting with `rps` or `sockets`.
+- Cells are colored based on the winning approach. The darker the color, the bigger the lead of the winning approach over the runner-up.
 - If cells are white or faded, there's no clear winner as the top two approaches performed similarly.
 - For [detailed charts](#Charts) on each approach and test scenario combination, have a look at the second half of this document.
 
 ### All Approaches
 
-This compares Project Loom (on both Tomcat and Netty) with Project Reactor (on Netty).
+This chart compares Project Loom (on both Tomcat and Netty) with Project Reactor (on Netty).
 
 ![Results](results/results.png)
 
 ### Netty-based Approaches
 
-Based on same benchmark as before, but only comparing Netty-based approaches.
+This chart is based on same benchmark as before, but only considers Netty-based approaches.
 
 ![Results](results/results-netty.png)
 
