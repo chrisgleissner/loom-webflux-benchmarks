@@ -1,4 +1,4 @@
-scenario,approach,rps,latency_avg,gc_time
+scenario,approach,requests_per_second,latency_avg,garbage_collection_time_millis
 s1,a1,0.5,2,1
 s1,a2,1.0,2,1
 s2,a1,10,15,20

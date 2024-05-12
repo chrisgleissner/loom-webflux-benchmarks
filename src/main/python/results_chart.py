@@ -52,13 +52,12 @@ class CSVRenderer:
         self.output_file = output_file
         self.more_is_better_by_metric_name = {
             "cpu": False,
-            "gc": False,
+            "garbage": False,
             "heap": False,
             "latency": False,
             "platform": False,
             "ram": False,
             "requests": True,
-            "rps": True,
             "tcp": False
         }
         self.colors = ['forestgreen', 'royalblue', 'goldenrod', 'maroon', 'black']
