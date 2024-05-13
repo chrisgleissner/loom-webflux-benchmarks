@@ -1,4 +1,5 @@
 #!/bin/bash
+# Logs system specs.
 
 printf "Java:\t"
 java --version | grep "Server"

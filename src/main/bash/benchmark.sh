@@ -1,5 +1,5 @@
 #!/bin/bash
-# Performs a benchmark of Loom and WebFlux. Outputs are written to build/results/$scenario.
+# Runs all benchmarks and saves results to build/results.
 
 approaches="loom-tomcat,loom-netty,webflux-netty"
 scenariosDir="src/main/resources/scenarios"

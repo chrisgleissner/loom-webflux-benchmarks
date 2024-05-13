@@ -22,12 +22,26 @@ def clear_test_output_dir():
     os.makedirs(TEST_OUTPUT_DIR, exist_ok=True)
 
 
-def test_main():
-    png_filename = "loom-netty.png"
-    png_file = TEST_OUTPUT_DIR + png_filename
-    expected_png_file = RESOURCES_DIR + png_filename
+parameterization = [
+    ("loom-netty-latency.csv",
+     "loom-netty-system.csv",
+     "loom-netty-jvm.csv",
+     "loom-netty.png",
+     "results.csv",
+     ),
+    ("missing-latencies/webflux-netty-latency.csv",
+     "missing-latencies/webflux-netty-system.csv",
+     "missing-latencies/webflux-netty-jvm.csv",
+     "missing-latencies/webflux-netty.png",
+     "missing-latencies/results.csv",
+     ),
+]
 
-    results_csv_filename = "results.csv"
+
+@pytest.mark.parametrize("latency_csv_filename, system_csv_filename, jvm_csv_filename, png_filename, results_csv_filename", parameterization)
+def test_main(latency_csv_filename, system_csv_filename, jvm_csv_filename, png_filename, results_csv_filename):
+    expected_png_file = TEST_OUTPUT_DIR + png_filename
+
     results_csv_file = TEST_OUTPUT_DIR + results_csv_filename
     expected_results_csv_file = RESOURCES_DIR + results_csv_filename
 
@@ -35,10 +49,10 @@ def test_main():
         "scenario_chart.py",
         "smoketest",
         "loom-netty",
-        RESOURCES_DIR + "loom-netty-latency.csv",
-        RESOURCES_DIR + "loom-netty-system.csv",
-        RESOURCES_DIR + "loom-netty-jvm.csv",
-        png_file,
+        RESOURCES_DIR + latency_csv_filename,
+        RESOURCES_DIR + system_csv_filename,
+        RESOURCES_DIR + jvm_csv_filename,
+        expected_png_file,
         results_csv_file
     ]
     with patch('sys.argv', argv):

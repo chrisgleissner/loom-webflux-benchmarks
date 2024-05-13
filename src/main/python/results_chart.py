@@ -55,10 +55,10 @@ class CSVRenderer:
             "garbage": False,
             "heap": False,
             "latency": False,
+            "network": False,
             "platform": False,
             "ram": False,
             "requests": True,
-            "tcp": False
         }
         self.colors = ['forestgreen', 'royalblue', 'goldenrod', 'maroon', 'black']
 

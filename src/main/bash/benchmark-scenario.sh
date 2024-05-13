@@ -1,5 +1,5 @@
 #!/bin/bash
-# Performs a benchmark of Loom and WebFlux for a single scenario.
+# Benchmarks an approach for a specific scenario.
 
 print_usage() {
     echo "Syntax: $(basename "$0") [-h] -a <approach> -s <scenario> -k <k6Config> -d <delayCallDepth> -m <delayInMillis> -c <connections> [-r <requestsPerSecond>] -w <warmupDurationInSeconds> -t <testDurationInSeconds> -C <keepCsvFiles>"
