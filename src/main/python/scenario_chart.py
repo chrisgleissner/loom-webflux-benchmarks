@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # Converts latency, JVM metric, and system metric CSV files to a PNG file.
+# Appends high-level results to results.csv for later conversion to a PNG file by results_chart.py.
 
 import csv
 import matplotlib.pyplot as plt
@@ -17,100 +18,158 @@ def log(msg):
     print(datetime.now().strftime("%H:%M:%S") + " " + msg)
 
 
+def divide0(a, b):
+    return np.divide(a, b, out=np.zeros_like(a), where=b != 0)
+
+
+def is_ok(status_code):
+    return int(status_code / 100) == 2
+
+
+def _seconds_elapsed(times):
+    min_time = np.array(times).min()
+    return [t - min_time for t in times]
+
+
+def _calculate_rps(seconds_elapsed):
+    seconds_bin = int(np.ceil(seconds_elapsed[-1])) + 1 if seconds_elapsed else 0
+    rps = np.histogram(seconds_elapsed, bins=seconds_bin, range=(0, seconds_bin))[0] if seconds_elapsed else []
+    return rps
+
+
 class LatencyMetrics:
 
     def __init__(self, filename):
+        start_time = time.time()
         self.times = []
-        self.seconds_elapsed = []
+        self.times_requested = []
+        self.times_ok = []
+
         self.latencies = []
+        self.latencies_requested = []
+        self.latencies_ok = []
+        self.latencies_error = []
+
         self.status_codes = []
-        self.error_seconds_elapsed = []
-        self.error_latencies = []
+
         self.rps = []
+        self.rps_requested = []
         self.rps_error = []
-        self.rps_bin_count = 0
-        self.percentile_time_buckets = []
-        self.p50_values = []
-        self.p90_values = []
-        self.p99_values = []
+
+        self.latency_1s_buckets_p50 = []
+        self.latency_1s_buckets_p90 = []
+        self.latency_1s_buckets_p99 = []
 
         self._parse_csv(filename)
 
-        min_time = np.array(self.times).min()
-        self.seconds_elapsed = [t - min_time for t in self.times]
-        self._calculate_latency()
-        self._calculate_rps()
-        self.percentile_time_buckets = np.arange(len(self.p50_values))
+        self.seconds_elapsed = _seconds_elapsed(self.times)
+        self.seconds_elapsed_requested = _seconds_elapsed(self.times_requested)
+        self.seconds_elapsed_ok = _seconds_elapsed(self.times_ok)
+        self.seconds_elapsed_error = []
+
+        self._calculate_latency_1s_buckets_and_errors()
+        self._calculate_all_rps()
+
+        self.percentile_time_buckets = np.arange(len(self.latency_1s_buckets_p50))
+        log("Read latency metrics in " + str(int((time.time() - start_time) * 1000)) + "ms")
 
     def _parse_csv(self, filename):
         with open(filename, 'r') as file:
             reader = csv.reader(file)
+
             for row in reader:
-                self.times.append(int(row[0]) / 1000)
-                self.latencies.append(float(row[1]))
-                self.status_codes.append(int(row[2]))
+                time = int(row[0]) / 1000
+                self.times.append(time)
 
-    def _calculate_latency(self):
-        latency_bucket_start = self.seconds_elapsed[0]
-        latency_bucket_end = latency_bucket_start + 1
+                latency = float(row[1])
+                self.latencies.append(latency)
+
+                status_code = int(row[2])
+                self.status_codes.append(status_code)
+
+                if latency > 0:
+                    self.times_requested.append(time)
+                    self.latencies_requested.append(latency)
+
+                if is_ok(status_code):
+                    self.times_ok.append(time)
+                    self.latencies_ok.append(latency)
+
+    def _calculate_latency_1s_buckets_and_errors(self):
         bucket_latencies = []
+        bucket_latencies_seconds_elapsed_threshold = self.seconds_elapsed[0] + 1
 
-        def _append_percentile_values():
-            self.p50_values.append(np.percentile(bucket_latencies, 50))
-            self.p90_values.append(np.percentile(bucket_latencies, 90))
-            self.p99_values.append(np.percentile(bucket_latencies, 99))
+        def _append_percentile_values_from_bucket_latencies():
+            if len(bucket_latencies) > 0:
+                self.latency_1s_buckets_p50.append(np.percentile(bucket_latencies, 50))
+                self.latency_1s_buckets_p90.append(np.percentile(bucket_latencies, 90))
+                self.latency_1s_buckets_p99.append(np.percentile(bucket_latencies, 99))
+            else:
+                self.latency_1s_buckets_p50.append(0)
+                self.latency_1s_buckets_p90.append(0)
+                self.latency_1s_buckets_p99.append(0)
 
         for seconds_elapsed, status_code, latency in zip(self.seconds_elapsed, self.status_codes, self.latencies):
-            status_ok = int(status_code / 100) == 2
-            if not status_ok:
-                self.error_seconds_elapsed.append(seconds_elapsed)
-                self.error_latencies.append(latency + 0.1)  # Ensure latency 0 is plotted
-            if seconds_elapsed < latency_bucket_end:
-                if status_ok:
-                    bucket_latencies.append(latency)
-            else:
-                _append_percentile_values()
-                latency_bucket_start = seconds_elapsed
-                latency_bucket_end = latency_bucket_start + 1
-                bucket_latencies = [latency]
+            bucket_latencies.append(latency)
+            if not is_ok(status_code):
+                self.seconds_elapsed_error.append(seconds_elapsed)
+                self.latencies_error.append(latency + 0.1)  # Ensure latency 0 is plotted
+            if seconds_elapsed >= bucket_latencies_seconds_elapsed_threshold:
+                _append_percentile_values_from_bucket_latencies()
+                bucket_latencies_seconds_elapsed_threshold = seconds_elapsed + 1
+                bucket_latencies = []
 
-        _append_percentile_values()
+        _append_percentile_values_from_bucket_latencies()
 
-    def _calculate_rps(self):
-        self.rps_bin_count = int(np.ceil(self.seconds_elapsed[-1])) + 1
-        self.rps, _ = np.histogram(self.seconds_elapsed, bins=self.rps_bin_count, range=(0, self.rps_bin_count))
-        if len(self.error_latencies) > 0:
-            self.rps_error, _ = np.histogram(self.error_seconds_elapsed, bins=self.rps_bin_count, range=(0, self.rps_bin_count))
+    def _calculate_all_rps(self):
+        self.rps = _calculate_rps(self.seconds_elapsed)
+        self.rps_requested = _calculate_rps(self.seconds_elapsed_requested)
+        self.rps_error = _calculate_rps(self.seconds_elapsed_error)
 
 
 class SystemMetrics:
 
     def __init__(self, filename, latency_metrics):
         self.system_times = []
+
+        # CPU
         self.user_cpu = []
         self.system_cpu = []
         self.iowait_cpu = []
+
+        # Mem
         self.mem_used = []
+
+        # Sockets
         self.tcpsck = []
         self.active_s = []
         self.passive_s = []
+
+        # Network Transfer
         self.iseg_s = []
         self.oseg_s = []
+        self.rxpck_s = []
+        self.txpck_s = []
+        self.rxkb_s = []
+        self.txkb_s = []
 
         self._parse_csv(filename)
 
-        self.total_seg_s = [iseg_s + oseg_s for iseg_s, oseg_s in zip(self.iseg_s, self.oseg_s)]
         self.total_cpu = [user + system + iowait for user, system, iowait in zip(self.user_cpu, self.system_cpu, self.iowait_cpu)]
         self.seconds_elapsed = [(timestamp - self.system_times[0]).total_seconds() for timestamp in self.system_times]
 
-        tcp_segments_len = min(len(self.total_seg_s), len(latency_metrics.rps))
-        self.tcp_segments_per_request_total = np.divide(self.total_seg_s[:tcp_segments_len], latency_metrics.rps[:tcp_segments_len])
-        self.tcp_segments_per_request_rcv = np.divide(self.iseg_s[:tcp_segments_len], latency_metrics.rps[:tcp_segments_len])
-        self.tcp_segments_per_request_snt = np.divide(self.oseg_s[:tcp_segments_len], latency_metrics.rps[:tcp_segments_len])
+        self.total_kb_s = [rxkb_s + txkb_s for rxkb_s, txkb_s in zip(self.rxkb_s, self.txkb_s)]
+        kb_len = min(len(self.total_kb_s), len(latency_metrics.rps))
+        self.kb_per_request_total = divide0(self.total_kb_s[:kb_len], latency_metrics.rps[:kb_len])
+
+        self.total_pck_s = [rxpck_s + txpck_s for rxpck_s, txpck_s in zip(self.rxpck_s, self.txpck_s)]
+        pck_len = min(len(self.total_pck_s), len(latency_metrics.rps))
+        self.pck_per_request_total = divide0(self.total_pck_s[:pck_len], latency_metrics.rps[:pck_len])
 
     def _parse_csv(self, filename):
         with open(filename, 'r') as file:
             csv_reader = csv.DictReader(file, delimiter=';')
+            # CSV cols: timestamp;%user;%system;%iowait;%memused;rxpck/s;txpck/s;rxkB/s;txkB/s;tcpsck;active/s;passive/s;iseg/s;oseg/s
             for row in csv_reader:
                 self.system_times.append(datetime.utcfromtimestamp(int(row['timestamp'])))
                 self.user_cpu.append(float(row['%user']))
@@ -122,6 +181,10 @@ class SystemMetrics:
                 self.passive_s.append(float(row['passive/s']))
                 self.iseg_s.append(float(row['iseg/s']))
                 self.oseg_s.append(float(row['oseg/s']))
+                self.rxpck_s.append(float(row['rxpck/s']))
+                self.txpck_s.append(float(row['txpck/s']))
+                self.rxkb_s.append(float(row['rxkB/s']))
+                self.txkb_s.append(float(row['txkB/s']))
 
 
 class JvmMetrics:
@@ -151,7 +214,7 @@ class JvmMetrics:
                 self.platform_thread_count.append(int(row['platformThreadCount']))
 
 
-def plot(title, latency_metrics, system_metrics, jvm_metrics, output_png_file):
+def create_plot_png_file(title, latency_metrics, system_metrics, jvm_metrics, output_png_file):
     fig, (latency, rps, cpu, ram, socket, throughput) = plt.subplots(6, 1, figsize=(25, 20), sharex=True)
     fig.suptitle(title, fontsize=18)
     fig.subplots_adjust(top=0.93)
@@ -178,31 +241,32 @@ def plot(title, latency_metrics, system_metrics, jvm_metrics, output_png_file):
 
 def _add_request_plots(latency_metrics, latency_plot, rps_plot):
     latency_plot.scatter(latency_metrics.seconds_elapsed, latency_metrics.latencies,
-                         label=legend_label('Latency', latency_metrics.latencies, 'ms'), color='silver', alpha=0.7, s=1)
-    latency_plot.scatter(latency_metrics.error_seconds_elapsed, latency_metrics.error_latencies,
-                         label='Errors: ' + str(len(latency_metrics.error_latencies)), color='red')
+                         label=legend_label('Latency', latency_metrics.latencies_requested, 'ms'), color='silver', alpha=0.7, s=1)
 
-    latency_plot.plot(latency_metrics.percentile_time_buckets, latency_metrics.p99_values,
+    if len(latency_metrics.latencies_error) > 0:
+        latency_plot.scatter(latency_metrics.seconds_elapsed_error, latency_metrics.latencies_error,
+                             label='Errors: ' + str(len(latency_metrics.latencies_error)), color='red')
+
+    latency_plot.plot(latency_metrics.percentile_time_buckets, latency_metrics.latency_1s_buckets_p99,
                       label='p99: {:,.0f}ms'.format(np.percentile(latency_metrics.latencies, 99)), color='blue', linewidth=1)
-    latency_plot.plot(latency_metrics.percentile_time_buckets, latency_metrics.p90_values,
+    latency_plot.plot(latency_metrics.percentile_time_buckets, latency_metrics.latency_1s_buckets_p90,
                       label='p90: {:,.0f}ms'.format(np.percentile(latency_metrics.latencies, 90)), color='green', linewidth=1)
-    latency_plot.plot(latency_metrics.percentile_time_buckets, latency_metrics.p50_values,
+    latency_plot.plot(latency_metrics.percentile_time_buckets, latency_metrics.latency_1s_buckets_p50,
                       label='p50: {:,.0f}ms'.format(np.percentile(latency_metrics.latencies, 50)), color='black', linewidth=2)
 
     latency_plot.set_ylabel('Latency (ms)', color='black')
-    latency_plot.set_title(title_label('Latency', latency_metrics.latencies, 'ms'), weight='bold')
+    latency_plot.set_title(title_label('Latency', latency_metrics.latencies_requested, 'ms'), weight='bold')
     latency_plot.set_yscale('log')
     latency_plot.yaxis.set_minor_locator(LogLocator(subs=(1.0, 3.0)))
 
-    if len(latency_metrics.error_latencies) > 0:
-        rps_plot.plot(list(range(latency_metrics.rps_bin_count)), latency_metrics.rps_error,
-                      label=legend_label('RPS (Failed)', latency_metrics.rps_error), color='orange', linewidth=2)
-
-    rps_plot.plot(list(range(latency_metrics.rps_bin_count)), latency_metrics.rps, label=legend_label('RPS', latency_metrics.rps), color='black', linewidth=2)
+    rps_plot.plot(list(range(len(latency_metrics.rps))), latency_metrics.rps, label=legend_label('RPS', latency_metrics.rps), color='black', linewidth=2)
     rps_plot.set_ylabel('Requests per second', color='black')
-    title_postfix = '. Total requests: {:,.0f} ok, {:,.0f} failed.'.format(len(latency_metrics.latencies) - len(latency_metrics.error_latencies),
-                                                                           len(latency_metrics.error_latencies))
-    rps_plot.set_title(title_label(prefix='RPS', measurements=latency_metrics.rps, unit='', postfix=title_postfix), weight='bold')
+    title_postfix = '. Total requests: {:,.0f} ok, {:,.0f} failed.'.format(len(latency_metrics.latencies_ok), len(latency_metrics.latencies_error))
+    rps_plot.set_title(title_label(prefix='RPS', measurements=latency_metrics.rps_requested, unit='', postfix=title_postfix), weight='bold')
+
+    if len(latency_metrics.latencies_error) > 0:
+        rps_plot.plot(list(range(len(latency_metrics.rps_error))), latency_metrics.rps_error,
+                      label=legend_label('RPS (Failed)', latency_metrics.rps_error), color='orange', linewidth=2)
 
 
 def _add_system_plots(system_metrics, jvm_metrics, cpu, ram, socket, throughput):
@@ -236,31 +300,36 @@ def _add_system_plots(system_metrics, jvm_metrics, cpu, ram, socket, throughput)
     socket.plot(system_metrics.seconds_elapsed, system_metrics.tcpsck,
                 label=legend_label('TCP', system_metrics.tcpsck), linestyle='solid', linewidth=2)
     socket.plot(system_metrics.seconds_elapsed, system_metrics.active_s,
-                label=legend_label('TCP Active Opens / s', system_metrics.active_s), linestyle='solid', linewidth=1)
+                label=legend_label('TCP Active Opens', system_metrics.active_s), linestyle='solid', linewidth=1)
     socket.plot(system_metrics.seconds_elapsed, system_metrics.passive_s,
-                label=legend_label('TCP Passive Opens / s', system_metrics.passive_s), linestyle='solid', linewidth=1)
+                label=legend_label('TCP Passive Opens', system_metrics.passive_s), linestyle='solid', linewidth=1)
     socket.set_ylabel('Sockets', color='black')
     socket.set_title(title_label('Sockets', system_metrics.tcpsck, ''), weight='bold')
 
-    throughput.plot(system_metrics.seconds_elapsed, system_metrics.total_seg_s,
-                    label=legend_label('Total', system_metrics.total_seg_s, ''), color='black', linestyle='solid', linewidth=2)
-    throughput.plot(system_metrics.seconds_elapsed, system_metrics.iseg_s,
-                    label=legend_label('Received / s', system_metrics.iseg_s), color='tab:gray', linestyle='solid', linewidth=1)
-    throughput.plot(system_metrics.seconds_elapsed, system_metrics.oseg_s,
-                    label=legend_label('Sent / s', system_metrics.oseg_s), color='tab:green', linestyle='solid', linewidth=1)
-    throughput.set_ylabel('TCP Segments', color='black')
-    throughput.set_title(title_label('Throughput', system_metrics.total_seg_s, ''), weight='bold')
+    def _mbps(kib_per_sec_array):
+        return [value / 1024 * 8 for value in kib_per_sec_array]
+
+    total_mbps = _mbps(system_metrics.total_kb_s)
+    rx_mbps = _mbps(system_metrics.rxkb_s)
+    tx_mbps = _mbps(system_metrics.txkb_s)
+
+    throughput.plot(system_metrics.seconds_elapsed, total_mbps, label=legend_label('Total', total_mbps, 'Mbps'), color='black', linestyle='solid', linewidth=2)
+    throughput.plot(system_metrics.seconds_elapsed, rx_mbps, label=legend_label('Received', rx_mbps, 'Mbps'), color='tab:gray', linestyle='solid', linewidth=1)
+    throughput.plot(system_metrics.seconds_elapsed, tx_mbps, label=legend_label('Sent', tx_mbps, 'Mbps'), color='tab:green', linestyle='solid', linewidth=1)
+    throughput.set_ylabel('Mbps', color='black')
+    throughput.set_title(title_label('Throughput', total_mbps, 'Mbps'), weight='bold')
     throughput.set_xlabel('Seconds')
 
 
 def title_label(prefix, measurements, unit=None, postfix=''):
     if unit is None:
         unit = {}
-    return '{} (Min / Avg / Max: {:,.0f} / {:,.0f} / {:,.0f}{}{})'.format(prefix, np.min(measurements), np.average(measurements), np.max(measurements), unit, postfix)
+    return '{} (Min / Median / Max: {:,.0f} / {:,.0f} / {:,.0f}{}{})'.format(prefix, np.min(measurements), np.percentile(measurements, 50),
+                                                                             np.max(measurements), unit, postfix)
 
 
 def legend_label(name, measurements, unit=''):
-    return '{}: {:,.0f} / {:,.0f} / {:,.0f}{}'.format(name, np.min(measurements), np.average(measurements), np.max(measurements), unit)
+    return '{}: {:,.0f} / {:,.0f} / {:,.0f}{}'.format(name, np.min(measurements), np.percentile(measurements, 50), np.max(measurements), unit)
 
 
 def format_float(value):
@@ -271,34 +340,42 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
     values_by_name = {
         'scenario': scenario,
         'approach': approach,
-        'requests_ok': sum(latency_metrics.rps),
-        'requests_error': len(latency_metrics.error_latencies),
-        'requests_per_second_min': min(latency_metrics.rps),
-        'requests_per_second_p50': np.percentile(latency_metrics.rps, 50),
-        'requests_per_second_p90': np.percentile(latency_metrics.rps, 90),
-        'requests_per_second_max': max(latency_metrics.rps),
-        'latency_millis_min': min(latency_metrics.latencies),
-        'latency_millis_p50': np.percentile(latency_metrics.latencies, 50),
-        'latency_millis_p90': np.percentile(latency_metrics.latencies, 90),
-        'latency_millis_max': max(latency_metrics.latencies),
-        'cpu_total_use_percent_avg': sum(system_metrics.total_cpu) / len(system_metrics.total_cpu),
-        'cpu_total_use_percent_max': max(system_metrics.total_cpu),
-        'cpu_system_use_percent_avg': sum(system_metrics.system_cpu) / len(system_metrics.system_cpu),
-        'cpu_system_use_percent_max': max(system_metrics.system_cpu),
-        'cpu_iowait_use_percent_avg': sum(system_metrics.iowait_cpu) / len(system_metrics.iowait_cpu),
-        'cpu_iowait_use_percent_max': max(system_metrics.iowait_cpu),
+
+        'requests_ok': len(latency_metrics.latencies_ok),
+        'requests_error': len(latency_metrics.latencies_error),
+
+        'requests_per_second_p50': np.percentile(latency_metrics.rps_requested, 50),
+        'requests_per_second_p90': np.percentile(latency_metrics.rps_requested, 90),
+        'requests_per_second_max': max(latency_metrics.rps_requested),
+
+        'latency_millis_min': min(latency_metrics.latencies_requested),
+        'latency_millis_p50': np.percentile(latency_metrics.latencies_requested, 50),
+        'latency_millis_p90': np.percentile(latency_metrics.latencies_requested, 90),
+        'latency_millis_p99': np.percentile(latency_metrics.latencies_requested, 99),
+        'latency_millis_max': max(latency_metrics.latencies_requested),
+
+        'cpu_use_percent_avg': sum(system_metrics.total_cpu) / len(system_metrics.total_cpu),
+        'cpu_use_percent_max': max(system_metrics.total_cpu),
+
         'ram_use_percent_avg': sum(system_metrics.mem_used) / len(system_metrics.mem_used),
         'ram_use_percent_max': max(system_metrics.mem_used),
+
         'heap_use_percent_avg': sum(jvm_metrics.heap_used) / len(jvm_metrics.heap_used),
         'heap_use_percent_max': max(jvm_metrics.heap_used),
+
         'garbage_collection_count': sum(jvm_metrics.gc_counts),
         'garbage_collection_time_millis': sum(jvm_metrics.gc_times),
+
         'platform_threads_avg': int(np.average(jvm_metrics.platform_thread_count)),
         'platform_threads_max': int(np.max(jvm_metrics.platform_thread_count)),
+
         'sockets_avg': int(sum(system_metrics.tcpsck) / len(system_metrics.tcpsck)),
         'sockets_max': int(max(system_metrics.tcpsck)),
-        'tcp_segments_per_req_avg': int(np.average(system_metrics.tcp_segments_per_request_total)),
-        'tcp_segments_per_req_max': int(max(system_metrics.tcp_segments_per_request_total))
+
+        'network_kib_per_req_avg': np.average(system_metrics.kb_per_request_total),
+        'network_kib_per_req_max': max(system_metrics.kb_per_request_total),
+        'network_packets_per_req_avg': np.average(system_metrics.pck_per_request_total),
+        'network_packets_per_req_max': max(system_metrics.pck_per_request_total)
     }
     file_exists = os.path.isfile(results_csv_file)
     with open(results_csv_file, 'a', newline='') as file:
@@ -310,7 +387,7 @@ def append_results(scenario, approach, latency_metrics, system_metrics, jvm_metr
 
 def main():
     if len(sys.argv) != 8:
-        print("Syntax: scenario_chart.py <scenario> <approach> <latencyCsvFile> <systemCsvFile> <jvmCsvFile> <outputPngFile> <scenarioStatsFile>")
+        print("Syntax: scenario_chart.py <scenario> <approach> <latencyCsvFile> <systemCsvFile> <jvmCsvFile> <outputPngFile> <resultsCsvFile>")
         sys.exit(1)
     else:
         start_time = time.time()
@@ -327,7 +404,8 @@ def main():
         system_metrics = SystemMetrics(system_csv_file, latency_metrics)
         jvm_metrics = JvmMetrics(jvm_csv_file)
 
-        plot(approach + ": " + scenario, latency_metrics, system_metrics, jvm_metrics, output_png_file)
+        os.makedirs(os.path.dirname(output_png_file), exist_ok=True)
+        create_plot_png_file(approach + ": " + scenario, latency_metrics, system_metrics, jvm_metrics, output_png_file)
         log("Saved " + output_png_file + " in " + str(int((time.time() - start_time) * 1000)) + "ms")
 
         append_results(scenario, approach, latency_metrics, system_metrics, jvm_metrics, results_csv_file)
