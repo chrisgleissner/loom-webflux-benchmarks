@@ -94,7 +94,7 @@ class CSVRenderer:
             color_row = []
             for scenario in self.scenarios:
                 result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
-                more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), not 'error' in metric)
+                more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), False) if "error" not in metric else False
                 ranked_approaches = sorted([approach for approach in result_by_approach.keys() if approach in self.approaches], key=lambda x: result_by_approach[x],
                                            reverse=more_is_better)
                 ranked_results = [result_by_approach[approach] for approach in ranked_approaches]

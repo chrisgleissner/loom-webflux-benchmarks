@@ -306,8 +306,8 @@ Virtual Threads, then for WebFlux.
 
 | scenario                         | k6Config                               | delayCallDepth | delayInMillis | connections | requestsPerSecond | warmupDurationInSeconds | testDurationInSeconds |
 |----------------------------------|----------------------------------------|----------------|---------------|-------------|-------------------|-------------------------|-----------------------|
-| 5k-vus-and-rps-get-time          | get-time.js                            | 0              | 100           | 5000        | 5000              | 10                      | 180                   |
-| 20k-vus-smooth-spike-get-movies] | k6-20k-vus-smooth-spike-get-movies].js | 0              | 100           | 20000       |                   | 0                       | 180                   |
+| 5k-vus-and-rps-get-time          | get-time.js                            | 0              | 100           | 5000        | 5000              | 10                      | 300                   |
+| 20k-vus-smooth-spike-get-movies] | k6-20k-vus-smooth-spike-get-movies].js | 0              | 100           | 20000       |                   | 0                       | 300                   |
 
 #### Columns
 
