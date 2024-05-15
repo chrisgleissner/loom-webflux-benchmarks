@@ -87,7 +87,8 @@ class LatencyMetrics:
                 status_code = int(row[2])
                 self.status_codes.append(status_code)
 
-                if latency > 0:
+                # ignore requests with short latencies yet failures since most likely never submitted to server
+                if is_ok(status_code) or (not is_ok(status_code) and latency >= 10):
                     self.times_requested.append(time)
                     self.latencies_requested.append(latency)
 

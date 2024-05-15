@@ -359,13 +359,16 @@ Virtual Threads, then for WebFlux.
 
 The following charts show the results of each scenario, sorted by ascending scenario load.
 
-Any failed requests appear both in the latency chart as red dots, as well as in the RPS chart as part of a continuous
-line:
+### Errors
 
-- A small latency, such as 0s, indicates that the request never reached the server, typically since the client failed to
-  establish a connection.
-- A larger latency, especially if it is around 60s, indicates that the client didn't receive a response before the
-  request timeout was reached.
+Any lines in the client-side or error-side log files which contain the term `error` (case-insensitive) are preserved. You can find them in error log files, located in the results folder alongside the generated PNG files.
+
+Any failed requests appear both in the latency chart as red dots, as well as in the RPS chart as part of a continuous orange
+line. Additionally, they leave a trace in the `$approach-latency.csv` file, if preserved by running the benchmark with the `-C` option:
+
+- A very small latency below 3ms indicates that the client failed to establish a TCP connection. Example from the latency CSV file: `1715728866471,0.000000,0,dial: i/o timeout,1211`. Such requests are not considered when reporting minimum latency since this could obscure the minimum latency of
+  successful requests.
+- A very large latency above 60s indicates a server-side time-out. Example from the latency CSV file: `1715728861008,60001.327066,0,request timeout,1050`.
 
 ### 5k-vus-and-rps-get-time
 
