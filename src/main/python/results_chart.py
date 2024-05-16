@@ -66,6 +66,7 @@ class CSVRenderer:
             "platform": False,
             "ram": False,
             "requests": True,
+            "sockets": True
         }
         self.colors = ['goldenrod', 'maroon', 'black']
 
