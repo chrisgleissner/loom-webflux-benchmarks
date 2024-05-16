@@ -28,11 +28,12 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 > **Virtual Threads on Netty** (using [blocking code](https://docs.oracle.com/javase/8/docs/api/java/lang/Thread.html#sleep-long-)) showed very similar and often superior performance characteristics (latency percentiles, requests per second,
 > system load) compared with **WebFlux on Netty** (using non-blocking code and relying on [Mono](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html)
 > and [Flux](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html) from Project Reactor):
-> - Virtual Threads on Netty was the [benchmark winner](#Netty-based-Approaches) for over 70% of all combinations of metrics and benchmark scenarios when directly compared with Project Reactor on Netty.
-> - For both approaches, we could scale up to the same number of virtual users (and thus TCP connections) before
-    exhausting the CPU and running into time-outs due to rejected TCP connection requests.
+> - Virtual Threads on Netty was the [benchmark winner](#Netty-based-Approaches) for about 75% of all combinations of metrics and benchmark scenarios when directly compared with Project Reactor on Netty.
+> - For all high user count scenarios, it had the lowest latency as well as the largest number of requests for the entirety of each benchmark run.
 > - In many cases (e.g. [60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies)), the 90th and 99th percentile latencies (P90 and P99)
     were considerably lower for Virtual Threads on Netty when compared with WebFlux on Netty.
+> - For both approaches, we could scale up to the same number of virtual users (and thus TCP connections) before
+    exhausting the CPU and running into time-outs due to rejected TCP connection requests.
 >
 > **Virtual Threads on Tomcat** are not recommended for high load:
 > - We saw considerably higher resource use compared with the two Netty-based approaches.
@@ -217,7 +218,7 @@ printf 'net.ipv4.ip_local_port_range=1024 65535\nnet.ipv4.tcp_tw_reuse = 1\n' | 
 
 Log out and back in.
 
-## Benchmark
+## Execution
 
 The following command runs the benchmark for each combination of approaches and scenarios. Results are stored in
 the `build/results` folder:
