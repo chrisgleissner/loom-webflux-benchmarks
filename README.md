@@ -25,26 +25,27 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 > [!NOTE]
 > In a nutshell, the benchmark results are:
 >
-> **Virtual Threads on Netty** (using [blocking code](https://docs.oracle.com/javase/8/docs/api/java/lang/Thread.html#sleep-long-)) showed almost identical performance characteristics (latency percentiles, requests per second,
-> system load) as **WebFlux on Netty** (using non-blocking code and relying on [Mono](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html)
+> **Virtual Threads on Netty** (using [blocking code](https://docs.oracle.com/javase/8/docs/api/java/lang/Thread.html#sleep-long-)) showed very similar and often superior performance characteristics (latency percentiles, requests per second,
+> system load) compared with **WebFlux on Netty** (using non-blocking code and relying on [Mono](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html)
 > and [Flux](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html) from Project Reactor):
 > - For both approaches, we could scale up to the same number of virtual users (and thus TCP connections) before
     exhausting the CPU and running into time-outs due to rejected TCP connection requests.
-> - In some cases ([60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies)), the 90th and 99th percentile latencies (P90 and P99)
+> - In many cases (e.g. [60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies)), the 90th and 99th percentile latencies (P90 and P99)
     were considerably lower for Virtual Threads on Netty when compared with WebFlux on Netty.
 >
 > **Virtual Threads on Tomcat** are not recommended for high load:
 > - We saw considerably higher resource use compared with the two Netty-based approaches.
-> - We experienced many time-out errors as visualized by red dots in the charts, even when the CPU use was far below 100%. In contrast, none the Netty-based scenarios experienced any errors, even with a CPU use of 100%.
+> - There were many time-out errors as visualized by red dots in the charts, even when the CPU use was far below 100%. In contrast, none the Netty-based scenarios experienced any errors, even with a CPU use of 100%.
 
 ## Benchmark Winners
 
 Here are top-performing approaches of this benchmark. The following charts highlight the best methods based on different metrics and test scenarios, using data from [results/results.csv](results/results.csv):
 
 - Each cell shows the metric values of best approach (on top) and runner-up.
-- What "best" is depends on the metric: A lower value is better for all metrics except for the `request_ok` metric or if the metric name starts with `rps` or `sockets`.
-- Cells are colored based on the winning approach. The darker the color, the bigger the lead of the winning approach over the runner-up.
-- If cells are white or faded, there's no clear winner as the top two approaches performed similarly.
+    - What "best" is depends on the metric: A lower value is better for all metrics except for metrics starting with `requests_ok`, `requests_per_second`, or `sockets`.
+    - Approaches which encountered request errors are ranked below those approaches with only successful requests. Such "failed" approaches have all their metric values printed in red and suffixed with `E`.
+    - An overall ranking based on the win count of each approach is shown in the legend: `(1)` indicates the overall best approach, `(2)` the runner-up, and so on. This overall ranking is also shown next to each metric value.
+- Cells are colored based on the winning approach. The darker the color, the bigger the lead of the winning approach over the runner-up. If cells are white or faded, there's no clear winner as the top two approaches performed similarly.
 - For [detailed charts](#Charts) on each approach and test scenario combination, have a look at the second half of this document.
 
 ### All Approaches
