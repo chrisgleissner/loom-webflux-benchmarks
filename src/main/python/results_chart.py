@@ -16,10 +16,16 @@ APPROACH = 'approach'
 
 
 @dataclass
+class Result:
+    value: float
+    errors: bool
+
+
+@dataclass
 class Color:
     name: str
     saturation: float
-    results: List[float] = field(default_factory=list)
+    results: List[Result] = field(default_factory=list)
 
 
 def format_float(value):
@@ -94,10 +100,17 @@ class CSVRenderer:
             color_row = []
             for scenario in self.scenarios:
                 result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
+                errors_by_approach = {row[APPROACH]: int(row["requests_error"]) > 0 for row in self.csv_rows if row[SCENARIO] == scenario}
                 more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), False) if "error" not in metric else False
-                ranked_approaches = sorted([approach for approach in result_by_approach.keys() if approach in self.approaches], key=lambda x: result_by_approach[x],
-                                           reverse=more_is_better)
-                ranked_results = [result_by_approach[approach] for approach in ranked_approaches]
+
+                # Sort primarily by whether there are errors (False < True), and secondarily by the metric value (reversed if more_is_better)
+                ranked_approaches = sorted(
+                    [approach for approach in result_by_approach.keys() if approach in self.approaches],
+                    key=lambda x: (errors_by_approach[x], -result_by_approach[x] if more_is_better else result_by_approach[x])
+                )
+
+                ranked_results = [Result(result_by_approach[approach], errors_by_approach[approach]) for approach in ranked_approaches]
+
                 winning_approach = ranked_approaches[0]
                 runner_up_approach = ranked_approaches[min(len(ranked_approaches) - 1, 1)]
                 winning_result_delta_perc = calculate_winning_result_delta_perc(result_by_approach[winning_approach], result_by_approach[runner_up_approach])
@@ -123,11 +136,15 @@ class CSVRenderer:
                 for idx, result in enumerate(color.results[:2] if len(color.results) >= 2 else color.results):
                     text_col = col + 0.5
                     text_row = row + 0.35
-                    formatted_result = format_float(result)
+                    formatted_result = format_float(result.value)
+                    font_col = 'black'
+                    cell_text = f"{formatted_result}"
+                    if result.errors > 0:
+                        font_col = 'red'
                     if idx == 0:
-                        ax.text(text_col, text_row, f"{formatted_result}", ha='center', va='center', fontsize='small', weight='bold')
+                        ax.text(text_col, text_row, cell_text, ha='center', va='center', fontsize='small', weight='bold', color=font_col)
                     else:
-                        ax.text(text_col, text_row + 0.40 * idx, f"{formatted_result}", ha='center', va='center', fontsize='x-small')
+                        ax.text(text_col, text_row + 0.40 * idx, cell_text, ha='center', va='center', fontsize='x-small', color=font_col)
 
         ax.set_xticks([tick + 0.5 for tick in range(num_cols)])
         ax.set_xticklabels(self.scenarios, rotation=20, ha='right', rotation_mode='anchor')
@@ -137,10 +154,13 @@ class CSVRenderer:
         legend_handles = []
         for approach in sorted(self.color_name_by_approach):
             legend_handles.append(plt.Rectangle((0, 0), 1, 1, color=(self.color_name_by_approach[approach]), label=approach))
-        ax.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1.05, 0.5), fontsize='small')
+        ax.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1.03, 0.5), fontsize='small')
 
-        plt.suptitle('Best Approaches by Metric and Scenario', weight='bold', y=0.92, fontsize='x-large')
-        plt.title('Cells show metric value for best approach above runner-up. Color saturation is based on win margin.', y=1.01, size='small')
+        plt.suptitle('Best Approaches by Metric and Scenario', weight='bold', y=0.94, fontsize='x-large')
+        plt.title(
+            'Cells show metric value for best approach above runner-up. Color saturation is based on win margin.\n'
+            'Values for approaches with request errors are shown in red.',
+            y=1.02, size='small')
         plt.savefig(self.output_file, bbox_inches='tight')
         plt.close()
         log("Saved " + self.output_file)
