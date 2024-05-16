@@ -16,10 +16,17 @@ APPROACH = 'approach'
 
 
 @dataclass
+class Result:
+    approach: str
+    value: float
+    errors: bool
+
+
+@dataclass
 class Color:
     name: str
     saturation: float
-    results: List[float] = field(default_factory=list)
+    results: List[Result] = field(default_factory=list)
 
 
 def format_float(value):
@@ -60,7 +67,7 @@ class CSVRenderer:
             "ram": False,
             "requests": True,
         }
-        self.colors = ['forestgreen', 'royalblue', 'goldenrod', 'maroon', 'black']
+        self.colors = ['goldenrod', 'maroon', 'black']
 
         csv_headers, csv_rows = self.read_csv()
         self.csv_rows = csv_rows
@@ -69,8 +76,12 @@ class CSVRenderer:
         self.metrics = [key for key in csv_rows[0].keys() if key not in [APPROACH, SCENARIO]]
 
         self.color_name_by_approach = {}
-        for index, approach in enumerate(self.approaches):
-            self.color_name_by_approach[approach] = self.colors[index % len(self.colors)]
+        predefined_colors = {'loom-netty': 'forestgreen', 'webflux-netty': 'royalblue'}
+        other_approaches = [a for a in self.approaches if a not in predefined_colors]
+        self.color_name_by_approach.update(predefined_colors)
+        self.color_name_by_approach.update({approach: self.colors[i % len(self.colors)] for i, approach in enumerate(other_approaches)})
+
+        self.approach_wins = {approach: 0 for approach in self.approaches}
 
     def read_csv(self) -> Tuple[List[str], List[Dict[str, str]]]:
         try:
@@ -88,16 +99,36 @@ class CSVRenderer:
             print(f"Error: {ve}")
             sys.exit(1)
 
+    def sort_approaches(self, metric: str, scenario: str) -> List[str]:
+        result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
+        errors_by_approach = {row[APPROACH]: int(row.get("requests_error", 0) or 0) > 0 for row in self.csv_rows if row[SCENARIO] == scenario}
+        more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), False) if "error" not in metric else False
+
+        # Sort primarily by whether there are errors (False < True), and secondarily by the metric value (reversed if more_is_better)
+        ranked_approaches = sorted(
+            [approach for approach in result_by_approach.keys() if approach in self.approaches],
+            key=lambda x: (errors_by_approach[x], -result_by_approach[x] if more_is_better else result_by_approach[x])
+        )
+        return ranked_approaches
+
+    def calculate_wins(self):
+        for metric in self.metrics:
+            for scenario in self.scenarios:
+                ranked_approaches = self.sort_approaches(metric, scenario)
+                if ranked_approaches:
+                    self.approach_wins[ranked_approaches[0]] += 1
+
     def get_color_rows(self) -> List[List[Color]]:
         color_rows = []
         for metric in self.metrics:
             color_row = []
             for scenario in self.scenarios:
                 result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
-                more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), False) if "error" not in metric else False
-                ranked_approaches = sorted([approach for approach in result_by_approach.keys() if approach in self.approaches], key=lambda x: result_by_approach[x],
-                                           reverse=more_is_better)
-                ranked_results = [result_by_approach[approach] for approach in ranked_approaches]
+                errors_by_approach = {row[APPROACH]: int(row.get("requests_error", 0)) > 0 for row in self.csv_rows if row[SCENARIO] == scenario}
+
+                ranked_approaches = self.sort_approaches(metric, scenario)
+                ranked_results = [Result(approach, result_by_approach[approach], errors_by_approach[approach]) for approach in ranked_approaches]
+
                 winning_approach = ranked_approaches[0]
                 runner_up_approach = ranked_approaches[min(len(ranked_approaches) - 1, 1)]
                 winning_result_delta_perc = calculate_winning_result_delta_perc(result_by_approach[winning_approach], result_by_approach[runner_up_approach])
@@ -109,6 +140,11 @@ class CSVRenderer:
         return color_rows
 
     def render_png(self):
+        # Calculate ranks based on wins
+        self.calculate_wins()
+        ranked_approaches = sorted(self.approach_wins.keys(), key=lambda x: -self.approach_wins[x])
+        approach_ranks = {approach: rank + 1 for rank, approach in enumerate(ranked_approaches)}
+
         color_rows = self.get_color_rows()
         num_rows = len(color_rows)
         num_cols = len(color_rows[0]) if color_rows else 0
@@ -121,13 +157,21 @@ class CSVRenderer:
             for col, color in enumerate(color_row):
                 ax.add_patch(plt.Rectangle((col, row), 1, 1, color=color.name, alpha=color.saturation))
                 for idx, result in enumerate(color.results[:2] if len(color.results) >= 2 else color.results):
+                    formatted_result = format_float(result.value)
+                    approach = result.approach  # Use result.approach to get the correct approach
+                    rank = approach_ranks[approach]
+                    formatted_result += f" ({rank})"
+                    font_col = 'black'
+                    weight = 'bold'
                     text_col = col + 0.5
                     text_row = row + 0.35
-                    formatted_result = format_float(result)
-                    if idx == 0:
-                        ax.text(text_col, text_row, f"{formatted_result}", ha='center', va='center', fontsize='small', weight='bold')
-                    else:
-                        ax.text(text_col, text_row + 0.40 * idx, f"{formatted_result}", ha='center', va='center', fontsize='x-small')
+                    if result.errors > 0:
+                        font_col = 'red'
+                        formatted_result += 'E'
+                    if idx > 0:
+                        weight = 'normal'
+                        text_row += 0.4 * idx
+                    ax.text(text_col, text_row, formatted_result, ha='center', va='center', fontsize='x-small', weight=weight, color=font_col)
 
         ax.set_xticks([tick + 0.5 for tick in range(num_cols)])
         ax.set_xticklabels(self.scenarios, rotation=20, ha='right', rotation_mode='anchor')
@@ -135,12 +179,16 @@ class CSVRenderer:
         ax.set_yticklabels(self.metrics)
 
         legend_handles = []
-        for approach in sorted(self.color_name_by_approach):
-            legend_handles.append(plt.Rectangle((0, 0), 1, 1, color=(self.color_name_by_approach[approach]), label=approach))
-        ax.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1.05, 0.5), fontsize='small')
+        for approach in ranked_approaches:
+            legend_text = f"({approach_ranks[approach]}) {approach}"
+            legend_handles.append(plt.Rectangle((0, 0), 1, 1, color=self.color_name_by_approach[approach], label=legend_text))
+        ax.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1.03, 0.5), fontsize='small')
 
-        plt.suptitle('Best Approaches by Metric and Scenario', weight='bold', y=0.92, fontsize='x-large')
-        plt.title('Cells show metric value for best approach above runner-up. Color saturation is based on win margin.', y=1.01, size='small')
+        plt.suptitle('Best Approaches by Metric and Scenario', weight='bold', y=0.94, fontsize='x-large')
+        plt.title(
+            'Each cell shows metric value for best approach above runner-up. Color saturation is based on win margin.\n'
+            'Approach ranking based on win count is shown in legend and cells. Red values indicate request errors.',
+            y=1.02, size='small')
         plt.savefig(self.output_file, bbox_inches='tight')
         plt.close()
         log("Saved " + self.output_file)
