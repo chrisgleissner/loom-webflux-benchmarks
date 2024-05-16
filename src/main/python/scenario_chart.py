@@ -98,17 +98,21 @@ class LatencyMetrics:
 
     def _calculate_latency_1s_buckets_and_errors(self):
         bucket_latencies = []
-        bucket_latencies_seconds_elapsed_threshold = self.seconds_elapsed[0] + 1
+        bucket_latencies_seconds_elapsed_threshold = int(self.seconds_elapsed[0] + 1)
+
+        def _append_percentile_value_from_bucket_latencies(percentile_buckets, percentile):
+            if len(bucket_latencies) > 0:
+                percentile = np.percentile(bucket_latencies, percentile)
+                if percentile == 0:
+                    percentile = 0
+                percentile_buckets.append(percentile)
+            else:
+                percentile_buckets.append(0)
 
         def _append_percentile_values_from_bucket_latencies():
-            if len(bucket_latencies) > 0:
-                self.latency_1s_buckets_p50.append(np.percentile(bucket_latencies, 50))
-                self.latency_1s_buckets_p90.append(np.percentile(bucket_latencies, 90))
-                self.latency_1s_buckets_p99.append(np.percentile(bucket_latencies, 99))
-            else:
-                self.latency_1s_buckets_p50.append(0)
-                self.latency_1s_buckets_p90.append(0)
-                self.latency_1s_buckets_p99.append(0)
+            _append_percentile_value_from_bucket_latencies(self.latency_1s_buckets_p50, 50)
+            _append_percentile_value_from_bucket_latencies(self.latency_1s_buckets_p90, 90)
+            _append_percentile_value_from_bucket_latencies(self.latency_1s_buckets_p99, 99)
 
         for seconds_elapsed, status_code, latency in zip(self.seconds_elapsed, self.status_codes, self.latencies):
             bucket_latencies.append(latency)
@@ -117,7 +121,7 @@ class LatencyMetrics:
                 self.latencies_error.append(latency + 0.1)  # Ensure latency 0 is plotted
             if seconds_elapsed >= bucket_latencies_seconds_elapsed_threshold:
                 _append_percentile_values_from_bucket_latencies()
-                bucket_latencies_seconds_elapsed_threshold = seconds_elapsed + 1
+                bucket_latencies_seconds_elapsed_threshold += 1
                 bucket_latencies = []
 
         _append_percentile_values_from_bucket_latencies()
