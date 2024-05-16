@@ -28,6 +28,7 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 > **Virtual Threads on Netty** (using [blocking code](https://docs.oracle.com/javase/8/docs/api/java/lang/Thread.html#sleep-long-)) showed very similar and often superior performance characteristics (latency percentiles, requests per second,
 > system load) compared with **WebFlux on Netty** (using non-blocking code and relying on [Mono](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html)
 > and [Flux](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html) from Project Reactor):
+> - Virtual Threads on Netty was the [benchmark winner](#Netty-based-Approaches) for over 70% of all combinations of metrics and benchmark scenarios when directly compared with Project Reactor on Netty.
 > - For both approaches, we could scale up to the same number of virtual users (and thus TCP connections) before
     exhausting the CPU and running into time-outs due to rejected TCP connection requests.
 > - In many cases (e.g. [60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies)), the 90th and 99th percentile latencies (P90 and P99)
@@ -39,7 +40,7 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 
 ## Benchmark Winners
 
-Here are top-performing approaches of this benchmark. The following charts highlight the best methods based on different metrics and test scenarios, using data from [results/results.csv](results/results.csv):
+Below are top-performing approaches across all scenarios and metrics, visualizing the contents of [results/results.csv](results/results.csv):
 
 - Each cell shows the metric values of best approach (on top) and runner-up.
     - What "best" is depends on the metric: A lower value is better for all metrics except for metrics starting with `requests_ok`, `requests_per_second`, or `sockets`.

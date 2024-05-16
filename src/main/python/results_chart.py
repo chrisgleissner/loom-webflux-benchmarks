@@ -140,8 +140,18 @@ class CSVRenderer:
             color_rows.append(color_row)
         return color_rows
 
+    def _win_percentages(self, ranked_approaches):
+        percentages = {approach: (self.approach_wins[approach] / sum(self.approach_wins.values())) * 100 if sum(self.approach_wins.values()) != 0 else 0 for approach in
+                       ranked_approaches}
+        rounded_percentages = {approach: round(percentage) for approach, percentage in percentages.items()}
+        total_rounded = sum(rounded_percentages.values())
+        if total_rounded != 100:
+            remaining = 100 - total_rounded
+            max_approach = max(percentages, key=percentages.get)
+            rounded_percentages[max_approach] += remaining
+        return rounded_percentages
+
     def render_png(self):
-        # Calculate ranks based on wins
         self.calculate_wins()
         ranked_approaches = sorted(self.approach_wins.keys(), key=lambda x: -self.approach_wins[x])
         approach_ranks = {approach: rank + 1 for rank, approach in enumerate(ranked_approaches)}
@@ -159,7 +169,7 @@ class CSVRenderer:
                 ax.add_patch(plt.Rectangle((col, row), 1, 1, color=color.name, alpha=color.saturation))
                 for idx, result in enumerate(color.results[:2] if len(color.results) >= 2 else color.results):
                     formatted_result = format_float(result.value)
-                    approach = result.approach  # Use result.approach to get the correct approach
+                    approach = result.approach
                     rank = approach_ranks[approach]
                     formatted_result += f" ({rank})"
                     font_col = 'black'
@@ -180,9 +190,9 @@ class CSVRenderer:
         ax.set_yticklabels(self.metrics)
 
         legend_handles = []
-        for approach in ranked_approaches:
-            legend_text = f"({approach_ranks[approach]}) {approach}"
-            legend_handles.append(plt.Rectangle((0, 0), 1, 1, color=self.color_name_by_approach[approach], label=legend_text))
+        for approach, rounded_percentage in self._win_percentages(ranked_approaches).items():
+            legend_text = f"({approach_ranks[approach]}) {approach}\n{rounded_percentage}% of all wins"
+            legend_handles.append(plt.Rectangle((0, 0), 1, 2, color=self.color_name_by_approach[approach], label=legend_text))
         ax.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1.03, 0.5), fontsize='small')
 
         plt.suptitle('Best Approaches by Metric and Scenario', weight='bold', y=0.94, fontsize='x-large')
