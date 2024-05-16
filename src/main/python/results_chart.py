@@ -67,7 +67,7 @@ class CSVRenderer:
             "ram": False,
             "requests": True,
         }
-        self.colors = ['forestgreen', 'royalblue', 'goldenrod', 'maroon', 'black']
+        self.colors = ['goldenrod', 'maroon', 'black']
 
         csv_headers, csv_rows = self.read_csv()
         self.csv_rows = csv_rows
@@ -76,8 +76,10 @@ class CSVRenderer:
         self.metrics = [key for key in csv_rows[0].keys() if key not in [APPROACH, SCENARIO]]
 
         self.color_name_by_approach = {}
-        for index, approach in enumerate(self.approaches):
-            self.color_name_by_approach[approach] = self.colors[index % len(self.colors)]
+        predefined_colors = {'loom-netty': 'forestgreen', 'webflux-netty': 'royalblue'}
+        other_approaches = [a for a in self.approaches if a not in predefined_colors]
+        self.color_name_by_approach.update(predefined_colors)
+        self.color_name_by_approach.update({approach: self.colors[i % len(self.colors)] for i, approach in enumerate(other_approaches)})
 
         self.approach_wins = {approach: 0 for approach in self.approaches}
 
@@ -185,7 +187,7 @@ class CSVRenderer:
         plt.suptitle('Best Approaches by Metric and Scenario', weight='bold', y=0.94, fontsize='x-large')
         plt.title(
             'Each cell shows metric value for best approach above runner-up. Color saturation is based on win margin.\n'
-            'Approach ranking is shown in legend and next to metric values. Red values indicate request errors.',
+            'Approach ranking based on win count is shown in legend and cells. Red values indicate request errors.',
             y=1.02, size='small')
         plt.savefig(self.output_file, bbox_inches='tight')
         plt.close()
