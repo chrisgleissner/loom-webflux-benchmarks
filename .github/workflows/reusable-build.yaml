@@ -75,7 +75,7 @@ jobs:
           IFS=',' read -ra approach_array <<< "${{ inputs.approaches }}"
           for approach in "${approach_array[@]}"; do
             for scenarioPath in build/results/*/; do
-              chartFilename=$scenarioPath/$approach.png
+              chartFilename=$scenarioPath$approach.png
               if ! file "$chartFilename" | grep -q "PNG image data"; then
                 echo "Verification error: Image $chartFilename missing or invalid"
                 exit 1
