@@ -57,7 +57,7 @@ jobs:
         uses: coverallsapp/github-action@v2
 
       - name: Log machine info
-        run: inxi -CMDS && df -h && du -h
+        run: inxi -CMDS -c0 && df -h && du -h
 
       - name: Benchmark using ${{ inputs.scenarios-path }}
         run: |
@@ -71,7 +71,7 @@ jobs:
           ./benchmark.sh -a ${{ inputs.approaches }} ${{ inputs.scenarios-path }}
 
       - name: Log machine info
-        run: inxi -CMDS && df -h && du -h
+        run: inxi -CMDS -c0 && df -h && du -h
 
       - name: Verify results
         run: |
