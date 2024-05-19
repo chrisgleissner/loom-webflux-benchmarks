@@ -98,5 +98,5 @@ jobs:
       - name: Store results
         uses: actions/upload-artifact@v4
         with:
-          name: Results for Java ${{ matrix.java-version }} and OS ${{ matrix.os }}
+          name: Results for Java ${{ matrix.java-version }} and ${{ matrix.os }}
           path: build/results/
