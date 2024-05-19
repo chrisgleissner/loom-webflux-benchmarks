@@ -44,8 +44,8 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install k6        
 
-      - name: Install Python and sysstat
-        run: sudo apt-get install -y python3 python3-matplotlib python3-pytest sysstat
+      - name: Install Python, sysstat and inxi
+        run: sudo apt-get install -y python3 python3-matplotlib python3-pytest sysstat inxi
 
       - name: Test Python
         run: python -m pytest
@@ -55,6 +55,9 @@ jobs:
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
+
+      - name: Log machine info
+        run: inxi -CMDS && df -h && du -h
 
       - name: Benchmark using ${{ inputs.scenarios-path }}
         run: |
@@ -67,8 +70,8 @@ jobs:
           echo "Starting benchmark using scenarios file ${{ inputs.scenarios-path }} and approaches ${{ inputs.approaches }}"
           ./benchmark.sh -a ${{ inputs.approaches }} ${{ inputs.scenarios-path }}
 
-      - name: Show disk use
-        run: df -h && du -h
+      - name: Log machine info
+        run: inxi -CMDS && df -h && du -h
 
       - name: Verify results
         run: |
@@ -95,5 +98,5 @@ jobs:
       - name: Store results
         uses: actions/upload-artifact@v4
         with:
-          name: Results for Java ${{ matrix.java-version }}
+          name: Results for Java ${{ matrix.java-version }} and OS ${{ matrix.os }}
           path: build/results/
