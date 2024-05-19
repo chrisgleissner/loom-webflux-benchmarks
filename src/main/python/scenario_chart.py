@@ -9,7 +9,7 @@ import numpy as np
 import os
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from matplotlib.ticker import LogLocator
 from matplotlib.ticker import ScalarFormatter
 
@@ -176,7 +176,7 @@ class SystemMetrics:
             csv_reader = csv.DictReader(file, delimiter=';')
             # CSV cols: timestamp;%user;%system;%iowait;%memused;rxpck/s;txpck/s;rxkB/s;txkB/s;tcpsck;active/s;passive/s;iseg/s;oseg/s
             for row in csv_reader:
-                self.system_times.append(datetime.utcfromtimestamp(int(row['timestamp'])))
+                self.system_times.append(datetime.fromtimestamp(int(row['timestamp']), tz=timezone.utc))
                 self.user_cpu.append(float(row['%user']))
                 self.system_cpu.append(float(row['%system']))
                 self.iowait_cpu.append(float(row['%iowait']))
@@ -212,7 +212,7 @@ class JvmMetrics:
         with open(filename, 'r') as file:
             csv_reader = csv.DictReader(file, delimiter=',')
             for row in csv_reader:
-                self.jvm_times.append(datetime.utcfromtimestamp(int(row['epochMillis']) / 1000))
+                self.jvm_times.append(datetime.fromtimestamp(int(row['epochMillis']) / 1000, tz=timezone.utc))
                 self.heap_used.append(100.0 * float(row['memUsed']) / float(row['memMax']))
                 self.gc_counts.append(int(row['gcCount']))
                 self.gc_times.append(int(row['gcTime']))

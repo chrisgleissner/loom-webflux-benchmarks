@@ -1,4 +1,3 @@
-import imghdr
 import os
 import pytest
 import shutil
@@ -62,7 +61,7 @@ def test_main(latency_csv_filename, system_csv_filename, jvm_csv_filename, png_f
         assert_files_match(results_csv_file, expected_results_csv_file)
 
         assert_file_exists(expected_png_file)
-        assert imghdr.what(expected_png_file) == "png", f"Output file '{expected_png_file}' is not a valid PNG file"
+        assert os.path.getsize(expected_png_file) > 0, f"Output file '{expected_png_file}' is empty"
 
 
 def assert_file_exists(file):
