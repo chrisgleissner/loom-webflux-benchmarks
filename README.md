@@ -5,7 +5,7 @@
 [![soaktest](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/soaktest.yaml/badge.svg)](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/soaktest.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/chrisgleissner/loom-webflux-benchmarks/badge.svg)](https://coveralls.io/github/chrisgleissner/loom-webflux-benchmarks)
 
-This Java 21 project benchmarks a simple [Spring Boot 3.2](https://spring.io/projects/spring-boot) HTTP endpoint using
+This Java 21 project benchmarks a simple [Spring Boot 3.3](https://spring.io/projects/spring-boot) HTTP endpoint using
 configurable scenarios, comparing Java Virtual Threads (introduced
 by [Project Loom, JEP 444](https://openjdk.org/jeps/444)) using Tomcat and Netty
 with [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html) (relying
@@ -357,8 +357,8 @@ Virtual Threads, then for WebFlux.
 
 - OS: Ubuntu 22.04.4 LTS
 - Kernel: 5.15.86-051586-generic
-- Java: Amazon Corretto JDK 21.0.3.9.1
-- Spring Boot 3.2.5
+- Java: Amazon Corretto JDK 22.0.1.8.1
+- Spring Boot 3.3.0
 
 ## Charts
 
