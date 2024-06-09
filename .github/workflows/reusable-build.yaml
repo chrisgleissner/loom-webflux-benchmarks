@@ -100,6 +100,7 @@ jobs:
           resultsDir=results/ci/$scenarios/${{ matrix.os }}/java-${{ matrix.java-version }}/
           mkdir -p $resultsDir
           cp build/results/results* $resultsDir
+          git pull
 
       - name: Commit results
         uses: stefanzweifel/git-auto-commit-action@v5
