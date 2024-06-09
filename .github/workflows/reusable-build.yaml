@@ -16,17 +16,15 @@ on:
 jobs:
   build:
 
+    permissions:
+      contents: write
+
     strategy:
       matrix:
         java-version: [ 21, 22 ]
         os: [ Ubuntu-22.04, ubuntu-24.04 ]
 
     runs-on: ${{ matrix.os }}
-
-    permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the
-      # added or changed files to the repository.
-      contents: write
 
     steps:
       - name: Checkout
