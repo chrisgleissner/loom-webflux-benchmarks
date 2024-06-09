@@ -3,6 +3,8 @@ on: [ push ]
 
 jobs:
   call-reusable-build:
+    permissions:
+      contents: write
     uses: ./.github/workflows/reusable-build.yaml
     secrets: inherit
     with:
