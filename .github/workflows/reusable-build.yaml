@@ -17,6 +17,7 @@ jobs:
   build:
   
     strategy:
+      fail-fast: false
       matrix:
         java-version: [ 21, 22 ]
         os: [ Ubuntu-22.04, ubuntu-24.04 ]
@@ -103,6 +104,7 @@ jobs:
           git pull
 
       - name: Commit results
+        continue-on-error: true
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           skip_dirty_check: true
