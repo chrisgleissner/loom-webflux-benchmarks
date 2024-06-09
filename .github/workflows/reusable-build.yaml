@@ -102,7 +102,7 @@ jobs:
       - name: Commit results
         uses: stefanzweifel/git-auto-commit-action@v5
 
-      - name: Store results
+      - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: Results for Java ${{ matrix.java-version }} and ${{ matrix.os }}
