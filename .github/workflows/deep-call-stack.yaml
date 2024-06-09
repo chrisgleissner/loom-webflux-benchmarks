@@ -6,6 +6,8 @@ on:
 jobs:
   call-reusable-build:
     uses: ./.github/workflows/reusable-build.yaml
+    permissions:
+      contents: write
     secrets: inherit
     with:
       scenarios-path: scenarios-deep-call-stack.csv
