@@ -1,0 +1,9 @@
+scenario,approach,requests_ok,requests_error,requests_per_second_p50,requests_per_second_p90,requests_per_second_max,latency_millis_min,latency_millis_p50,latency_millis_p90,latency_millis_p99,latency_millis_max,cpu_use_percent_avg,cpu_use_percent_max,ram_use_percent_avg,ram_use_percent_max,heap_use_percent_avg,heap_use_percent_max,garbage_collection_count,garbage_collection_time_millis,platform_threads_avg,platform_threads_max,sockets_avg,sockets_max,network_kib_per_req_avg,network_kib_per_req_max,network_packets_per_req_avg,network_packets_per_req_max
+smoketest,platform-tomcat,1300,0,200,200,201,0.31,0.39,0.50,0.78,1.67,3.96,5.31,15.5,15.5,3.99,4.75,63,231,56,56,87,106,0.87,1.05,8.57,10
+smoketest,loom-tomcat,1300,0,200,201,202,0.32,0.44,0.57,0.91,6.77,3.90,5.11,19.1,19.2,5.32,6.84,63,231,20,20,87,104,0.87,1.04,8.57,10
+smoketest,loom-netty,1300,0,200,200,201,0.41,0.51,0.71,1.09,5.66,6.14,15.1,19.5,19.6,4.39,6.06,63,238,16,16,88,106,0.62,0.73,5.35,6.01
+smoketest,webflux-netty,1300,0,200,201,202,0.38,0.48,0.65,1.08,2.38,4.42,6.30,19.8,19.9,3.21,4.14,63,224,20,20,87,105,0.62,0.74,5.34,6
+smoketest2,platform-tomcat,57,0,10,10,10,1003,1004,1007,1293,1350,2.92,4.71,20.2,20.2,3.40,3.58,72,256,35,37,12,15,1.86,2.16,18.5,20.4
+smoketest2,loom-tomcat,56,0,10,10,10,1003,1005,1006,1343,1399,3.75,6.50,20.3,20.4,3.16,3.33,63,231,20,20,12,15,1.86,2.30,18.6,22.8
+smoketest2,loom-netty,59,0,10,10,10,1004,1006,1009,1102,1162,3.91,6.17,20.2,20.3,1.84,2.09,72,280,16,16,12,14,1.36,1.64,12.1,14
+smoketest2,webflux-netty,59,0,10,10,10,1004,1004,1008,1090,1149,3.21,4.96,20.4,20.4,1.90,2.05,72,256,20,20,12,14,1.34,1.65,12.0,14.8
