@@ -5,6 +5,8 @@ on:
   workflow_dispatch:
 jobs:
   call-reusable-build:
+    permissions:
+      contents: write  
     uses: ./.github/workflows/reusable-build.yaml
     secrets: inherit
     with:
