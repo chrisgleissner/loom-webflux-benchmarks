@@ -104,8 +104,7 @@ jobs:
 
       - name: Commit results
         uses: stefanzweifel/git-auto-commit-action@v5
-        with:  
-          push_options: '--force'
+        with:
           skip_dirty_check: true
 
       - name: Upload results
