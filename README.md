@@ -51,6 +51,7 @@ Below are top-performing approaches across all scenarios and metrics, visualizin
     - An overall ranking based on the win count of each approach is shown in the legend: `(1)` indicates the overall best approach, `(2)` the runner-up, and so on. This overall ranking is also shown next to each metric value.
 - Cells are colored based on the winning approach. The darker the color, the bigger the lead of the winning approach over the runner-up. If cells are white or faded, there's no clear winner as the top two approaches performed similarly.
 - For [detailed charts](#Charts) on each approach and test scenario combination, have a look at the second half of this document.
+- All measurements below were performed on the dedicated, non-virtualized test environment described under [Results](#Results). Additional monthly measurements are performed on virtualized [GitHub-hosted Runners](./results/ci/ci.md).
 
 ### All Approaches
 
