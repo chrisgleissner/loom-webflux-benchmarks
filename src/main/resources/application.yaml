@@ -13,7 +13,6 @@ spring:
         enable_lazy_load_no_trans: true # TODO cg Avoid this; see https://vladmihalcea.com/the-best-way-to-map-a-projection-query-to-a-dto-with-jpa-and-hibernate/
     hibernate:
       ddl-auto: create
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     database: postgresql
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
