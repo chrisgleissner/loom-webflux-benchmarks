@@ -13,15 +13,13 @@ spring:
         enable_lazy_load_no_trans: true # TODO cg Avoid this; see https://vladmihalcea.com/the-best-way-to-map-a-projection-query-to-a-dto-with-jpa-and-hibernate/
     hibernate:
       ddl-auto: create
-    database: postgresql
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: password
     hikari:
       connectionTimeout: 60000
-      idleTimeout: 60000
-      maximumPoolSize: 1000
+      maximumPoolSize: 100 # see https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing
 server:
   http2:
     enabled: true
