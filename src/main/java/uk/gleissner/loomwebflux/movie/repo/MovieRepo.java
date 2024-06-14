@@ -3,13 +3,10 @@ package uk.gleissner.loomwebflux.movie.repo;
 import uk.gleissner.loomwebflux.movie.domain.Movie;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 public interface MovieRepo {
-
-    Optional<Movie> findMovieById(UUID id);
 
     Set<Movie> findMoviesByDirector(String directorName);
 
