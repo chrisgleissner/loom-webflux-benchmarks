@@ -16,7 +16,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     database: postgresql
   datasource:
-    url: jdbc:postgresql://localhost:5432/loom-webflux
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: password
     hikari:

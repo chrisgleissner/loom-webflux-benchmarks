@@ -34,7 +34,6 @@ abstract class AbstractIntegrationTest {
         const val SPRING_DATASOURCE_URL = "spring.datasource.url"
 
         val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
-            .withDatabaseName("loom-webflux")
             .withUsername("postgres")
             .withPassword("password")
 
