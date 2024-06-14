@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     shm_size: 128mb
     environment:
+      POSTGRES_DB: loom-webflux
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:

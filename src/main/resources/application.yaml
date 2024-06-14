@@ -10,18 +10,19 @@ spring:
   jpa:
     properties:
       hibernate:
-        jdbc:
-          time_zone: UTC
+        enable_lazy_load_no_trans: true # TODO cg Avoid this; see https://vladmihalcea.com/the-best-way-to-map-a-projection-query-to-a-dto-with-jpa-and-hibernate/
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     database: postgresql
-    show-sql: false
   datasource:
     url: jdbc:postgresql://localhost:5432/loom-webflux
     username: postgres
     password: password
-
+    hikari:
+      connectionTimeout: 60000
+      idleTimeout: 60000
+      maximumPoolSize: 1000
 server:
   http2:
     enabled: true

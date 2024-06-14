@@ -1,17 +1,32 @@
 package uk.gleissner.loomwebflux.movie.domain;
 
 import jakarta.annotation.Nullable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.val;
 
 import java.time.LocalDate;
 
-@Value
-@Builder
-@Jacksonized
+import static jakarta.persistence.GenerationType.IDENTITY;
+
+@Entity
+@Data
+@Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Person {
+
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
+    @EqualsAndHashCode.Exclude
+    Long id;
+
     String firstName;
     String lastName;
     LocalDate birthday;
@@ -23,9 +38,9 @@ public class Person {
     public static Person of(String fullName, @Nullable LocalDate birthday) {
         val lastSpaceIdx = fullName.lastIndexOf(' ');
         return Person.builder()
-                .firstName(fullName.substring(0, lastSpaceIdx).trim())
-                .lastName(fullName.substring(lastSpaceIdx + 1))
-                .birthday(birthday)
-                .build();
+            .firstName(fullName.substring(0, lastSpaceIdx).trim())
+            .lastName(fullName.substring(lastSpaceIdx + 1))
+            .birthday(birthday)
+            .build();
     }
 }

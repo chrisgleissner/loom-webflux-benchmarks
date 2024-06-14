@@ -4,4 +4,3 @@ loom-webflux:
 logging:
   level:
     uk.gleissner.loomwebflux: debug
-

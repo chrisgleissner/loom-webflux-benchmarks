@@ -1,20 +1,13 @@
 package uk.gleissner.loomwebflux.movie.repo;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.ListCrudRepository;
 import uk.gleissner.loomwebflux.movie.domain.Movie;
 
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
-public interface MovieRepo {
+public interface MovieRepo extends ListCrudRepository<Movie, Long> {
 
-    Set<Movie> findMoviesByDirector(String directorName);
-
-    Movie save(Movie movie);
-
-    default List<Movie> saveAll(List<Movie> movies) {
-        return movies.stream().map(this::save).toList();
-    }
-
-    void deleteById(UUID id);
+    @Query("SELECT m FROM Movie m JOIN m.directors d WHERE d.lastName = :directorName")
+    Set<Movie> findByDirectorName(String directorName);
 }

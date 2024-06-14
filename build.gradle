@@ -17,6 +17,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'io.github.hakky54:logcaptor:2.9.2'
+    testImplementation 'io.github.oshai:kotlin-logging-jvm:6.0.9'
     testImplementation 'org.apache.commons:commons-compress:1.26.2'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -38,6 +39,23 @@ test {
     useJUnitPlatform()
     jvmArgs '-XX:+EnableDynamicAgentLoading'
     jvmArgs '-Xshare:off'
+}
+
+tasks.withType(Test) {
+    ext.failedTests = []
+    afterTest { descriptor, result ->
+        if (result.resultType == TestResult.ResultType.FAILURE) {
+            failedTests << ["${descriptor.className}::${descriptor.name}"]
+        }
+    }
+    afterSuite { suite, result ->
+        if (!suite.parent) {
+            if (!failedTests.empty) {
+                logger.lifecycle("Failed tests:")
+                failedTests.each { failedTest -> logger.lifecycle("${failedTest}") }
+            }
+        }
+    }
 }
 
 jacocoTestReport {

@@ -1,8 +1,6 @@
 package uk.gleissner.loomwebflux.fixture
 
 import nl.altindag.log.LogCaptor
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junitpioneer.jupiter.cartesian.ArgumentSets
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,7 +11,7 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.testcontainers.containers.PostgreSQLContainer
-import uk.gleissner.loomwebflux.Approaches
+import uk.gleissner.loomwebflux.Approaches.*
 import uk.gleissner.loomwebflux.controller.LoomWebFluxController
 
 
@@ -33,36 +31,25 @@ abstract class AbstractIntegrationTest {
 
     companion object {
 
-        @JvmStatic
-        var postgres = PostgreSQLContainer("postgres:16-alpine")
+        const val SPRING_DATASOURCE_URL = "spring.datasource.url"
 
-        @JvmStatic
-        @BeforeAll
-        fun beforeAll() {
+        val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
+            .withDatabaseName("loom-webflux")
+            .withUsername("postgres")
+            .withPassword("password")
+
+        init {
             postgres.start()
-        }
-
-        @JvmStatic
-        @AfterAll
-        fun afterAll() {
-            postgres.stop()
         }
 
         @JvmStatic
         @DynamicPropertySource
         fun configureProperties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url", postgres::getJdbcUrl)
-            registry.add("spring.datasource.username", postgres::getUsername)
-            registry.add("spring.datasource.password", postgres::getPassword)
+            registry.add(SPRING_DATASOURCE_URL, postgres::getJdbcUrl)
         }
 
         @JvmStatic
-        fun approaches(): List<String> = listOf(
-            Approaches.PLATFORM_TOMCAT,
-            Approaches.LOOM_TOMCAT,
-            Approaches.LOOM_NETTY,
-            Approaches.WEBFLUX_NETTY
-        )
+        fun approaches(): List<String> = listOf(PLATFORM_TOMCAT, LOOM_TOMCAT, LOOM_NETTY, WEBFLUX_NETTY)
 
         @JvmStatic
         fun approachesAndDelayCallDepths(): ArgumentSets {
