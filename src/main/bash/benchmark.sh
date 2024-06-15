@@ -63,6 +63,9 @@ echo
 log "Contents of $scenariosFile:"
 cat "$scenariosFile"
 
+log "Starting DB"
+docker compose up -d
+
 first_line=true
 while IFS=',' read -r scenario k6Config delayCallDepth delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
     if [[ -z "$scenario" || $scenario == "#"* || $first_line == true ]]; then
@@ -78,6 +81,9 @@ done < "$scenariosFile"
 
 ./src/main/python/results_chart.py -i "$resultsCsvFile" -o "$resultsPngFile"
 ./src/main/python/results_chart.py -i "$resultsCsvFile" -o "$resultsNettyPngFile" -a "loom-netty,webflux-netty" || true
+
+log "Stopping DB"
+docker compose down
 
 endSeconds=$( date +%s )
 testDurationInSeconds=$(( endSeconds - startSeconds ))

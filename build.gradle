@@ -12,10 +12,16 @@ repositories { mavenCentral() }
 bootRun { jvmArgs(["-Xms2g", "-Xmx2g", "-XX:+ExitOnOutOfMemoryError", "-Djdk.tracePinnedThreads=full"]) }
 
 dependencies {
+    implementation 'com.github.ben-manes.caffeine:caffeine'
     implementation 'org.postgresql:postgresql:42.+'
+    implementation 'org.springframework.data:spring-data-jpa:3.3.1'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.hibernate.orm:hibernate-jcache'
+    implementation 'org.hibernate:hibernate-ehcache:5.6.15.Final'
+    implementation 'org.ehcache:ehcache:3.10.8'
     testImplementation 'io.github.hakky54:logcaptor:2.9.2'
     testImplementation 'io.github.oshai:kotlin-logging-jvm:6.0.9'
     testImplementation 'org.apache.commons:commons-compress:1.26.2'

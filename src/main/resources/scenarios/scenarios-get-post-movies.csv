@@ -1,0 +1,3 @@
+scenario,k6Config,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
+10k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,1,100,10000,,0,300
+25k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,1,100,25000,,0,300

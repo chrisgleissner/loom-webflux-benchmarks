@@ -1,5 +1,6 @@
 package uk.gleissner.loomwebflux.movie.domain;
 
+import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -17,9 +18,11 @@ import java.util.List;
 
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
+@Cacheable
 @Data
 @Builder(toBuilder = true)
 @NoArgsConstructor
@@ -45,16 +48,16 @@ public class Movie implements Comparable<Movie> {
     @NonNull
     Genre genre;
 
-    @ManyToMany(cascade = ALL)
+    @ManyToMany(cascade = ALL, fetch = EAGER)
     List<Character> characters;
 
-    @ManyToMany(cascade = PERSIST)
+    @ManyToMany(cascade = PERSIST, fetch = EAGER)
     List<Person> directors;
 
-    @ManyToMany(cascade = PERSIST)
+    @ManyToMany(cascade = PERSIST, fetch = EAGER)
     List<Person> writers;
 
-    @ManyToMany(cascade = ALL)
+    @ManyToMany(cascade = ALL, fetch = EAGER)
     List<Award> awards;
 
     Double rating;

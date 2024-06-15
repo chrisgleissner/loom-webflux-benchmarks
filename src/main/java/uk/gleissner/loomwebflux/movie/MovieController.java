@@ -1,6 +1,5 @@
 package uk.gleissner.loomwebflux.movie;
 
-import jakarta.transaction.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +25,6 @@ import static uk.gleissner.loomwebflux.Approaches.PLATFORM_TOMCAT;
 import static uk.gleissner.loomwebflux.Approaches.WEBFLUX_NETTY;
 
 @RestController
-@Transactional
 public class MovieController extends LoomWebFluxController {
 
     private static final String API_PATH = "/movies";

@@ -1,17 +1,19 @@
+package uk.gleissner.loomwebflux.movie.repo
+
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.cache.Cache
+import org.springframework.cache.CacheManager
 import uk.gleissner.loomwebflux.config.AppProperties
 import uk.gleissner.loomwebflux.movie.domain.Directors.davidLynch
 import uk.gleissner.loomwebflux.movie.domain.Movie
 import uk.gleissner.loomwebflux.movie.domain.Movies.mulhollandDrive
 import uk.gleissner.loomwebflux.movie.domain.Movies.theStraightStory
-import uk.gleissner.loomwebflux.movie.repo.AppPropertiesAwareMovieRepo
-import uk.gleissner.loomwebflux.movie.repo.MovieRepo
 
 @ExtendWith(MockitoExtension::class)
 class AppPropertiesAwareMovieRepoTest {
@@ -22,8 +24,20 @@ class AppPropertiesAwareMovieRepoTest {
     @Mock
     private lateinit var movieRepo: MovieRepo
 
-    @InjectMocks
+    @Mock
+    private lateinit var cache: Cache
+
+    @Mock
+    private lateinit var cacheManager: CacheManager
+
     private lateinit var appPropertiesAwareMovieRepo: AppPropertiesAwareMovieRepo
+
+
+    @BeforeEach
+    fun beforeEach() {
+        `when`(cacheManager.getCache(any())).thenReturn(cache);
+        appPropertiesAwareMovieRepo = AppPropertiesAwareMovieRepo(appProperties, movieRepo, cacheManager)
+    }
 
     @Test
     fun `findByDirectorName should delegate to underlying repo`() {

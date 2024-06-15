@@ -33,28 +33,25 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
 
     @CartesianTest
     @CartesianTestApproachesAndDelayCallDepths
-    fun `save and delete a movie`(approach: String, delayCallDepth: Int) {
-        val moviesByDavidLynch = listOf(mulhollandDrive, theStraightStory)
+    fun `save and delete movies`(approach: String, delayCallDepth: Int) {
+        val movies = listOf(mulhollandDrive, theStraightStory)
         assertThat(getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)).isEmpty()
 
-        val savedMovies = saveMovies(approach, moviesByDavidLynch, delayCallDepth = delayCallDepth)
-        assertThat(savedMovies).hasSize(moviesByDavidLynch.size)
+        val savedMovies = saveMovies(approach, movies, delayCallDepth = delayCallDepth)
+        assertThat(savedMovies).hasSize(movies.size)
         savedMovies.forEach {
             assertThat(it.id).isNotNull()
         }
-        assertThat(savedMovies).usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*id").isEqualTo(moviesByDavidLynch)
+        assertThat(savedMovies).usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*id").isEqualTo(movies)
+
+        assertThat(getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)).containsExactlyElementsOf(savedMovies)
 
         savedMovies.forEach {
             deleteMovie(approach, movieId = it.id, delayCallDepth = delayCallDepth)
         }
-        assertThat(
-            getMovies(
-                approach,
-                directorLastName = davidLynch.lastName,
-                delayCallDepth = delayCallDepth
-            )
-        ).doesNotContainAnyElementsOf(savedMovies)
-        logCaptor.assertCorrectThreadType(approach, expectedLogCount = (delayCallDepth + 1) * 5)
+
+        assertThat(getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)).isEmpty()
+        logCaptor.assertCorrectThreadType(approach, expectedLogCount = (delayCallDepth + 1) * 6)
     }
 
     private fun getMovies(
