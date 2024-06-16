@@ -24,7 +24,7 @@ spring:
           use_query_cache: true
           use_second_level_cache: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
   datasource:
     hikari:
       connectionTimeout: 60000
