@@ -1,5 +1,6 @@
 package uk.gleissner.loomwebflux.fixture
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import nl.altindag.log.LogCaptor
 import org.junit.jupiter.api.BeforeEach
 import org.junitpioneer.jupiter.cartesian.ArgumentSets
@@ -27,6 +28,7 @@ abstract class AbstractIntegrationTest {
     }
 
     companion object {
+        val log = KotlinLogging.logger { }
 
         @JvmStatic
         fun approaches(): List<String> = listOf(PLATFORM_TOMCAT, LOOM_TOMCAT, LOOM_NETTY, WEBFLUX_NETTY)

@@ -1,5 +1,6 @@
 package uk.gleissner.loomwebflux.movie
 
+import nl.altindag.log.LogCaptor
 import org.assertj.core.api.Assertions.assertThat
 import org.junitpioneer.jupiter.cartesian.CartesianTest
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,6 +16,10 @@ import uk.gleissner.loomwebflux.movie.domain.Movies.theStraightStory
 import uk.gleissner.loomwebflux.movie.repo.MovieRepo
 import java.time.Duration
 import java.time.Instant.now
+
+private const val HIBERNATE_ORM_CACHE_LOG_NAME = "org.hibernate.orm.cache"
+private const val RETURNING_CACHED_QUERY_RESULTS = "Returning cached query results"
+private const val CACHED_QUERY_RESULTS_WERE_NOT_UP_TO_DATE = "Cached query results were not up-to-date"
 
 internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
 
@@ -35,7 +40,8 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
     @CartesianTestApproachesAndDelayCallDepths
     fun `save and delete movies`(approach: String, delayCallDepth: Int) {
         val movies = listOf(mulhollandDrive, theStraightStory)
-        assertThat(getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)).isEmpty()
+        fun getMovies() = getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)
+        assertThat(getMovies()).isEmpty()
 
         val savedMovies = saveMovies(approach, movies, delayCallDepth = delayCallDepth)
         assertThat(savedMovies).hasSize(movies.size)
@@ -44,14 +50,35 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
         }
         assertThat(savedMovies).usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*id").isEqualTo(movies)
 
-        assertThat(getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)).containsExactlyElementsOf(savedMovies)
-
-        savedMovies.forEach {
-            deleteMovie(approach, movieId = it.id, delayCallDepth = delayCallDepth)
+        secondLevelCacheLogCaptor().use { logCaptor ->
+            assertThat(getMovies()).containsExactlyElementsOf(savedMovies)
+            logCaptor.assertThatCached(false)
         }
 
-        assertThat(getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)).isEmpty()
-        logCaptor.assertCorrectThreadType(approach, expectedLogCount = (delayCallDepth + 1) * 6)
+        secondLevelCacheLogCaptor().use { logCaptor ->
+            assertThat(getMovies()).containsExactlyElementsOf(savedMovies)
+            logCaptor.assertThatCached(true)
+        }
+
+        secondLevelCacheLogCaptor().use { logCaptor ->
+            savedMovies.forEach { savedMovie ->
+                deleteMovie(approach, movieId = savedMovie.id, delayCallDepth = delayCallDepth)
+            }
+            assertThat(getMovies()).isEmpty()
+            logCaptor.assertThatCached(false)
+        }
+
+        logCaptor.assertCorrectThreadType(approach, expectedLogCount = (delayCallDepth + 1) * 7)
+    }
+
+    private fun secondLevelCacheLogCaptor() = LogCaptor.forName(HIBERNATE_ORM_CACHE_LOG_NAME)
+
+    private fun LogCaptor.assertThatCached(cached: Boolean) {
+        if (cached) {
+            assertThat(debugLogs).contains(RETURNING_CACHED_QUERY_RESULTS).doesNotContain(CACHED_QUERY_RESULTS_WERE_NOT_UP_TO_DATE)
+        } else {
+            assertThat(debugLogs).doesNotContain(RETURNING_CACHED_QUERY_RESULTS).contains(CACHED_QUERY_RESULTS_WERE_NOT_UP_TO_DATE)
+        }
     }
 
     private fun getMovies(
