@@ -16,7 +16,7 @@ import uk.gleissner.loomwebflux.movie.domain.Movies.mulhollandDrive
 import uk.gleissner.loomwebflux.movie.domain.Movies.theStraightStory
 
 @ExtendWith(MockitoExtension::class)
-class AppPropertiesAwareMovieRepoTest {
+class CachedMovieRepoTest {
 
     @Mock
     private lateinit var appProperties: AppProperties
@@ -30,13 +30,13 @@ class AppPropertiesAwareMovieRepoTest {
     @Mock
     private lateinit var cacheManager: CacheManager
 
-    private lateinit var appPropertiesAwareMovieRepo: AppPropertiesAwareMovieRepo
+    private lateinit var sut: CachedMovieRepo
 
 
     @BeforeEach
     fun beforeEach() {
         `when`(cacheManager.getCache(any())).thenReturn(cache);
-        appPropertiesAwareMovieRepo = AppPropertiesAwareMovieRepo(appProperties, movieRepo, cacheManager)
+        sut = CachedMovieRepo(appProperties, movieRepo, cacheManager)
     }
 
     @Test
@@ -45,7 +45,7 @@ class AppPropertiesAwareMovieRepoTest {
         val expectedMovies = setOf(mulhollandDrive, theStraightStory)
         `when`(movieRepo.findByDirectorName(directorName)).thenReturn(expectedMovies)
 
-        val movies = appPropertiesAwareMovieRepo.findByDirectorName(directorName)
+        val movies = sut.findByDirectorName(directorName)
 
         assertThat(movies).isEqualTo(expectedMovies)
         verify(movieRepo).findByDirectorName(directorName)
@@ -55,7 +55,7 @@ class AppPropertiesAwareMovieRepoTest {
     fun `save should return movie without saving when repoReadOnly is true`() {
         `when`(appProperties.repoReadOnly()).thenReturn(true)
 
-        val movie = appPropertiesAwareMovieRepo.save(mulhollandDrive)
+        val movie = sut.save(mulhollandDrive)
 
         assertThat(movie).isSameAs(mulhollandDrive)
         verify(movieRepo, never()).save(any(Movie::class.java))
@@ -69,7 +69,7 @@ class AppPropertiesAwareMovieRepoTest {
         `when`(appProperties.repoReadOnly()).thenReturn(false)
         `when`(movieRepo.save(movie)).thenReturn(savedMovie)
 
-        val result = appPropertiesAwareMovieRepo.save(movie)
+        val result = sut.save(movie)
 
         assertThat(result).isEqualTo(savedMovie)
         verify(movieRepo).save(movie)
@@ -80,7 +80,7 @@ class AppPropertiesAwareMovieRepoTest {
         val movieId = 1L
         `when`(appProperties.repoReadOnly()).thenReturn(true)
 
-        appPropertiesAwareMovieRepo.deleteById(movieId)
+        sut.deleteById(movieId)
 
         verify(movieRepo, never()).deleteById(movieId)
     }
@@ -90,7 +90,7 @@ class AppPropertiesAwareMovieRepoTest {
         val movieId = 1L
         `when`(appProperties.repoReadOnly()).thenReturn(false)
 
-        appPropertiesAwareMovieRepo.deleteById(movieId)
+        sut.deleteById(movieId)
 
         verify(movieRepo).deleteById(movieId)
     }

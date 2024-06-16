@@ -17,9 +17,7 @@ import uk.gleissner.loomwebflux.movie.repo.MovieRepo
 import java.time.Duration
 import java.time.Instant.now
 
-private const val HIBERNATE_ORM_CACHE_LOG_NAME = "org.hibernate.orm.cache"
-private const val RETURNING_CACHED_QUERY_RESULTS = "Returning cached query results"
-private const val CACHED_QUERY_RESULTS_WERE_NOT_UP_TO_DATE = "Cached query results were not up-to-date"
+private const val SQL_LOG_NAME = "org.hibernate.SQL"
 
 internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
 
@@ -45,39 +43,30 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
 
         val savedMovies = saveMovies(approach, movies, delayCallDepth = delayCallDepth)
         assertThat(savedMovies).hasSize(movies.size)
-        savedMovies.forEach {
-            assertThat(it.id).isNotNull()
-        }
+        savedMovies.forEach { assertThat(it.id).isNotNull() }
         assertThat(savedMovies).usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*id").isEqualTo(movies)
+        assertThatSqlQueryIssued(true) { assertThat(getMovies()).containsExactlyElementsOf(savedMovies) }
+        assertThatSqlQueryIssued(false) { assertThat(getMovies()).containsExactlyElementsOf(savedMovies) }
 
-        secondLevelCacheLogCaptor().use { logCaptor ->
-            assertThat(getMovies()).containsExactlyElementsOf(savedMovies)
-            logCaptor.assertThatCached(false)
-        }
-
-        secondLevelCacheLogCaptor().use { logCaptor ->
-            assertThat(getMovies()).containsExactlyElementsOf(savedMovies)
-            logCaptor.assertThatCached(true)
-        }
-
-        secondLevelCacheLogCaptor().use { logCaptor ->
-            savedMovies.forEach { savedMovie ->
-                deleteMovie(approach, movieId = savedMovie.id, delayCallDepth = delayCallDepth)
-            }
-            assertThat(getMovies()).isEmpty()
-            logCaptor.assertThatCached(false)
-        }
-
+        savedMovies.forEach { savedMovie -> deleteMovie(approach, movieId = savedMovie.id, delayCallDepth = delayCallDepth) }
+        assertThatSqlQueryIssued(true) { assertThat(getMovies()).isEmpty() }
         logCaptor.assertCorrectThreadType(approach, expectedLogCount = (delayCallDepth + 1) * 7)
     }
 
-    private fun secondLevelCacheLogCaptor() = LogCaptor.forName(HIBERNATE_ORM_CACHE_LOG_NAME)
-
-    private fun LogCaptor.assertThatCached(cached: Boolean) {
-        if (cached) {
-            assertThat(debugLogs).contains(RETURNING_CACHED_QUERY_RESULTS).doesNotContain(CACHED_QUERY_RESULTS_WERE_NOT_UP_TO_DATE)
-        } else {
-            assertThat(debugLogs).doesNotContain(RETURNING_CACHED_QUERY_RESULTS).contains(CACHED_QUERY_RESULTS_WERE_NOT_UP_TO_DATE)
+    private fun assertThatSqlQueryIssued(queryIssued: Boolean, repoCall: Runnable) {
+        val logCaptor = LogCaptor.forName(SQL_LOG_NAME)
+        try {
+            logCaptor.setLogLevelToDebug()
+            repoCall.run()
+            val selectCount = logCaptor.debugLogs.filter { it.startsWith("select") }.size
+            if (queryIssued) {
+                assertThat(selectCount).isPositive()
+            } else {
+                assertThat(selectCount).isZero()
+            }
+        } finally {
+            logCaptor.setLogLevelToInfo()
+            logCaptor.close()
         }
     }
 

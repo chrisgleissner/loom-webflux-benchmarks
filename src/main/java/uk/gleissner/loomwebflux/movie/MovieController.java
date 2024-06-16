@@ -13,7 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import uk.gleissner.loomwebflux.controller.LoomWebFluxController;
 import uk.gleissner.loomwebflux.movie.domain.Movie;
-import uk.gleissner.loomwebflux.movie.repo.AppPropertiesAwareMovieRepo;
+import uk.gleissner.loomwebflux.movie.repo.CachedMovieRepo;
 
 import java.util.List;
 import java.util.Set;
@@ -28,9 +28,9 @@ import static uk.gleissner.loomwebflux.Approaches.WEBFLUX_NETTY;
 public class MovieController extends LoomWebFluxController {
 
     private static final String API_PATH = "/movies";
-    private final AppPropertiesAwareMovieRepo movieRepo;
+    private final CachedMovieRepo movieRepo;
 
-    MovieController(WebClient webClient, AppPropertiesAwareMovieRepo movieRepo) {
+    MovieController(WebClient webClient, CachedMovieRepo movieRepo) {
         super(webClient);
         this.movieRepo = movieRepo;
     }

@@ -1,6 +1,5 @@
 package uk.gleissner.loomwebflux.movie.domain;
 
-import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -22,7 +21,6 @@ import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Cacheable
 @Data
 @Builder(toBuilder = true)
 @NoArgsConstructor
