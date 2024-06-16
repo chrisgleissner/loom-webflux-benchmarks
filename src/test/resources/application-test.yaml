@@ -4,4 +4,5 @@ loom-webflux:
 logging:
   level:
     uk.gleissner.loomwebflux: debug
-    #org.hibernate: trace
+#    org.hibernate.SQL: debug
+

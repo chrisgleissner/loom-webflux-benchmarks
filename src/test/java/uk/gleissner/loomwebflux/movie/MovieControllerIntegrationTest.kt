@@ -1,5 +1,6 @@
 package uk.gleissner.loomwebflux.movie
 
+import nl.altindag.log.LogCaptor
 import org.assertj.core.api.Assertions.assertThat
 import org.junitpioneer.jupiter.cartesian.CartesianTest
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,6 +16,8 @@ import uk.gleissner.loomwebflux.movie.domain.Movies.theStraightStory
 import uk.gleissner.loomwebflux.movie.repo.MovieRepo
 import java.time.Duration
 import java.time.Instant.now
+
+private const val SQL_LOG_NAME = "org.hibernate.SQL"
 
 internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
 
@@ -35,23 +38,36 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
     @CartesianTestApproachesAndDelayCallDepths
     fun `save and delete movies`(approach: String, delayCallDepth: Int) {
         val movies = listOf(mulhollandDrive, theStraightStory)
-        assertThat(getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)).isEmpty()
+        fun getMovies() = getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)
+        assertThat(getMovies()).isEmpty()
 
         val savedMovies = saveMovies(approach, movies, delayCallDepth = delayCallDepth)
         assertThat(savedMovies).hasSize(movies.size)
-        savedMovies.forEach {
-            assertThat(it.id).isNotNull()
-        }
+        savedMovies.forEach { assertThat(it.id).isNotNull() }
         assertThat(savedMovies).usingRecursiveComparison().ignoringFieldsMatchingRegexes(".*id").isEqualTo(movies)
+        assertThatSqlQueryIssued(true) { assertThat(getMovies()).containsExactlyElementsOf(savedMovies) }
+        assertThatSqlQueryIssued(false) { assertThat(getMovies()).containsExactlyElementsOf(savedMovies) }
 
-        assertThat(getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)).containsExactlyElementsOf(savedMovies)
+        savedMovies.forEach { savedMovie -> deleteMovie(approach, movieId = savedMovie.id, delayCallDepth = delayCallDepth) }
+        assertThatSqlQueryIssued(true) { assertThat(getMovies()).isEmpty() }
+        logCaptor.assertCorrectThreadType(approach, expectedLogCount = (delayCallDepth + 1) * 7)
+    }
 
-        savedMovies.forEach {
-            deleteMovie(approach, movieId = it.id, delayCallDepth = delayCallDepth)
+    private fun assertThatSqlQueryIssued(queryIssued: Boolean, repoCall: Runnable) {
+        val logCaptor = LogCaptor.forName(SQL_LOG_NAME)
+        try {
+            logCaptor.setLogLevelToDebug()
+            repoCall.run()
+            val selectCount = logCaptor.debugLogs.filter { it.startsWith("select") }.size
+            if (queryIssued) {
+                assertThat(selectCount).isPositive()
+            } else {
+                assertThat(selectCount).isZero()
+            }
+        } finally {
+            logCaptor.setLogLevelToInfo()
+            logCaptor.close()
         }
-
-        assertThat(getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)).isEmpty()
-        logCaptor.assertCorrectThreadType(approach, expectedLogCount = (delayCallDepth + 1) * 6)
     }
 
     private fun getMovies(

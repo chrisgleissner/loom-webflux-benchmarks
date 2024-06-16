@@ -7,28 +7,14 @@ spring:
   threads:
     virtual:
       enabled: true
-  cache:
-    # TODO cg Examine why this Hibernate query cache is not used. Instead, only the Spring Boot cache (Caffeine) is used.
-    jcache:
-      provider: org.ehcache.jsr107.EhcacheCachingProvider
-    cache-names: moviesByDirectorName
   jpa:
     open-in-view: false
     properties:
       hibernate:
-        javax.cache.missing_cache_strategy: create
-        cache:
-          region:
-            factory_class: jcache
-            # TODO cg Examine why the Hibernate query cache is not used. Instead, only the Spring Boot cache (Caffeine) is used.
-          use_query_cache: true
-          use_second_level_cache: true
+        globally_quoted_identifiers: true
     hibernate:
       ddl-auto: update
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: password
     hikari:
       connectionTimeout: 60000
       maximumPoolSize: 100

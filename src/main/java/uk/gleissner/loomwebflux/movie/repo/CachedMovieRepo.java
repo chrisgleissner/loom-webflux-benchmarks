@@ -10,7 +10,7 @@ import uk.gleissner.loomwebflux.movie.domain.Movie;
 import java.util.Set;
 
 @Component
-public class AppPropertiesAwareMovieRepo {
+public class CachedMovieRepo {
 
     private static final String MOVIES_BY_DIRECTOR_NAME_CACHE_NAME = "moviesByDirectorName";
 
@@ -18,13 +18,13 @@ public class AppPropertiesAwareMovieRepo {
     private final MovieRepo underlying;
     private final Cache moviesByDirectorNameCache;
 
-    AppPropertiesAwareMovieRepo(AppProperties appProperties, MovieRepo underlying, CacheManager cacheManager) {
+    CachedMovieRepo(AppProperties appProperties, MovieRepo underlying, CacheManager cacheManager) {
         this.appProperties = appProperties;
         this.underlying = underlying;
         this.moviesByDirectorNameCache = cacheManager.getCache(MOVIES_BY_DIRECTOR_NAME_CACHE_NAME);
     }
 
-    @Cacheable("moviesByDirectorName")
+    @Cacheable(MOVIES_BY_DIRECTOR_NAME_CACHE_NAME)
     public Set<Movie> findByDirectorName(String directorName) {
         return underlying.findByDirectorName(directorName);
     }
@@ -33,17 +33,19 @@ public class AppPropertiesAwareMovieRepo {
         if (appProperties.repoReadOnly()) {
             return movie;
         } else {
-            // TODO cg Save new movie to cache
-            moviesByDirectorNameCache.invalidate();
+            evictMovieFromCache(movie);
             return underlying.save(movie);
         }
     }
 
     public void deleteById(Long id) {
         if (!appProperties.repoReadOnly()) {
+            underlying.findById(id).ifPresent(this::evictMovieFromCache);
             underlying.deleteById(id);
-            // TODO cg Expire deleted movie from cache
-            moviesByDirectorNameCache.invalidate();
         }
+    }
+
+    private void evictMovieFromCache(Movie movie) {
+        movie.getDirectors().forEach(director -> moviesByDirectorNameCache.evict(director.getLastName()));
     }
 }
