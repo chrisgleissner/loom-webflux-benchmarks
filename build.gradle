@@ -29,7 +29,6 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.junit-pioneer:junit-pioneer:2.2.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation "org.testcontainers:postgresql:1.19.8"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
