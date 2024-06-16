@@ -16,6 +16,7 @@ spring:
     open-in-view: false
     properties:
       hibernate:
+        globally_quoted_identifiers: true
         javax.cache.missing_cache_strategy: create
         cache:
           region:
@@ -24,7 +25,7 @@ spring:
           use_query_cache: true
           use_second_level_cache: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
   datasource:
     hikari:
       connectionTimeout: 60000
