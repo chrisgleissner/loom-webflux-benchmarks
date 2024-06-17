@@ -55,24 +55,22 @@ class CachedMovieRepoTest {
     fun `save should return movie without saving when repoReadOnly is true`() {
         `when`(appProperties.repoReadOnly()).thenReturn(true)
 
-        val movie = sut.save(mulhollandDrive)
+        val savedMovies = sut.saveAll(listOf(mulhollandDrive))
 
-        assertThat(movie).isSameAs(mulhollandDrive)
+        assertThat(savedMovies).containsExactly(mulhollandDrive)
         verify(movieRepo, never()).save(any(Movie::class.java))
     }
 
     @Test
     fun `save should delegate to underlying repo when repoReadOnly is false`() {
-        val movie = mulhollandDrive
-        val savedMovie = mulhollandDrive
-
+        val movies = listOf(mulhollandDrive)
         `when`(appProperties.repoReadOnly()).thenReturn(false)
-        `when`(movieRepo.save(movie)).thenReturn(savedMovie)
+        `when`(movieRepo.saveAll(anyIterable())).thenReturn(movies)
 
-        val result = sut.save(movie)
+        val savedMovies = sut.saveAll(movies)
 
-        assertThat(result).isEqualTo(savedMovie)
-        verify(movieRepo).save(movie)
+        assertThat(savedMovies).isEqualTo(movies)
+        verify(movieRepo).saveAll(movies)
     }
 
     @Test

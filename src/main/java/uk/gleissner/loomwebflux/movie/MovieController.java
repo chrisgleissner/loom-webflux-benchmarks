@@ -61,7 +61,7 @@ public class MovieController extends LoomWebFluxController {
                                   @RequestParam Long delayInMillis) throws InterruptedException {
         log("saveMovies");
         waitOrFetchEpochMillis(delayCallDepth, delayInMillis);
-        return movies.stream().map(movieRepo::save).toList();
+        return movieRepo.saveAll(movies);
     }
 
     @PostMapping(WEBFLUX_NETTY + API_PATH)
@@ -72,7 +72,8 @@ public class MovieController extends LoomWebFluxController {
         return waitOrFetchEpochMillisReactive(delayCallDepth, delayInMillis)
             .flatMapMany(ignore -> movies
                 .publishOn(boundedElastic())
-                .map(movieRepo::save));
+                .collectList()
+                .flatMapMany(movieList -> Flux.fromIterable(movieRepo.saveAll(movieList))));
     }
 
     @DeleteMapping({PLATFORM_TOMCAT + API_PATH + "/{id}", LOOM_TOMCAT + API_PATH + "/{id}", LOOM_NETTY + API_PATH + "/{id}"})

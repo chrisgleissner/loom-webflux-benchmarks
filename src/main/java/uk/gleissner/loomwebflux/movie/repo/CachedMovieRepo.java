@@ -1,5 +1,6 @@
 package uk.gleissner.loomwebflux.movie.repo;
 
+import com.google.common.collect.Lists;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Component;
 import uk.gleissner.loomwebflux.config.AppProperties;
 import uk.gleissner.loomwebflux.movie.domain.Movie;
 
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -28,13 +30,13 @@ public class CachedMovieRepo {
     public Set<Movie> findByDirectorName(String directorName) {
         return underlying.findByDirectorName(directorName);
     }
-
-    public Movie save(Movie movie) {
+    
+    public List<Movie> saveAll(Iterable<Movie> movies) {
         if (appProperties.repoReadOnly()) {
-            return movie;
+            return Lists.newArrayList(movies);
         } else {
-            evictMovieFromCache(movie);
-            return underlying.save(movie);
+            movies.forEach(this::evictMovieFromCache);
+            return underlying.saveAll(movies);
         }
     }
 
