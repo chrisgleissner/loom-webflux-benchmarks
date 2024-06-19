@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-  
+
     strategy:
       fail-fast: false
       matrix:
@@ -95,6 +95,7 @@ jobs:
           fi
 
       - name: Copy results
+        continue-on-error: true
         run: |
           scenariosPath=${{ inputs.scenarios-path }} 
           scenarios=${scenariosPath%%.*}
