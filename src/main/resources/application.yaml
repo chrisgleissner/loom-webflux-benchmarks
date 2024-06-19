@@ -1,6 +1,9 @@
 spring:
   application:
     name: loom-webflux
+  cache:
+    caffeine:
+      spec: expireAfterWrite=1h
   main:
     banner-mode: off
     lazy-initialization: true
