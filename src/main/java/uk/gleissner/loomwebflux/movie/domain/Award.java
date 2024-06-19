@@ -1,13 +1,28 @@
 package uk.gleissner.loomwebflux.movie.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-@Value
-@Builder
-@Jacksonized
+import static jakarta.persistence.GenerationType.IDENTITY;
+
+@Entity
+@Data
+@Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Award {
+
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
+    @EqualsAndHashCode.Exclude
+    Long id;
+
     String name;
     int year;
 }

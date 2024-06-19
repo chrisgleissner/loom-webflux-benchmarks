@@ -1,25 +1,24 @@
 [
   {
-    "id": "6be2c396-834d-44c5-8314-50b7144a3b75",
     "title": "Annie Hall",
     "releaseYear": 1977,
     "genre": "ROMANCE",
-    "actors": [
+    "characters": [
       {
-        "person": {
+        "actor": {
           "firstName": "Woody",
           "lastName": "Allen",
           "birthday": "1935-11-30"
         },
-        "role": "Alvy Singer"
+        "name": "Alvy Singer"
       },
       {
-        "person": {
+        "actor": {
           "firstName": "Diane",
           "lastName": "Keaton",
-          "birthday": null
+          "birthday": "1946-01-05"
         },
-        "role": "Annie Hall"
+        "name": "Annie Hall"
       }
     ],
     "directors": [
@@ -49,26 +48,25 @@
     "rating": 8.0
   },
   {
-    "id": "1fc31f51-18a4-4968-9d04-feb167cbff2d",
     "title": "Manhattan",
     "releaseYear": 1979,
     "genre": "DRAMA",
-    "actors": [
+    "characters": [
       {
-        "person": {
+        "actor": {
           "firstName": "Woody",
           "lastName": "Allen",
           "birthday": "1935-11-30"
         },
-        "role": "Isaac Davis"
+        "name": "Isaac Davis"
       },
       {
-        "person": {
+        "actor": {
           "firstName": "Diane",
           "lastName": "Keaton",
-          "birthday": null
+          "birthday": "1946-01-05"
         },
-        "role": "Mary Wilkie"
+        "name": "Mary Wilkie"
       }
     ],
     "directors": [
@@ -94,26 +92,25 @@
     "rating": 7.9
   },
   {
-    "id": "22f39d7f-0f41-47c7-bdc8-9006b48b97e3",
     "title": "Zelig",
     "releaseYear": 1983,
     "genre": "COMEDY",
-    "actors": [
+    "characters": [
       {
-        "person": {
+        "actor": {
           "firstName": "Woody",
           "lastName": "Allen",
           "birthday": "1935-11-30"
         },
-        "role": "Leonard Zelig"
+        "name": "Leonard Zelig"
       },
       {
-        "person": {
+        "actor": {
           "firstName": "Mia",
           "lastName": "Farrow",
-          "birthday": null
+          "birthday": "1945-02-09"
         },
-        "role": "Dr. Eudora Nesbitt Fletcher"
+        "name": "Dr. Eudora Nesbitt Fletcher"
       }
     ],
     "directors": [
@@ -139,26 +136,25 @@
     "rating": 7.8
   },
   {
-    "id": "9363f2f0-6f06-4099-9e2c-aabd76f923e2",
     "title": "North by Northwest",
     "releaseYear": 1959,
     "genre": "ACTION",
-    "actors": [
+    "characters": [
       {
-        "person": {
+        "actor": {
           "firstName": "Cary",
           "lastName": "Grant",
-          "birthday": null
+          "birthday": "1904-01-18"
         },
-        "role": "Roger O. Thornhill"
+        "name": "Roger O. Thornhill"
       },
       {
-        "person": {
+        "actor": {
           "firstName": "Eva Marie",
           "lastName": "Saint",
-          "birthday": null
+          "birthday": "1924-07-04"
         },
-        "role": "Eve Kendall"
+        "name": "Eve Kendall"
       }
     ],
     "directors": [
@@ -184,26 +180,25 @@
     "rating": 8.4
   },
   {
-    "id": "8ee19105-0c75-483c-bbc1-10fe5cc17e6d",
     "title": "Rear Window",
     "releaseYear": 1954,
     "genre": "MYSTERY",
-    "actors": [
+    "characters": [
       {
-        "person": {
+        "actor": {
           "firstName": "James",
           "lastName": "Stewart",
-          "birthday": null
+          "birthday": "1908-05-20"
         },
-        "role": "L.B. Jefferies"
+        "name": "L.B. Jefferies"
       },
       {
-        "person": {
+        "actor": {
           "firstName": "Grace",
           "lastName": "Kelly",
-          "birthday": null
+          "birthday": "1929-11-12"
         },
-        "role": "Lisa Carol Fremont"
+        "name": "Lisa Carol Fremont"
       }
     ],
     "directors": [
@@ -229,26 +224,26 @@
     "rating": 8.5
   },
   {
-    "id": "c3a3bcf6-24c1-49cf-a502-732caaa40000",
     "title": "Vertigo",
     "releaseYear": 1958,
     "genre": "MYSTERY",
-    "actors": [
+    "characters": [
       {
-        "person": {
+        "actor": {
           "firstName": "James",
           "lastName": "Stewart",
-          "birthday": null
+          "birthday": "1908-05-20"
+
         },
-        "role": "John 'Scottie' Ferguson"
+        "name": "John 'Scottie' Ferguson"
       },
       {
-        "person": {
+        "actor": {
           "firstName": "Kim",
           "lastName": "Novak",
-          "birthday": null
+          "birthday": "1933-02-13"
         },
-        "role": "Madeleine Elster"
+        "name": "Madeleine Elster"
       }
     ],
     "directors": [
@@ -274,26 +269,25 @@
     "rating": 8.3
   },
   {
-    "id": "f1966984-08e7-4c1e-a3c6-6db5b75832a1",
     "title": "2001: A Space Odyssey",
     "releaseYear": 1968,
     "genre": "SCIENCE_FICTION",
-    "actors": [
+    "characters": [
       {
-        "person": {
+        "actor": {
           "firstName": "Keir",
           "lastName": "Dullea",
-          "birthday": null
+          "birthday": "1936-05-30"
         },
-        "role": "Dr. Dave Bowman"
+        "name": "Dr. Dave Bowman"
       },
       {
-        "person": {
+        "actor": {
           "firstName": "Gary",
           "lastName": "Lockwood",
-          "birthday": null
+          "birthday": "1937-02-21"
         },
-        "role": "Dr. Frank Poole"
+        "name": "Dr. Frank Poole"
       }
     ],
     "directors": [
@@ -319,26 +313,26 @@
     "rating": 8.7
   },
   {
-    "id": "00f014f2-fb84-4a84-8b67-9b6c5c59afef",
     "title": "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb",
     "releaseYear": 1964,
     "genre": "COMEDY",
-    "actors": [
+    "characters": [
       {
-        "person": {
+        "actor": {
           "firstName": "Peter",
           "lastName": "Sellers",
-          "birthday": null
+          "birthday": "1925-09-08"
         },
-        "role": "Group Capt. Lionel Mandrake / President Merkin Muffley / Dr. Strangelove"
+        "name": "Group Capt. Lionel Mandrake / President Merkin Muffley / Dr. Strangelove"
       },
       {
-        "person": {
+        "actor": {
           "firstName": "George C.",
           "lastName": "Scott",
-          "birthday": null
+          "birthday": "1927-10-18"
+
         },
-        "role": "Gen. 'Buck' Turgidson"
+        "name": "Gen. 'Buck' Turgidson"
       }
     ],
     "directors": [

@@ -4,6 +4,16 @@
       "name": "loom-webflux.save-enabled",
       "type": "java.lang.String",
       "description": "Description for loom-webflux.save-enabled."
+    },
+    {
+      "name": "spring.jpa.hibernate.javax.cache.provider",
+      "type": "java.lang.String",
+      "description": "Description for spring.jpa.hibernate.javax.cache.provider."
+    },
+    {
+      "name": "spring.jpa.hibernate.javax.cache.missing_cache_strategy",
+      "type": "java.lang.String",
+      "description": "Description for spring.jpa.hibernate.javax.cache.missing_cache_strategy."
     }
   ]
 }

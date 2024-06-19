@@ -30,7 +30,7 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 > **Virtual Threads on Netty** (using [blocking code](https://docs.oracle.com/javase/8/docs/api/java/lang/Thread.html#sleep-long-)) showed very similar and often superior performance characteristics (latency percentiles, requests per second,
 > system load) compared with **WebFlux on Netty** (using non-blocking code and relying on [Mono](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html)
 > and [Flux](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html) from Project Reactor):
-> - Virtual Threads on Netty was the [benchmark winner](#Netty-based-Approaches) for about 75% of all combinations of metrics and benchmark scenarios when directly compared with Project Reactor on Netty.
+> - Virtual Threads on Netty was the [benchmark winner](#Netty-based-Approaches) for about 70% of all combinations of metrics and benchmark scenarios when directly compared with Project Reactor on Netty.
 > - For all high user count scenarios, it had the lowest latency as well as the largest number of requests for the entirety of each benchmark run.
 > - In many cases (e.g. [60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies)), the 90th and 99th percentile latencies (P90 and P99)
     were considerably lower for Virtual Threads on Netty when compared with WebFlux on Netty.
@@ -128,23 +128,29 @@ epoch, i.e. 1 Jan 1970:
 #### movies
 
 The [MovieController](src/main/java/uk/gleissner/loomwebflux/movie/MovieController.java) gets and saves movies which are
-stored in an in-memory repository:
+stored in an [H2](https://h2database.com/) in-memory DB via [Spring Data JPA](https://spring.io/projects/spring-data-jpa), fronted by a [Caffeine](https://github.com/ben-manes/caffeine)-backed [Spring Boot cache](https://docs.spring.io/spring-boot/reference/io/caching.html):
 
 - This is a realistic JSON API as exposed by a typical microservice.
 - Several hard-coded movies by three directors are provided.
+
+DB Considerations:
+
 - By default, writes are not saved since the code under test is identical for all approaches and would thus only
   contribute to CPU use. However, this can be controlled with the Spring Boot property `loom-webflux.repo-read-only`
   in `src/main/resources/application.yaml`.
-- Supported requests:
-    - `GET /$approach/movies?directorLastName={director}`:
-        - Returns movies by the specified director.
-        - Supported `{director}` values and their respective response body size in bytes, based on the default movies:
-            - `Allen`: 1597 bytes (unindented)
-            - `Hitchcock`: 1579 bytes (unindented)
-            - `Kubrick`: 1198 bytes (unindented)
-    - `POST /$approach/movies`:
-        - Saves one or more movies.
-        - The [sample movies](src/main/resources/scenarios/movies.json) saved during the load tests measure 7288 bytes (indented).
+- H2 was chosen for the same reason. To swap it for a Docker-based PostgreSQL, search the code for `PostgreSQL test` which provides instructions.
+
+Supported requests:
+
+- `GET /$approach/movies?directorLastName={director}`:
+    - Returns movies by the specified director.
+    - Supported `{director}` values and their respective response body size in bytes, based on the default movies:
+        - `Allen`: 1597 bytes (unindented)
+        - `Hitchcock`: 1579 bytes (unindented)
+        - `Kubrick`: 1198 bytes (unindented)
+- `POST /$approach/movies`:
+    - Saves one or more movies.
+    - The [sample movies](src/main/resources/scenarios/movies.json) saved during the load tests measure 7288 bytes (indented).
 
 ## Requirements
 
@@ -263,10 +269,10 @@ see [src/main/resources/scenarios/scenarios.csv](src/main/resources/scenarios/sc
 | [5k-vus-and-rps-get-movies](#5k-vus-and-rps-get-movies)                                                 | Movies | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
 | [10k-vus-and-rps-get-movies](#10k-vus-and-rps-get-movies)                                               | Movies | Constant users, constant request rate | 10,000             | 10,000                      | 0                    | 100               | 0                |
 | [10k-vus-and-rps-get-movies-call-depth-1](#10k-vus-and-rps-get-movies-call-depth-1)                     | Movies | Constant users, constant request rate | 10,000             | 10,000                      | 0                    | 100               | 1                |
-| [25k-vus-stepped-spike-get-movies](#25k-vus-stepped-spike-get-movies)                                   | Movies | Stepped user spike                    | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
-| [25k-vus-smooth-spike-get-movies](#25k-vus-smooth-spike-get-movies)                                     | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
-| [25k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies)                           | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
-| [25k-vus-smooth-spike-get-post-movies-call-depth-1](#25k-vus-smooth-spike-get-post-movies-call-depth-1) | Movies | Smooth user spike                     | 0 - 25,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 1                |
+| [20k-vus-stepped-spike-get-movies](#20k-vus-stepped-spike-get-movies)                                   | Movies | Stepped user spike                    | 0 - 20,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| [20k-vus-smooth-spike-get-movies](#20k-vus-smooth-spike-get-movies)                                     | Movies | Smooth user spike                     | 0 - 20,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| [20k-vus-smooth-spike-get-post-movies](#20k-vus-smooth-spike-get-post-movies)                           | Movies | Smooth user spike                     | 0 - 20,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+| [20k-vus-smooth-spike-get-post-movies-call-depth-1](#20k-vus-smooth-spike-get-post-movies-call-depth-1) | Movies | Smooth user spike                     | 0 - 20,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 1                |
 
 #### High-Load Scenarios
 
@@ -451,9 +457,9 @@ Like the previous scenario, but mimics a request to an upstream service.
 
 ![WebFlux](results/10k-vus-and-rps-get-movies-call-depth-1/webflux-netty.png)
 
-### 25k-vus-stepped-spike-get-movies
+### 20k-vus-stepped-spike-get-movies
 
-This scenario ramps up virtual users (and thus TCP connections) from 0 to 25k in multiple steps, then back down:
+This scenario ramps up virtual users (and thus TCP connections) from 0 to 20k in multiple steps, then back down:
 
 - Each step has a short [riser](https://en.wikipedia.org/wiki/Stair_riser) time when users are increased,
   followed by a longer [tread](https://en.wikipedia.org/wiki/Stair_tread) time when users are held
@@ -465,33 +471,33 @@ This scenario ramps up virtual users (and thus TCP connections) from 0 to 25k in
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/25k-vus-stepped-spike-get-movies/loom-tomcat.png)
+![Loom](results/20k-vus-stepped-spike-get-movies/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/25k-vus-stepped-spike-get-movies/loom-netty.png)
+![Loom](results/20k-vus-stepped-spike-get-movies/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/25k-vus-stepped-spike-get-movies/webflux-netty.png)
+![WebFlux](results/20k-vus-stepped-spike-get-movies/webflux-netty.png)
 
-### 25k-vus-smooth-spike-get-movies
+### 20k-vus-smooth-spike-get-movies
 
 Like the previous scenario, but linear ramp-up and down.
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/25k-vus-smooth-spike-get-movies/loom-tomcat.png)
+![Loom](results/20k-vus-smooth-spike-get-movies/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/25k-vus-smooth-spike-get-movies/loom-netty.png)
+![Loom](results/20k-vus-smooth-spike-get-movies/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/25k-vus-smooth-spike-get-movies/webflux-netty.png)
+![WebFlux](results/20k-vus-smooth-spike-get-movies/webflux-netty.png)
 
-### 25k-vus-smooth-spike-get-post-movies
+### 20k-vus-smooth-spike-get-post-movies
 
 Like the previous scenario, but instead of just getting movies, we are now additionally saving them:
 
@@ -502,17 +508,17 @@ For further details, please see the [movies](#movies) section.
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/25k-vus-smooth-spike-get-post-movies/loom-tomcat.png)
+![Loom](results/20k-vus-smooth-spike-get-post-movies/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/25k-vus-smooth-spike-get-post-movies/loom-netty.png)
+![Loom](results/20k-vus-smooth-spike-get-post-movies/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/25k-vus-smooth-spike-get-post-movies/webflux-netty.png)
+![WebFlux](results/20k-vus-smooth-spike-get-post-movies/webflux-netty.png)
 
-### 25k-vus-smooth-spike-get-post-movies-call-depth-1
+### 20k-vus-smooth-spike-get-post-movies-call-depth-1
 
 Like the previous scenario, but mimics call to upstream service as explained in [10k-vus-and-rps-get-movies-call-depth-1](#10k-vus-and-rps-get-movies-call-depth-1).
 
@@ -522,19 +528,19 @@ Like the previous scenario, but mimics call to upstream service as explained in 
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/25k-vus-smooth-spike-get-post-movies-call-depth-1/loom-tomcat.png)
+![Loom](results/20k-vus-smooth-spike-get-post-movies-call-depth-1/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/25k-vus-smooth-spike-get-post-movies-call-depth-1/loom-netty.png)
+![Loom](results/20k-vus-smooth-spike-get-post-movies-call-depth-1/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/25k-vus-smooth-spike-get-post-movies-call-depth-1/webflux-netty.png)
+![WebFlux](results/20k-vus-smooth-spike-get-post-movies-call-depth-1/webflux-netty.png)
 
 ### 60k-vus-smooth-spike-get-post-movies
 
-Like [25k-vus-smooth-spike-get-post-movies](#25k-vus-smooth-spike-get-post-movies), but scaling up to 60k users and executed within a VirtualBox VM on more powerful hardware,
+Like [20k-vus-smooth-spike-get-post-movies](#20k-vus-smooth-spike-get-post-movies), but scaling up to 60k users and executed within a VirtualBox VM on more powerful hardware,
 using a different Linux Kernel version. The rest of the setup is identical.
 
 #### Hardware
