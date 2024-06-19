@@ -19,12 +19,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql:42.+'
     testImplementation 'io.github.hakky54:logcaptor:2.9.2'
     testImplementation 'io.github.oshai:kotlin-logging-jvm:6.0.9'
     testImplementation 'org.apache.commons:commons-compress:1.26.2'
     testImplementation 'org.assertj:assertj-core'
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.junit-pioneer:junit-pioneer:2.2.0'
+    testImplementation "org.testcontainers:postgresql:1.19.8"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

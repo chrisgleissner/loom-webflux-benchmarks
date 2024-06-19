@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class CacheConfig {
 
     @Bean
-    public Caffeine caffeineConfig() {
+    public Caffeine<?, ?> caffeineConfig() {
         return Caffeine.newBuilder().expireAfterWrite(60, TimeUnit.MINUTES);
     }
 

@@ -1,4 +1,4 @@
-package uk.gleissner.loomwebflux.controller;
+package uk.gleissner.loomwebflux.common;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,23 +8,23 @@ import uk.gleissner.loomwebflux.time.TimeController;
 
 import java.time.Duration;
 
+import static uk.gleissner.loomwebflux.time.TimeController.NON_REACTIVE;
+import static uk.gleissner.loomwebflux.time.TimeController.REACTIVE;
+
 @Slf4j
 @RequiredArgsConstructor
-public abstract class LoomWebFluxController {
-
-    protected static final String REACTIVE = "reactive";
-    protected static final String NON_REACTIVE = "non-reactive";
+public abstract class AbstractService {
 
     private final WebClient webClient;
 
-    protected Mono<Long> fetchEpochMillis(String approach, Integer delayCallDepth, Long delayInMillis) {
+    protected Mono<Long> fetchEpochMillis(String approachGroup, Integer delayCallDepth, Long delayInMillis) {
         return webClient.get().uri(uriBuilder -> uriBuilder
-                        .path("/" + approach + TimeController.API_PATH)
-                        .queryParam("delayCallDepth", delayCallDepth)
-                        .queryParam("delayInMillis", delayInMillis)
-                        .build())
-                .retrieve()
-                .bodyToMono(Long.class);
+                .path("/" + approachGroup + TimeController.API_PATH)
+                .queryParam("delayCallDepth", delayCallDepth)
+                .queryParam("delayInMillis", delayInMillis)
+                .build())
+            .retrieve()
+            .bodyToMono(Long.class);
     }
 
     protected Long waitOrFetchEpochMillis(int delayCallDepth, long delayInMillis) throws InterruptedException {
@@ -38,10 +38,10 @@ public abstract class LoomWebFluxController {
 
     protected Mono<Long> waitOrFetchEpochMillisReactive(int delayCallDepth, long delayInMillis) {
         return Mono
-                .delay(Duration.ofMillis(delayCallDepth == 0 ? delayInMillis : 0))
-                .flatMap(d -> delayCallDepth > 0
-                        ? fetchEpochMillis(REACTIVE, delayCallDepth - 1, delayInMillis)
-                        : Mono.just(System.currentTimeMillis()));
+            .delay(Duration.ofMillis(delayCallDepth == 0 ? delayInMillis : 0))
+            .flatMap(d -> delayCallDepth > 0
+                ? fetchEpochMillis(REACTIVE, delayCallDepth - 1, delayInMillis)
+                : Mono.just(System.currentTimeMillis()));
     }
 
     protected void log(String methodName) {

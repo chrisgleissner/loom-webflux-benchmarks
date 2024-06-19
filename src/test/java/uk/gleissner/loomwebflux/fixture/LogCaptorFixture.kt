@@ -2,7 +2,7 @@ package uk.gleissner.loomwebflux.fixture
 
 import nl.altindag.log.LogCaptor
 import org.assertj.core.api.Assertions.assertThat
-import uk.gleissner.loomwebflux.Approaches.*
+import uk.gleissner.loomwebflux.common.Approaches.*
 
 object LogCaptorFixture {
     fun LogCaptor.assertCorrectThreadType(approach: String, expectedLogCount: Int = 1) {

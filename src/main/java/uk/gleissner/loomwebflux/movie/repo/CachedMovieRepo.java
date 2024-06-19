@@ -30,10 +30,10 @@ public class CachedMovieRepo {
     public Set<Movie> findByDirectorName(String directorName) {
         return underlying.findByDirectorName(directorName);
     }
-    
+
     public List<Movie> saveAll(Iterable<Movie> movies) {
         if (appProperties.repoReadOnly()) {
-            return Lists.newArrayList(movies);
+            return movies instanceof List ? (List<Movie>) movies : Lists.newArrayList(movies);
         } else {
             movies.forEach(this::evictMovieFromCache);
             return underlying.saveAll(movies);
