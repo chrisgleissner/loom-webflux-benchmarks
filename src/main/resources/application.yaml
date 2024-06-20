@@ -18,10 +18,6 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-    # Enable for PostgreSQL test
-    # url: jdbc:postgresql://localhost:5432/postgres
-    # username: postgres
-    # password: password
     hikari:
       connectionTimeout: 60000
       maximumPoolSize: 100

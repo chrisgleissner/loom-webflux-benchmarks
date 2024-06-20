@@ -1,15 +1,14 @@
-scenario,k6Config,serverConfig,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
+scenario,k6Config,serverProfile,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
 smoketest,get-time.js,,1,100,5,5,0,5
-1k-vus-and-rps-get-time-no-delay,get-time.js,,0,0,1000,1000,10,300
-5k-vus-and-rps-get-time,get-time.js,,0,100,5000,5000,10,300
-5k-vus-and-rps-get-movies,get-movies.js,,0,100,5000,5000,10,300
-# TODO cg Add support for new serverConfig column.
-# TODO cg If serverConfig is non-empty, start/stop src/main/docker/docker-compose-postgresql.yaml before each test run. Add 'postgresql' profile to Spring Boot.
-5k-vus-and-rps-get-movies,get-movies.js,postgresql,0,100,5000,5000,10,300
-10k-vus-and-rps-get-movies,get-movies.js,,0,100,10000,10000,10,300
-10k-vus-and-rps-get-movies-call-depth-1,get-movies.js,,1,100,10000,10000,10,300
-20k-vus-stepped-spike-get-movies,get-movies-stepped-vus-spike.js,,0,100,20000,,0,300
-20k-vus-smooth-spike-get-movies,get-movies-smooth-vus-spike.js,,0,100,20000,,0,300
-20k-vus-smooth-spike-get-post-movies,get-post-movies-smooth-vus-spike.js,,0,100,20000,,0,300
-20k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,,1,100,20000,,0,300
-20k-vus-smooth-spike-get-post-movies-call-depth-2,get-post-movies-smooth-vus-spike.js,,2,100,20000,,0,300
+1k-vus-and-rps-get-time-no-delay,get-time.js,,0,0,1000,1000,10,180
+5k-vus-and-rps-get-time,get-time.js,,0,100,5000,5000,10,180
+5k-vus-and-rps-get-movies,get-movies.js,,0,100,5000,5000,10,180
+5k-vus-and-rps-get-movies,get-movies.js,postgres,0,100,5000,5000,10,180
+10k-vus-and-rps-get-movies,get-movies.js,,0,100,10000,10000,10,180
+10k-vus-and-rps-get-movies,get-movies.js,postgres,0,100,10000,10000,10,180
+10k-vus-and-rps-get-movies-call-depth-1,get-movies.js,,1,100,10000,10000,10,180
+20k-vus-stepped-spike-get-movies,get-movies-stepped-vus-spike.js,,0,100,20000,,0,180
+20k-vus-smooth-spike-get-movies,get-movies-smooth-vus-spike.js,,0,100,20000,,0,180
+20k-vus-smooth-spike-get-post-movies,get-post-movies-smooth-vus-spike.js,,0,100,20000,,0,180
+20k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,,1,100,20000,,0,180
+20k-vus-smooth-spike-get-post-movies-call-depth-2,get-post-movies-smooth-vus-spike.js,,2,100,20000,,0,180

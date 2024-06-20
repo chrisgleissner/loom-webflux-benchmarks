@@ -1,3 +1,4 @@
-scenario,k6Config,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
-smoketest,get-time.js,0,0,100,200,2,6
-smoketest2,get-time.js,1,1000,10,10,0,6
+scenario,k6Config,serverProfile,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
+smoketest-get-time,get-time.js,,0,0,100,200,2,6
+smoketest-get-movies-h2,get-movies.js,,1,100,10,10,0,8
+smoketest-get-movies-postgres,get-movies.js,postgres,1,100,10,10,0,8
