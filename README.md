@@ -138,7 +138,8 @@ DB Considerations:
 - By default, writes are not saved since the code under test is identical for all approaches and would thus only
   contribute to CPU use. However, this can be controlled with the Spring Boot property `loom-webflux.repo-read-only`
   in `src/main/resources/application.yaml`.
-- H2 was chosen for the same reason. To swap it for a Docker-based PostgreSQL, search the code for `PostgreSQL test` which provides instructions.
+- The H2 DB was chosen for the same reason. To swap it for PostgreSQL, specify `postgres` in the `serverProfiles` column of the scenario CSV file. See [scenarios-postgres.csv](./src/main/resources/scenarios/scenarios-postgres.csv)
+  and [PostgreSQL results](results/scenarios-postgres/results-netty.png).
 
 Supported requests:
 
@@ -326,9 +327,9 @@ Virtual Threads, then for WebFlux.
 1. `scenario`: Name of scenario. Is printed on top of each diagram.
 2. `k6Config`: Name of the [K6 Config File](https://k6.io/docs/using-k6/http-requests/) which is assumed to be in
    the `config` folder
-3. `serverProfiles`: Pipe-delimited Spring profiles which are also used to start and stop Docker containers. For example, specifying the value `postgres|no-sql` has these effects:
-    - The Spring Boot profiles `postgres,no-sql` are added to the default Spring Boot profile of `$approach`.
-    - The files `src/main/docker/docker-compose-postgres.yaml` and `src/main/docker/docker-compose-no-sql.yaml` (if existent)
+3. `serverProfiles`: Pipe-delimited Spring profiles which are also used to start and stop Docker containers. For example, specifying the value `postgres|no-cache` has these effects:
+    - The Spring Boot profiles `postgres,no-cache` are added to the default Spring Boot profile of `$approach`.
+    - The files `src/main/docker/docker-compose-postgres.yaml` and `src/main/docker/docker-compose-no-cache.yaml` (if existent)
       are used to start/stop Docker containers before/after each scenario run.
 3. `delayCallDepth`: Depth of recursive HTTP call stack to `$approach/epoch-millis` endpoint prior to server-side delay.
     - Mimics calls to upstream services which allow for reuse of the current platform thread.
