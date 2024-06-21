@@ -37,7 +37,8 @@ dependencies {
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
-if (System.env.SPRING_PROFILES_ACTIVE in ["platform-tomcat", "loom-tomcat"]) {
+def activeProfiles = System.getenv('SPRING_PROFILES_ACTIVE')
+if (activeProfiles?.contains('platform-tomcat') || activeProfiles?.contains('loom-tomcat')) {
     dependencies {
         // Takes precedence over spring-boot-starter-webflux if both on classpath
         implementation 'org.springframework.boot:spring-boot-starter-web'
