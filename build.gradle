@@ -24,7 +24,7 @@ dependencyManagement {
 
 dependencies {
     implementation "com.github.ben-manes.caffeine:caffeine"
-    implementation "com.google.guava:guava:33.2.1-jre"
+    implementation "com.google.guava:guava:33.2.+"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.boot:spring-boot-starter-cache"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
@@ -37,6 +37,7 @@ dependencies {
     testImplementation "org.assertj:assertj-core"
     testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "org.junit-pioneer:junit-pioneer:2.2.+"
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.3.+'
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.springframework.boot:spring-boot-testcontainers"
     testImplementation "org.testcontainers:junit-jupiter"

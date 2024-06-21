@@ -4,14 +4,17 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.ArgumentMatchers.anyIterable
 import org.mockito.Mock
-import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
 import uk.gleissner.loomwebflux.config.AppProperties
 import uk.gleissner.loomwebflux.movie.domain.Directors.davidLynch
-import uk.gleissner.loomwebflux.movie.domain.Movie
 import uk.gleissner.loomwebflux.movie.domain.Movies.mulhollandDrive
 import uk.gleissner.loomwebflux.movie.domain.Movies.theStraightStory
 
@@ -35,7 +38,7 @@ class CachedMovieRepoTest {
 
     @BeforeEach
     fun beforeEach() {
-        `when`(cacheManager.getCache(any())).thenReturn(cache);
+        whenever(cacheManager.getCache(any())).thenReturn(cache);
         sut = CachedMovieRepo(appProperties, movieRepo, cacheManager)
     }
 
@@ -43,7 +46,7 @@ class CachedMovieRepoTest {
     fun `findByDirectorName should delegate to underlying repo`() {
         val directorName = davidLynch.lastName
         val expectedMovies = setOf(mulhollandDrive, theStraightStory)
-        `when`(movieRepo.findByDirectorName(directorName)).thenReturn(expectedMovies)
+        whenever(movieRepo.findByDirectorName(directorName)).thenReturn(expectedMovies)
 
         val movies = sut.findByDirectorName(directorName)
 
@@ -53,19 +56,19 @@ class CachedMovieRepoTest {
 
     @Test
     fun `save should return movie without saving when repoReadOnly is true`() {
-        `when`(appProperties.repoReadOnly()).thenReturn(true)
+        whenever(appProperties.repoReadOnly()).thenReturn(true)
 
         val savedMovies = sut.saveAll(listOf(mulhollandDrive))
 
         assertThat(savedMovies).containsExactly(mulhollandDrive)
-        verify(movieRepo, never()).save(any(Movie::class.java))
+        verify(movieRepo, never()).save(any())
     }
 
     @Test
     fun `save should delegate to underlying repo when repoReadOnly is false`() {
         val movies = listOf(mulhollandDrive)
-        `when`(appProperties.repoReadOnly()).thenReturn(false)
-        `when`(movieRepo.saveAll(anyIterable())).thenReturn(movies)
+        whenever(appProperties.repoReadOnly()).thenReturn(false)
+        whenever(movieRepo.saveAll(anyIterable())).thenReturn(movies)
 
         val savedMovies = sut.saveAll(movies)
 
@@ -76,7 +79,7 @@ class CachedMovieRepoTest {
     @Test
     fun `deleteById should not delete when repoReadOnly is true`() {
         val movieId = 1L
-        `when`(appProperties.repoReadOnly()).thenReturn(true)
+        whenever(appProperties.repoReadOnly()).thenReturn(true)
 
         sut.deleteById(movieId)
 
@@ -86,7 +89,7 @@ class CachedMovieRepoTest {
     @Test
     fun `deleteById should delegate to underlying repo when repoReadOnly is false`() {
         val movieId = 1L
-        `when`(appProperties.repoReadOnly()).thenReturn(false)
+        whenever(appProperties.repoReadOnly()).thenReturn(false)
 
         sut.deleteById(movieId)
 
