@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.anyIterable
+import org.mockito.ArgumentMatchers.anyList
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
@@ -38,7 +39,7 @@ class CachedMovieRepoTest {
 
     @BeforeEach
     fun beforeEach() {
-        whenever(cacheManager.getCache(any())).thenReturn(cache);
+        whenever(cacheManager.getCache(any())).thenReturn(cache)
         sut = CachedMovieRepo(appProperties, movieRepo, cacheManager)
     }
 
@@ -61,7 +62,7 @@ class CachedMovieRepoTest {
         val savedMovies = sut.saveAll(listOf(mulhollandDrive))
 
         assertThat(savedMovies).containsExactly(mulhollandDrive)
-        verify(movieRepo, never()).save(any())
+        verify(movieRepo, never()).saveAll(anyList())
     }
 
     @Test

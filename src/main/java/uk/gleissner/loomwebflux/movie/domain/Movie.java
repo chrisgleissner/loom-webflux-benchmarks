@@ -21,6 +21,8 @@ import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
+// TODO cg Needed by MongoDB but fails JPA tests
+//@Document
 @Data
 @Builder(toBuilder = true)
 @NoArgsConstructor
@@ -32,6 +34,9 @@ public class Movie implements Comparable<Movie> {
         .thenComparing(Movie::getGenre)
         .thenComparing(Movie::getId);
 
+    // TODO cg This is not usable by MongoDB and currently fails with
+    //    org.springframework.dao.InvalidDataAccessApiUsageException: Cannot autogenerate id of type java.lang.Long for entity
+    //    of type uk.gleissner.loomwebflux.movie.domain.Movie
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @EqualsAndHashCode.Exclude

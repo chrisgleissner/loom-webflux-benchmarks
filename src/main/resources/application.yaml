@@ -1,6 +1,11 @@
 spring:
   application:
     name: loom-webflux
+  autoconfigure:
+    exclude:
+      # Mongo
+      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
   cache:
     caffeine:
       spec: expireAfterWrite=1h
