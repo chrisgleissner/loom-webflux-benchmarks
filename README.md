@@ -138,7 +138,8 @@ DB Considerations:
 - By default, writes are not saved since the code under test is identical for all approaches and would thus only
   contribute to CPU use. However, this can be controlled with the Spring Boot property `loom-webflux.repo-read-only`
   in `src/main/resources/application.yaml`.
-- H2 was chosen for the same reason. To swap it for a Docker-based PostgreSQL, search the code for `PostgreSQL test` which provides instructions.
+- The H2 DB was chosen for the same reason. To swap it for PostgreSQL, specify `postgres` in the `serverProfiles` column of the scenario CSV file. See [scenarios-postgres.csv](./src/main/resources/scenarios/scenarios-postgres.csv)
+  and [PostgreSQL results](results/scenarios-postgres/results-netty.png).
 
 Supported requests:
 
@@ -316,16 +317,20 @@ Virtual Threads, then for WebFlux.
 
 #### Example
 
-| scenario                         | k6Config                               | delayCallDepth | delayInMillis | connections | requestsPerSecond | warmupDurationInSeconds | testDurationInSeconds |
-|----------------------------------|----------------------------------------|----------------|---------------|-------------|-------------------|-------------------------|-----------------------|
-| 5k-vus-and-rps-get-time          | get-time.js                            | 0              | 100           | 5000        | 5000              | 10                      | 300                   |
-| 20k-vus-smooth-spike-get-movies] | k6-20k-vus-smooth-spike-get-movies].js | 0              | 100           | 20000       |                   | 0                       | 300                   |
+| scenario                         | k6Config                               | serverProfiles | delayCallDepth | delayInMillis | connections | requestsPerSecond | warmupDurationInSeconds | testDurationInSeconds |
+|----------------------------------|----------------------------------------|----------------|----------------|---------------|-------------|-------------------|-------------------------|-----------------------|
+| 5k-vus-and-rps-get-time          | get-time.js                            |                | 0              | 100           | 5000        | 5000              | 10                      | 300                   |
+| 20k-vus-smooth-spike-get-movies] | k6-20k-vus-smooth-spike-get-movies].js | postgres       | 0              | 100           | 20000       |                   | 0                       | 300                   |
 
 #### Columns
 
 1. `scenario`: Name of scenario. Is printed on top of each diagram.
 2. `k6Config`: Name of the [K6 Config File](https://k6.io/docs/using-k6/http-requests/) which is assumed to be in
    the `config` folder
+3. `serverProfiles`: Pipe-delimited Spring profiles which are also used to start and stop Docker containers. For example, specifying the value `postgres|no-cache` has these effects:
+    - The Spring Boot profiles `postgres,no-cache` are added to the default Spring Boot profile of `$approach`.
+    - The files `src/main/docker/docker-compose-postgres.yaml` and `src/main/docker/docker-compose-no-cache.yaml` (if existent)
+      are used to start/stop Docker containers before/after each scenario run.
 3. `delayCallDepth`: Depth of recursive HTTP call stack to `$approach/epoch-millis` endpoint prior to server-side delay.
     - Mimics calls to upstream services which allow for reuse of the current platform thread.
     - For example, a value of `0` means that the service waits for `$delayInMillis` milliseconds immediately upon receiving a request.
@@ -385,7 +390,7 @@ line. Additionally, they leave a trace in the `$approach-latency.csv` file, if p
 ### 5k-vus-and-rps-get-time
 
 This scenario aims to maintain a steady number of 5k virtual users (VUs, i.e. TCP connections) as well as 5k requests
-per second (RPS) across all users for 5 minutes:
+per second (RPS) across all users for 3 minutes:
 
 - Each user issues a request and then waits. This wait between consecutive requests is controlled by k6 in order to
   achieve the desired number of RPS.

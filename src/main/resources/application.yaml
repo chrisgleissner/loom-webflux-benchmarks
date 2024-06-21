@@ -4,12 +4,11 @@ spring:
   cache:
     caffeine:
       spec: expireAfterWrite=1h
-  main:
-    banner-mode: off
-    lazy-initialization: true
-  threads:
-    virtual:
-      enabled: true
+  datasource:
+    hikari:
+      connectionTimeout: 60000
+      maximumPoolSize: 500
+      registerMbeans: true
   jpa:
     open-in-view: false
     properties:
@@ -17,15 +16,12 @@ spring:
         globally_quoted_identifiers: true
     hibernate:
       ddl-auto: update
-  datasource:
-    # Enable for PostgreSQL test
-    # url: jdbc:postgresql://localhost:5432/postgres
-    # username: postgres
-    # password: password
-    hikari:
-      connectionTimeout: 60000
-      maximumPoolSize: 100
-      registerMbeans: true
+  main:
+    banner-mode: off
+    lazy-initialization: true
+  threads:
+    virtual:
+      enabled: true
 
 server:
   http2:

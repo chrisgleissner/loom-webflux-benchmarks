@@ -2,11 +2,13 @@
 # Benchmarks an approach for a specific scenario.
 
 print_usage() {
-    echo "Syntax: $(basename "$0") [-h] -a <approach> -s <scenario> -k <k6Config> -d <delayCallDepth> -m <delayInMillis> -c <connections> [-r <requestsPerSecond>] -w <warmupDurationInSeconds> -t <testDurationInSeconds> -C <keepCsvFiles>"
+    echo "Syntax: $(basename "$0") [-h] -a <approach> -s <scenario> -k <k6Config> -p <serverProfiles> -d <delayCallDepth> -m <delayInMillis> -c <connections> [-r <requestsPerSecond>] -w <warmupDurationInSeconds> -t <testDurationInSeconds> -C <keepCsvFiles>"
     echo "Options:"
     echo "  -a approach:                  Approach to test: platform-tomcat, loom-tomcat, loom-netty or webflux-netty"
     echo "  -s <scenario>                 The scenario to benchmark."
-    echo "  -k <k6Config>                 The k6 configuration file."
+    echo "  -k <k6Config>                 Client-side K6 configuration file."
+    echo "  -p <serverProfiles>           Server profiles, pipe-separated. If it contains non-empty value foo, then src/main/docker/docker-compose-foo.yaml is used"
+    echo "                                  to start/stop Docker containers before/after each scenario, and 'foo' is appended to the server's Spring profiles."
     echo "  -d <delayCallDepth>           The delay call depth. If > 0, the service calls itself recursively the specified number of times before delaying."
     echo "  -m <delayInMillis>            The delay in milliseconds."
     echo "  -c <connections>              The number of connections, i.e. virtual users."
@@ -18,11 +20,12 @@ print_usage() {
     exit 1
 }
 
-while getopts "h:a:s:k:d:m:c:r:w:t:C:" opt; do
+while getopts "h:a:s:p:k:d:m:c:r:w:t:C:" opt; do
   case ${opt} in
     a) approach=$OPTARG ;;
     s) scenario=$OPTARG ;;
     k) k6Config=$OPTARG ;;
+    p) serverProfiles=$OPTARG ;;
     d) delayCallDepth=$OPTARG ;;
     m) delayInMillis=$OPTARG ;;
     c) connections=$OPTARG ;;
@@ -75,7 +78,6 @@ k6OutputTmpFile="$tmpDir"/k6.csv
 k6LogTmpFile="$tmpDir"/k6.log
 serviceLogTmpFile="$tmpDir"/service.log
 
-
 log() {
   echo "$( date +"%H:%M:%S" )" "$1"
 }
@@ -83,7 +85,9 @@ log() {
 start_service() {
   log "Starting service"
   rm -f "$serviceLogTmpFile"
-  SPRING_PROFILES_ACTIVE=$approach ./gradlew bootRun > >(tee "$serviceLogTmpFile") 2>&1 &
+
+  local commaSeparatedServerProfiles="${serverProfiles//|/,}"
+  SPRING_PROFILES_ACTIVE=$approach${commaSeparatedServerProfiles:+,$commaSeparatedServerProfiles} ./gradlew bootRun > >(tee "$serviceLogTmpFile") 2>&1 &
   until curl --output /dev/null --silent --head --fail "$serviceHealthUrl"; do printf '.'; sleep 1; done
   log "Started service"
 }
@@ -178,17 +182,16 @@ load() {
   log "Disk use:"
   du -h -d2 bin "$resultsDir"
   df -h
-  
+
   rm "$k6OutputTmpFile"
   log "Saved $latencyCsvFile"
 }
 
 printf "\n\n"
 log "==> Benchmark of $scenario scenario for $approach approach <=="
-log "k6Config=$k6Config, delayCallDepth=$delayCallDepth, delayInMillis=$delayInMillis, connections=$connections, requestsPerSecond=$requestsPerSecond, warmupDurationInSeconds=$warmupDurationInSeconds, testDurationInSeconds=$testDurationInSeconds"
+log "k6Config=$k6Config, serverProfiles=$serverProfiles, delayCallDepth=$delayCallDepth, delayInMillis=$delayInMillis, connections=$connections, requestsPerSecond=$requestsPerSecond, warmupDurationInSeconds=$warmupDurationInSeconds, testDurationInSeconds=$testDurationInSeconds"
 
 start_service
 benchmark_service
 stop_service
 capture_log_errors
-

@@ -1,2 +1,2 @@
-scenario,k6Config,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
-10k-vus-smooth-spike-get-post-movies,get-post-movies-smooth-vus-spike.js,0,100,10000,,0,1200
+scenario,k6Config,serverProfiles,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
+10k-vus-smooth-spike-get-post-movies,get-post-movies-smooth-vus-spike.js,,0,100,10000,,0,1200

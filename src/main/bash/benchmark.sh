@@ -63,29 +63,39 @@ echo
 log "Contents of $scenariosFile:"
 cat "$scenariosFile"
 
-# Enable for PostgreSQL test
-#log "Starting DB"
-#docker compose up -d
-
 first_line=true
-while IFS=',' read -r scenario k6Config delayCallDepth delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
+while IFS=',' read -r scenario k6Config serverProfiles delayCallDepth delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
     if [[ -z "$scenario" || $scenario == "#"* || $first_line == true ]]; then
         first_line=false
         continue
     fi
 
+    IFS='|' read -ra server_profile_array <<< "$serverProfiles"
+    for serverProfile in "${server_profile_array[@]}"; do
+        composeFile="src/main/docker/docker-compose-$serverProfile.yaml"
+        if [[ -f "$composeFile" ]]; then
+            log "Starting Docker container(s) using $composeFile"
+            docker compose -f "$composeFile" up -d
+        fi
+    done
+
     IFS=',' read -ra approach_array <<< "$approaches"
     for approach in "${approach_array[@]}"; do
-      ./src/main/bash/benchmark-scenario.sh -a "$approach" -s "$scenario" -k "$k6Config" -d "$delayCallDepth" -m "$delayInMillis" -c "$connections" -r "$requestsPerSecond" -w "$warmupDurationInSeconds" -t "$testDurationInSeconds" -C "$keep_csv"
+      ./src/main/bash/benchmark-scenario.sh -a "$approach" -s "$scenario" -k "$k6Config" -p "$serverProfiles" -d "$delayCallDepth" -m "$delayInMillis" -c "$connections" -r "$requestsPerSecond" -w "$warmupDurationInSeconds" -t "$testDurationInSeconds" -C "$keep_csv"
     done
+
+    for serverProfile in "${server_profile_array[@]}"; do
+        composeFile="src/main/docker/docker-compose-$serverProfile.yaml"
+        if [[ -f "$composeFile" ]]; then
+            log "Stopping Docker containers using $composeFile"
+            docker compose -f "$composeFile" down
+        fi
+    done
+
 done < "$scenariosFile"
 
 ./src/main/python/results_chart.py -i "$resultsCsvFile" -o "$resultsPngFile"
 ./src/main/python/results_chart.py -i "$resultsCsvFile" -o "$resultsNettyPngFile" -a "loom-netty,webflux-netty" || true
-
-# Enable for PostgreSQL test
-#log "Stopping DB"
-#docker compose down
 
 endSeconds=$( date +%s )
 testDurationInSeconds=$(( endSeconds - startSeconds ))

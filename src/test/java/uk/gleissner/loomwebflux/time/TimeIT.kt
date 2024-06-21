@@ -1,8 +1,12 @@
 package uk.gleissner.loomwebflux.time
 
+import nl.altindag.log.LogCaptor
 import org.assertj.core.api.Assertions.assertThat
 import org.junitpioneer.jupiter.cartesian.CartesianTest
-import uk.gleissner.loomwebflux.fixture.AbstractIntegrationTest
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.web.reactive.server.WebTestClient
+import uk.gleissner.loomwebflux.common.AbstractService
+import uk.gleissner.loomwebflux.fixture.AbstractIT
 import uk.gleissner.loomwebflux.fixture.CartesianTestApproachesAndDelayCallDepths
 import uk.gleissner.loomwebflux.fixture.LogCaptorFixture.assertCorrectThreadType
 import java.time.Duration
@@ -10,11 +14,15 @@ import java.time.Instant
 import java.time.Instant.now
 
 
-internal class TimeControllerIntegrationTest : AbstractIntegrationTest() {
+internal class TimeIT : AbstractIT() {
+
+    @Autowired
+    lateinit var client: WebTestClient
 
     @CartesianTest
     @CartesianTestApproachesAndDelayCallDepths
     fun `get epoch millis for different request depths`(approach: String, delayCallDepth: Int) {
+        val logCaptor = LogCaptor.forClass(AbstractService::class.java)
         val startTime = now()
         val delayInMillis = 10L
         val epochMillis =
