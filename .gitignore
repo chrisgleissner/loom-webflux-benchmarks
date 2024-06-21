@@ -38,3 +38,6 @@ out/
 
 ### Python ###
 __pycache__
+
+### Kotlin ###
+.kotlin
