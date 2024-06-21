@@ -4,7 +4,7 @@ services:
   postgres:
     container_name: postgres
     image: postgres:16
-    command: -c 'max_connections=100'
+    command: -c 'max_connections=500'
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres

@@ -5,8 +5,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junitpioneer.jupiter.cartesian.CartesianTest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gleissner.loomwebflux.fixture.AbstractIntegrationTest
+import uk.gleissner.loomwebflux.common.AbstractService
+import uk.gleissner.loomwebflux.fixture.AbstractIT
 import uk.gleissner.loomwebflux.fixture.CartesianTestApproachesAndDelayCallDepths
 import uk.gleissner.loomwebflux.fixture.LogCaptorFixture.assertCorrectThreadType
 import uk.gleissner.loomwebflux.movie.domain.Directors.davidLynch
@@ -17,9 +19,11 @@ import uk.gleissner.loomwebflux.movie.repo.MovieRepo
 import java.time.Duration
 import java.time.Instant.now
 
-private const val SQL_LOG_NAME = "org.hibernate.SQL"
 
-internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
+internal open class MovieControllerIT : AbstractIT() {
+
+    @Autowired
+    lateinit var client: WebTestClient
 
     @Autowired
     private lateinit var movieRepo: MovieRepo
@@ -29,6 +33,7 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
     @CartesianTest
     @CartesianTestApproachesAndDelayCallDepths
     fun `find movies by director last name`(approach: String, delayCallDepth: Int) {
+        val logCaptor = LogCaptor.forClass(AbstractService::class.java)
         val movies = getMovies(approach, delayCallDepth = delayCallDepth)
         assertThat(movies).containsExactlyElementsOf(movieRepo.findByDirectorName("Allen"))
         logCaptor.assertCorrectThreadType(approach, delayCallDepth + 1)
@@ -36,7 +41,8 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
 
     @CartesianTest
     @CartesianTestApproachesAndDelayCallDepths
-    fun `save and delete movies`(approach: String, delayCallDepth: Int) {
+    open fun `save and delete movies`(approach: String, delayCallDepth: Int) {
+        val logCaptor = LogCaptor.forClass(AbstractService::class.java)
         val movies = listOf(mulhollandDrive, theStraightStory)
         fun getMovies() = getMovies(approach, directorLastName = davidLynch.lastName, delayCallDepth = delayCallDepth)
         assertThat(getMovies()).isEmpty()
@@ -54,7 +60,7 @@ internal class MovieControllerIntegrationTest : AbstractIntegrationTest() {
     }
 
     private fun assertThatSqlQueryIssued(queryIssued: Boolean, repoCall: Runnable) {
-        val logCaptor = LogCaptor.forName(SQL_LOG_NAME)
+        val logCaptor = LogCaptor.forName("org.hibernate.SQL")
         try {
             logCaptor.setLogLevelToDebug()
             repoCall.run()

@@ -85,6 +85,7 @@ log() {
 start_service() {
   log "Starting service"
   rm -f "$serviceLogTmpFile"
+
   SPRING_PROFILES_ACTIVE=$approach${serverProfile:+,$serverProfile} ./gradlew bootRun > >(tee "$serviceLogTmpFile") 2>&1 &
   until curl --output /dev/null --silent --head --fail "$serviceHealthUrl"; do printf '.'; sleep 1; done
   log "Started service"

@@ -4,12 +4,11 @@ spring:
   cache:
     caffeine:
       spec: expireAfterWrite=1h
-  main:
-    banner-mode: off
-    lazy-initialization: true
-  threads:
-    virtual:
-      enabled: true
+  datasource:
+    hikari:
+      connectionTimeout: 60000
+      maximumPoolSize: 500
+      registerMbeans: true
   jpa:
     open-in-view: false
     properties:
@@ -17,11 +16,17 @@ spring:
         globally_quoted_identifiers: true
     hibernate:
       ddl-auto: update
-  datasource:
-    hikari:
-      connectionTimeout: 60000
-      maximumPoolSize: 100
-      registerMbeans: true
+  main:
+    banner-mode: off
+    lazy-initialization: true
+  profiles:
+    group:
+      postgres-no-cache:
+        - "postgres"
+        - "no-cache"
+  threads:
+    virtual:
+      enabled: true
 
 server:
   http2:
