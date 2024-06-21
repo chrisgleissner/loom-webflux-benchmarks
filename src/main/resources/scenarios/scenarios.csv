@@ -1,4 +1,4 @@
-scenario,k6Config,serverProfile,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
+scenario,k6Config,serverProfiles,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
 smoketest,get-time.js,,1,100,5,5,0,5
 1k-vus-and-rps-get-time-no-delay,get-time.js,,0,0,1000,1000,10,180
 5k-vus-and-rps-get-time,get-time.js,,0,100,5000,5000,10,180

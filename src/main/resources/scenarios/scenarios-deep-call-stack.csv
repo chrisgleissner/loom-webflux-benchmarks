@@ -1,4 +1,4 @@
-scenario,k6Config,serverProfile,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
+scenario,k6Config,serverProfiles,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
 5k-vus-and-1k-rps-get-movies-call-depth-0,get-movies.js,,0,100,5000,1000,10,180
 5k-vus-and-1k-rps-get-movies-call-depth-1,get-movies.js,,1,100,5000,1000,10,180
 5k-vus-and-1k-rps-get-movies-call-depth-2,get-movies.js,,2,100,5000,1000,10,180

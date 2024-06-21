@@ -1,3 +1,0 @@
-include:
-  - path:
-      - docker-compose-postgres.yaml

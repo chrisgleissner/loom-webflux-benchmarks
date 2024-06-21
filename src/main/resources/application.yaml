@@ -19,11 +19,6 @@ spring:
   main:
     banner-mode: off
     lazy-initialization: true
-  profiles:
-    group:
-      postgres-no-cache:
-        - "postgres"
-        - "no-cache"
   threads:
     virtual:
       enabled: true

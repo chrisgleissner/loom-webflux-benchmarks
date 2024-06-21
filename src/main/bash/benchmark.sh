@@ -64,27 +64,33 @@ log "Contents of $scenariosFile:"
 cat "$scenariosFile"
 
 first_line=true
-while IFS=',' read -r scenario k6Config serverProfile delayCallDepth delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
+while IFS=',' read -r scenario k6Config serverProfiles delayCallDepth delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
     if [[ -z "$scenario" || $scenario == "#"* || $first_line == true ]]; then
         first_line=false
         continue
     fi
 
-    composeFile="src/main/docker/docker-compose-$serverProfile.yaml"
-    if [[ -n "$serverProfile" ]]; then
-        log "Starting Docker container(s) using $composeFile"
-        docker compose -f "$composeFile" up -d
-    fi
+    IFS='|' read -ra server_profile_array <<< "$serverProfiles"
+    for serverProfile in "${server_profile_array[@]}"; do
+        composeFile="src/main/docker/docker-compose-$serverProfile.yaml"
+        if [[ -f "$composeFile" ]]; then
+            log "Starting Docker container(s) using $composeFile"
+            docker compose -f "$composeFile" up -d
+        fi
+    done
 
     IFS=',' read -ra approach_array <<< "$approaches"
     for approach in "${approach_array[@]}"; do
-      ./src/main/bash/benchmark-scenario.sh -a "$approach" -s "$scenario" -k "$k6Config" -p "$serverProfile" -d "$delayCallDepth" -m "$delayInMillis" -c "$connections" -r "$requestsPerSecond" -w "$warmupDurationInSeconds" -t "$testDurationInSeconds" -C "$keep_csv"
+      ./src/main/bash/benchmark-scenario.sh -a "$approach" -s "$scenario" -k "$k6Config" -p "$serverProfiles" -d "$delayCallDepth" -m "$delayInMillis" -c "$connections" -r "$requestsPerSecond" -w "$warmupDurationInSeconds" -t "$testDurationInSeconds" -C "$keep_csv"
     done
 
-    if [[ -n "$serverProfile" ]]; then
-        log "Stopping Docker containers using $composeFile"
-        docker compose -f "$composeFile" down
-    fi
+    for serverProfile in "${server_profile_array[@]}"; do
+        composeFile="src/main/docker/docker-compose-$serverProfile.yaml"
+        if [[ -f "$composeFile" ]]; then
+            log "Stopping Docker containers using $composeFile"
+            docker compose -f "$composeFile" down
+        fi
+    done
 
 done < "$scenariosFile"
 
