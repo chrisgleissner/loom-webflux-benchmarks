@@ -1,18 +1,25 @@
 plugins {
     id 'java'
     id 'jacoco'
-    id 'com.adarshr.test-logger' version '4.0.0'
+    id 'com.adarshr.test-logger' version '4.0.+'
     id 'io.freefair.lombok' version '8.6'
     id 'io.spring.dependency-management' version '1.1.+'
     id "org.jetbrains.kotlin.jvm" version "2.0.+"
     id 'org.springframework.boot' version '3.3.+'
 }
 
-repositories { mavenCentral() }
-bootRun { jvmArgs(["-Xms2g", "-Xmx2g", "-XX:+ExitOnOutOfMemoryError", "-Djdk.tracePinnedThreads=full"]) }
+repositories {
+    mavenCentral()
+}
 
-ext {
-    testcontainersVersion = "1.19.8"
+bootRun {
+    jvmArgs(["-Xms2g", "-Xmx2g", "-XX:+ExitOnOutOfMemoryError", "-Djdk.tracePinnedThreads=full"])
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.testcontainers:testcontainers-bom:1.19.+"
+    }
 }
 
 dependencies {
@@ -24,16 +31,17 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-webflux"
     runtimeOnly "com.h2database:h2"
     runtimeOnly "org.postgresql:postgresql:42.+"
-    testImplementation "io.github.hakky54:logcaptor:2.9.2"
-    testImplementation "io.github.oshai:kotlin-logging-jvm:6.0.9"
-    testImplementation "org.apache.commons:commons-compress:1.26.2"
+    testImplementation "io.github.hakky54:logcaptor:2.9.+"
+    testImplementation "io.github.oshai:kotlin-logging-jvm:6.0.+"
+    testImplementation "org.apache.commons:commons-compress:1.26.+"
     testImplementation "org.assertj:assertj-core"
     testImplementation "org.junit.jupiter:junit-jupiter"
-    testImplementation "org.junit-pioneer:junit-pioneer:2.2.0"
+    testImplementation "org.junit-pioneer:junit-pioneer:2.2.+"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.springframework.boot:spring-boot-testcontainers"
-    testImplementation "org.testcontainers:junit-jupiter:$testcontainersVersion"
-    testImplementation "org.testcontainers:postgresql:$testcontainersVersion"
+    testImplementation "org.testcontainers:junit-jupiter"
+    testImplementation "org.testcontainers:mongodb"
+    testImplementation "org.testcontainers:postgresql"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
