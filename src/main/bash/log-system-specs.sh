@@ -5,7 +5,7 @@ printf "Java:\t"
 java --version | grep "Server"
 
 printf "Python:\t"
-python --version | awk '{print $2}'
+python3 --version | awk '{print $2}'
 
 printf "OS:\t"
 grep "PRETTY_NAME" /etc/os-release | cut -d '"' -f 2
