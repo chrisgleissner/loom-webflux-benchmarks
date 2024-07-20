@@ -369,8 +369,8 @@ Virtual Threads, then for WebFlux.
 
 - OS: Ubuntu 22.04.4 LTS
 - Kernel: 5.15.86-051586-generic
-- Java: Amazon Corretto JDK 22.0.1.8.1
-- Spring Boot 3.3.0
+- Java: Amazon Corretto JDK 21.0.4.7.1
+- Spring Boot 3.3.2
 
 ## Charts
 
