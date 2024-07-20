@@ -5,7 +5,7 @@ import java.time.LocalDate
 
 object Movies {
 
-    val mulhollandDrive = Movie.builder()
+    val mulhollandDrive: Movie = Movie.builder()
         .title("Mulholland Drive")
         .releaseYear(2001)
         .characters(
@@ -26,7 +26,7 @@ object Movies {
         .rating(7.9)
         .build()
 
-    val theStraightStory = Movie.builder()
+    val theStraightStory: Movie = Movie.builder()
         .title("The Straight Story")
         .releaseYear(1999)
         .characters(

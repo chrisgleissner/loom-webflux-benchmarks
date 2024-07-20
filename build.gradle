@@ -1,8 +1,8 @@
 plugins {
     id 'java'
     id 'jacoco'
-    id 'com.adarshr.test-logger' version '4.0.0'
-    id 'io.freefair.lombok' version '8.6'
+    id 'com.adarshr.test-logger' version '4.0.+'
+    id 'io.freefair.lombok' version '8.+'
     id 'io.spring.dependency-management' version '1.1.+'
     id "org.jetbrains.kotlin.jvm" version "2.0.+"
     id 'org.springframework.boot' version '3.3.+'
@@ -10,10 +10,6 @@ plugins {
 
 repositories { mavenCentral() }
 bootRun { jvmArgs(["-Xms2g", "-Xmx2g", "-XX:+ExitOnOutOfMemoryError", "-Djdk.tracePinnedThreads=full"]) }
-
-ext {
-    testcontainersVersion = "1.19.8"
-}
 
 dependencyManagement {
     imports {
@@ -57,6 +53,7 @@ if (activeProfiles?.contains('platform-tomcat') || activeProfiles?.contains('loo
 
 test {
     useJUnitPlatform()
+    maxParallelForks = 2
     jvmArgs '-XX:+EnableDynamicAgentLoading'
     jvmArgs '-Xshare:off'
 }

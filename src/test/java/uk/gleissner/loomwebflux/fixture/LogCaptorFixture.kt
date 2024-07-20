@@ -7,6 +7,7 @@ import uk.gleissner.loomwebflux.common.Approaches.LOOM_TOMCAT
 import uk.gleissner.loomwebflux.common.Approaches.PLATFORM_TOMCAT
 
 object LogCaptorFixture {
+    
     fun LogCaptor.assertCorrectThreadType(approach: String, expectedLogCount: Int = 1) {
         val expectedThreadNameFragment =
             // TODO cg The PLATFORM_TOMCAT approach uses platform threads in prd, but VirtualThreads during test.
