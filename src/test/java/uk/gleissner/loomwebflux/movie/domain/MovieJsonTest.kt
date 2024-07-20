@@ -2,7 +2,6 @@ package uk.gleissner.loomwebflux.movie.domain
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.json.JsonTest
 import org.springframework.boot.test.json.JacksonTester
 import uk.gleissner.loomwebflux.movie.domain.Genre.ROMANCE
@@ -10,7 +9,7 @@ import java.time.LocalDate
 
 
 @JsonTest
-class MovieJsonTest(@Autowired val jacksonTester: JacksonTester<List<Movie>>) {
+class MovieJsonTest(private val jacksonTester: JacksonTester<List<Movie>>) {
 
     @Test
     fun `can deserialize movies json`() {

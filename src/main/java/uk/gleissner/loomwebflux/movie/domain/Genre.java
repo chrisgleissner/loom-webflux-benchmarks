@@ -2,14 +2,14 @@ package uk.gleissner.loomwebflux.movie.domain;
 
 public enum Genre {
     ACTION,
+    ADVENTURE,
+    ANIMATION,
     COMEDY,
     DRAMA,
+    FANTASY,
     HORROR,
-    ROMANCE,
     MYSTERY,
+    ROMANCE,
     SCIENCE_FICTION,
     THRILLER,
-    ANIMATION,
-    ADVENTURE,
-    FANTASY;
 }

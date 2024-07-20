@@ -3,7 +3,6 @@ package uk.gleissner.loomwebflux.time
 import nl.altindag.log.LogCaptor
 import org.assertj.core.api.Assertions.assertThat
 import org.junitpioneer.jupiter.cartesian.CartesianTest
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gleissner.loomwebflux.common.AbstractService
 import uk.gleissner.loomwebflux.fixture.AbstractIT
@@ -14,10 +13,7 @@ import java.time.Instant
 import java.time.Instant.now
 
 
-internal class TimeIT : AbstractIT() {
-
-    @Autowired
-    lateinit var client: WebTestClient
+internal class TimeIT(private val client: WebTestClient) : AbstractIT() {
 
     @CartesianTest
     @CartesianTestApproachesAndDelayCallDepths

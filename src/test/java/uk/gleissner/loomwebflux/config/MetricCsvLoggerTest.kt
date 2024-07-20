@@ -28,7 +28,7 @@ internal class MetricCsvLoggerTest {
 
     @Test
     fun `When the jvmMetrics is called Then JVM metrics are returned`() {
-        val startTime = System.currentTimeMillis();
+        val startTime = System.currentTimeMillis()
         val metrics = sut.jvmMetrics()
 
         assertThat(metrics.epochMillis).isBetween(startTime, System.currentTimeMillis() + 1)

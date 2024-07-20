@@ -50,10 +50,10 @@ public class MetricCsvLogger {
         val heapMemoryUsage = memoryMxBean.getHeapMemoryUsage();
         val gcStats = gcStats();
         return new JvmMetrics(
-                System.currentTimeMillis(),
-                heapMemoryUsage.getUsed(), heapMemoryUsage.getCommitted(), heapMemoryUsage.getMax(),
-                gcStats.count, gcStats.time,
-                threadMXBean.getThreadCount());
+            System.currentTimeMillis(),
+            heapMemoryUsage.getUsed(), heapMemoryUsage.getCommitted(), heapMemoryUsage.getMax(),
+            gcStats.count, gcStats.time,
+            threadMXBean.getThreadCount());
     }
 
     record JvmMetrics(long epochMillis,
@@ -63,8 +63,8 @@ public class MetricCsvLogger {
 
         public String toCsv() {
             return Stream.of(epochMillis, memUsed, memCommitted, memMax, gcCount, gcTime, platformThreadCount)
-                    .map(Object::toString)
-                    .collect(joining(","));
+                .map(Object::toString)
+                .collect(joining(","));
         }
     }
 
@@ -73,8 +73,8 @@ public class MetricCsvLogger {
 
     GcStats gcStats() {
         return ManagementFactory.getGarbageCollectorMXBeans().stream()
-                .map(mbean -> new GcStats(mbean.getCollectionCount(), mbean.getCollectionTime()))
-                .reduce((a, b) -> new GcStats(a.count + b.count, a.time + b.time))
-                .orElse(new GcStats(0, 0));
+            .map(mbean -> new GcStats(mbean.getCollectionCount(), mbean.getCollectionTime()))
+            .reduce((a, b) -> new GcStats(a.count + b.count, a.time + b.time))
+            .orElse(new GcStats(0, 0));
     }
 }

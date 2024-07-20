@@ -23,7 +23,7 @@ import java.time.Instant.now
 internal open class MovieControllerIT : AbstractIT() {
 
     @Autowired
-    lateinit var client: WebTestClient
+    private lateinit var client: WebTestClient
 
     @Autowired
     private lateinit var movieRepo: MovieRepo

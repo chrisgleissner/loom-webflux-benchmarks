@@ -26,13 +26,13 @@ class WebClientConfig {
         log.info("Create WebClient for {}", baseUrl);
         val props = appProperties.webClient();
         return builder
-                .baseUrl(baseUrl)
-                .clientConnector(new ReactorClientHttpConnector(reactorResourceFactory,
-                        httpClient -> httpClient
-                                .responseTimeout(props.responseTimeout())
-                                .option(CONNECT_TIMEOUT_MILLIS, (int) (props.connectTimeout().toMillis()))
-                ))
-                .build();
+            .baseUrl(baseUrl)
+            .clientConnector(new ReactorClientHttpConnector(reactorResourceFactory,
+                httpClient -> httpClient
+                    .responseTimeout(props.responseTimeout())
+                    .option(CONNECT_TIMEOUT_MILLIS, (int) (props.connectTimeout().toMillis()))
+            ))
+            .build();
     }
 
     @Bean
@@ -41,10 +41,10 @@ class WebClientConfig {
         factory.setUseGlobalResources(false);
         val props = appProperties.webClient();
         factory.setConnectionProvider(ConnectionProvider.builder("custom")
-                .maxConnections(props.maxConnections())
-                .pendingAcquireMaxCount(props.pendingAcquireMaxCount())
-                .pendingAcquireTimeout(props.pendingAcquireTimeout())
-                .build());
+            .maxConnections(props.maxConnections())
+            .pendingAcquireMaxCount(props.pendingAcquireMaxCount())
+            .pendingAcquireTimeout(props.pendingAcquireTimeout())
+            .build());
         return factory;
     }
 }
