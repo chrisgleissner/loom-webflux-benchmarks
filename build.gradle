@@ -12,7 +12,7 @@ repositories { mavenCentral() }
 bootRun { jvmArgs(["-Xms2g", "-Xmx2g", "-XX:+ExitOnOutOfMemoryError", "-Djdk.tracePinnedThreads=full"]) }
 
 ext {
-    testcontainersVersion = "1.19.8"
+    testcontainersVersion = "1.20.0"
 }
 
 dependencies {
@@ -24,8 +24,8 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-webflux"
     runtimeOnly "com.h2database:h2"
     runtimeOnly "org.postgresql:postgresql:42.+"
-    testImplementation "io.github.hakky54:logcaptor:2.9.2"
-    testImplementation "io.github.oshai:kotlin-logging-jvm:6.0.9"
+    testImplementation "io.github.hakky54:logcaptor:2.9.3"
+    testImplementation "io.github.oshai:kotlin-logging-jvm:7.0.0"
     testImplementation "org.apache.commons:commons-compress:1.26.2"
     testImplementation "org.assertj:assertj-core"
     testImplementation "org.junit.jupiter:junit-jupiter"
