@@ -30,7 +30,7 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 > **Virtual Threads on Netty** (using [blocking code](https://docs.oracle.com/javase/8/docs/api/java/lang/Thread.html#sleep-long-)) showed very similar and often superior performance characteristics (latency percentiles, requests per second,
 > system load) compared with **WebFlux on Netty** (using non-blocking code and relying on [Mono](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html)
 > and [Flux](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html) from Project Reactor):
-> - Virtual Threads on Netty was the [benchmark winner](#Netty-based-Approaches) for about 70% of all combinations of metrics and benchmark scenarios when directly compared with Project Reactor on Netty.
+> - Virtual Threads on Netty was the [benchmark winner](#Netty-based-Approaches) for more combinations of metrics and benchmark scenarios than Project Reactor on Netty.
 > - For all high user count scenarios, it had the lowest latency as well as the largest number of requests for the entirety of each benchmark run.
 > - In many cases (e.g. [60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies)), the 90th and 99th percentile latencies (P90 and P99)
     were considerably lower for Virtual Threads on Netty when compared with WebFlux on Netty.
