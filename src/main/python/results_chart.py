@@ -83,6 +83,8 @@ class CSVRenderer:
         self.color_name_by_approach.update({approach: self.colors[i % len(self.colors)] for i, approach in enumerate(other_approaches)})
 
         self.approach_wins = {approach: 0 for approach in self.approaches}
+        self.draw_count = 0
+        self.contest_count = 0
 
     def read_csv(self) -> Tuple[List[str], List[Dict[str, str]]]:
         try:
@@ -100,7 +102,7 @@ class CSVRenderer:
             print(f"Error: {ve}")
             sys.exit(1)
 
-    def sort_approaches(self, metric: str, scenario: str) -> List[str]:
+    def sort_approaches(self, metric: str, scenario: str) -> Tuple[List[str], Dict[str, float]]:
         result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
         errors_by_approach = {row[APPROACH]: int(row.get("requests_error", 0) or 0) > 0 for row in self.csv_rows if row[SCENARIO] == scenario}
         more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), False) if "error" not in metric else False
@@ -110,14 +112,20 @@ class CSVRenderer:
             [approach for approach in result_by_approach.keys() if approach in self.approaches],
             key=lambda x: (errors_by_approach[x], -result_by_approach[x] if more_is_better else result_by_approach[x])
         )
-        return ranked_approaches
+        return ranked_approaches, result_by_approach
 
     def calculate_wins(self):
         for metric in self.metrics:
             for scenario in self.scenarios:
-                ranked_approaches = self.sort_approaches(metric, scenario)
+                ranked_approaches, result_by_approach = self.sort_approaches(metric, scenario)
                 if ranked_approaches:
-                    self.approach_wins[ranked_approaches[0]] += 1
+                    self.contest_count += 1
+                    winning_approach = ranked_approaches[0]
+                    runner_up_approach = ranked_approaches[min(len(ranked_approaches) - 1, 1)]
+                    if result_by_approach[winning_approach] == result_by_approach[runner_up_approach]:
+                        self.draw_count += 1
+                    else:
+                        self.approach_wins[winning_approach] += 1
 
     def get_color_rows(self) -> List[List[Color]]:
         color_rows = []
@@ -127,7 +135,7 @@ class CSVRenderer:
                 result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
                 errors_by_approach = {row[APPROACH]: int(row.get("requests_error", 0)) > 0 for row in self.csv_rows if row[SCENARIO] == scenario}
 
-                ranked_approaches = self.sort_approaches(metric, scenario)
+                ranked_approaches = self.sort_approaches(metric, scenario)[0]  # only need the ranked approaches here
                 ranked_results = [Result(approach, result_by_approach[approach], errors_by_approach[approach]) for approach in ranked_approaches]
 
                 winning_approach = ranked_approaches[0]
@@ -141,14 +149,13 @@ class CSVRenderer:
         return color_rows
 
     def _win_percentages(self, ranked_approaches):
-        percentages = {approach: (self.approach_wins[approach] / sum(self.approach_wins.values())) * 100 if sum(self.approach_wins.values()) != 0 else 0 for approach in
-                       ranked_approaches}
+        percentages = {approach: (self.approach_wins[approach] / self.contest_count) * 100 if self.contest_count != 0 else 0 for approach in ranked_approaches}
         rounded_percentages = {approach: round(percentage) for approach, percentage in percentages.items()}
-        total_rounded = sum(rounded_percentages.values())
-        if total_rounded != 100:
-            remaining = 100 - total_rounded
-            max_approach = max(percentages, key=percentages.get)
-            rounded_percentages[max_approach] += remaining
+
+        draw_percentage = (self.draw_count / self.contest_count) * 100 if self.contest_count != 0 else 0
+        if draw_percentage > 0:
+            rounded_percentages["draw"] = round(draw_percentage)
+
         return rounded_percentages
 
     def render_png(self):
@@ -190,15 +197,26 @@ class CSVRenderer:
         ax.set_yticklabels(self.metrics)
 
         legend_handles = []
-        for approach, rounded_percentage in self._win_percentages(ranked_approaches).items():
-            legend_text = f"({approach_ranks[approach]}) {approach}\n{rounded_percentage}% of all wins"
-            legend_handles.append(plt.Rectangle((0, 0), 1, 2, color=self.color_name_by_approach[approach], label=legend_text))
+        win_percentages = self._win_percentages(ranked_approaches)
+
+        for index, (approach, rounded_percentage) in enumerate(win_percentages.items()):
+            if approach == "draw":
+                legend_text = f"{rounded_percentage:.0f}% no winner"
+                legend_handles.append(plt.Rectangle((0, 0), 1, 2, facecolor='white', edgecolor='black', linewidth=1, label=legend_text))
+            else:
+                legend_text = f"({approach_ranks[approach]}) {approach}\n{rounded_percentage:.0f}% wins"
+                legend_handles.append(plt.Rectangle((0, 0), 1, 2, color=self.color_name_by_approach[approach], label=legend_text))
+
+            # Add blank legend entry between consecutive entries
+            if index < len(win_percentages) - 1:
+                legend_handles.append(plt.Rectangle((0, 0), 1, 0.5, color='white', label=''))
+
         ax.legend(handles=legend_handles, loc='center left', bbox_to_anchor=(1.03, 0.5), fontsize='small')
 
         plt.suptitle('Best Approaches by Metric and Scenario', weight='bold', y=0.94, fontsize='x-large')
         plt.title(
             'Each cell shows metric value for best approach above runner-up. Color saturation is based on win margin.\n'
-            'Approach ranking based on win count is shown in legend and cells. Red values indicate request errors.',
+            'Approach ranking based on wins is shown in legend and cells. Red values indicate request errors.',
             y=1.02, size='small')
         plt.savefig(self.output_file, bbox_inches='tight')
         plt.close()
