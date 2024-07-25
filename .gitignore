@@ -26,6 +26,9 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+### Kotlin ###
+.kotlin
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
