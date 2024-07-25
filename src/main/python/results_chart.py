@@ -102,7 +102,7 @@ class CSVRenderer:
             print(f"Error: {ve}")
             sys.exit(1)
 
-    def sort_approaches(self, metric: str, scenario: str) -> Tuple[List[str], Dict[str, float]]:
+    def sort_approaches(self, metric: str, scenario: str) -> Tuple[List[str], Dict[str, float], Dict[str, bool]]:
         result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
         errors_by_approach = {row[APPROACH]: int(row.get("requests_error", 0) or 0) > 0 for row in self.csv_rows if row[SCENARIO] == scenario}
         more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), False) if "error" not in metric else False
@@ -112,20 +112,30 @@ class CSVRenderer:
             [approach for approach in result_by_approach.keys() if approach in self.approaches],
             key=lambda x: (errors_by_approach[x], -result_by_approach[x] if more_is_better else result_by_approach[x])
         )
-        return ranked_approaches, result_by_approach
+        return ranked_approaches, result_by_approach, errors_by_approach
 
     def calculate_wins(self):
         for metric in self.metrics:
             for scenario in self.scenarios:
-                ranked_approaches, result_by_approach = self.sort_approaches(metric, scenario)
+                ranked_approaches, result_by_approach, errors_by_approach = self.sort_approaches(metric, scenario)
                 if ranked_approaches:
                     self.contest_count += 1
                     winning_approach = ranked_approaches[0]
-                    runner_up_approach = ranked_approaches[min(len(ranked_approaches) - 1, 1)]
-                    if result_by_approach[winning_approach] == result_by_approach[runner_up_approach]:
-                        self.draw_count += 1
+                    has_runner_up = len(ranked_approaches) > 1
+
+                    if has_runner_up:
+                        runner_up_approach = ranked_approaches[1]
+                        top_two_share_result = result_by_approach[winning_approach] == result_by_approach[runner_up_approach]
+                        top_two_have_errors = errors_by_approach[winning_approach] and errors_by_approach[runner_up_approach]
+                        if top_two_share_result or top_two_have_errors:
+                            self.draw_count += 1
+                        else:
+                            self.approach_wins[winning_approach] += 1
                     else:
-                        self.approach_wins[winning_approach] += 1
+                        if errors_by_approach[winning_approach]:
+                            self.draw_count += 1
+                        else:
+                            self.approach_wins[winning_approach] += 1
 
     def get_color_rows(self) -> List[List[Color]]:
         color_rows = []
@@ -143,7 +153,12 @@ class CSVRenderer:
                 winning_result_delta_perc = calculate_winning_result_delta_perc(result_by_approach[winning_approach], result_by_approach[runner_up_approach])
                 saturation = max(0.0, min(1.0, winning_result_delta_perc))
                 saturation = round(1 - math.exp(-7 * saturation), 2)  # Skew small differences to make colors easier to distinguish
-                color_name = self.color_name_by_approach[winning_approach]
+
+                if errors_by_approach[winning_approach] and errors_by_approach[runner_up_approach]:
+                    color_name = 'white'
+                else:
+                    color_name = self.color_name_by_approach[winning_approach]
+
                 color_row.append(Color(color_name, saturation, ranked_results))
             color_rows.append(color_row)
         return color_rows
@@ -152,7 +167,7 @@ class CSVRenderer:
         percentages = {approach: (self.approach_wins[approach] / self.contest_count) * 100 if self.contest_count != 0 else 0 for approach in ranked_approaches}
         rounded_percentages = {approach: round(percentage) for approach, percentage in percentages.items()}
 
-        draw_percentage = (self.draw_count / self.contest_count) * 100 if self.contest_count != 0 else 0
+        draw_percentage = (self.draw_count / self.contest_count) * 100 if self.contest_count != 0 else float(0)
         if draw_percentage > 0:
             rounded_percentages["draw"] = round(draw_percentage)
 

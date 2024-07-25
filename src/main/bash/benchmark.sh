@@ -15,10 +15,14 @@ log() {
 }
 
 print_usage() {
-  echo "Usage: $(basename "$0") [-h] [-a <approaches>] [-C] [FILE]"
-  echo "  FILE: Scenario CSV file path relative to 'src/main/resources/scenarios/' folder. Default: scenarios.csv"
-  echo "  -a <approaches>: Comma-separated list of approaches to test. Default: loom-tomcat,loom-netty,webflux-netty"
-  echo "                   Supported approaches: platform-tomcat,loom-tomcat,loom-netty,webflux-netty"
+  echo "Usage: $(basename "$0") [OPTION]... [SCENARIO FILE]"
+  echo "Runs benchmarks configured by a scenario file."
+  echo
+  echo "SCENARIO FILE:     Scenario configuration CSV file in src/main/resources/scenarios/. Default: scenarios.csv"
+  echo
+  echo "OPTION:"
+  echo "  -a <approaches>  Comma-separated list of approaches to test. Default: loom-tomcat, loom-netty, webflux-netty"
+  echo "                   Supported approaches: platform-tomcat, loom-tomcat, loom-netty, webflux-netty"
   echo "  -C               Keep CSV files used to create chart. Default: false"
   echo "  -h               Print this help"
 }

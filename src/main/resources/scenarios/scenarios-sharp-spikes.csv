@@ -1,5 +1,7 @@
 scenario,k6Config,serverProfiles,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
 10k-vus-sharp-spikes-get-post-movies-call-depth-0,get-post-movies-sharp-vus-spikes.js,,0,100,10000,,0,300
 10k-vus-sharp-spikes-get-post-movies-call-depth-1,get-post-movies-sharp-vus-spikes.js,,1,100,10000,,0,300
+20k-vus-sharp-spikes-get-post-movies-call-depth-0,get-post-movies-sharp-vus-spikes.js,,0,100,20000,,0,300
+20k-vus-sharp-spikes-get-post-movies-call-depth-1,get-post-movies-sharp-vus-spikes.js,,1,100,20000,,0,300
 30k-vus-sharp-spikes-get-post-movies-call-depth-0,get-post-movies-sharp-vus-spikes.js,,0,100,30000,,0,300
 30k-vus-sharp-spikes-get-post-movies-call-depth-1,get-post-movies-sharp-vus-spikes.js,,1,100,30000,,0,300
