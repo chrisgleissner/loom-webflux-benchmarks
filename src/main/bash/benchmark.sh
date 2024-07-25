@@ -15,10 +15,10 @@ log() {
 }
 
 print_usage() {
-  echo "Usage: $(basename "$0") [OPTION]... [SCENARIO FILE]"
+  echo "Usage: $(basename "$0") [OPTION]... [SCENARIO_FILE]"
   echo "Runs benchmarks configured by a scenario file."
   echo
-  echo "SCENARIO FILE:     Scenario configuration CSV file in src/main/resources/scenarios/. Default: scenarios.csv"
+  echo "SCENARIO_FILE:     Scenario configuration CSV file in src/main/resources/scenarios/. Default: scenarios.csv"
   echo
   echo "OPTION:"
   echo "  -a <approaches>  Comma-separated list of approaches to test. Default: loom-tomcat, loom-netty, webflux-netty"

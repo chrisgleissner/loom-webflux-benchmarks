@@ -1,14 +1,14 @@
 #!/bin/bash
 # Wrapper over benchmark.sh
 
-DEFAULT_SCENARIOS=("scenarios-deep-call-stack" "scenarios-postgres" "scenarios-sharp-spikes" "scenarios-soaktest")
+DEFAULT_SCENARIOS=("scenarios.csv" "scenarios-deep-call-stack.csv" "scenarios-postgres.csv" "scenarios-sharp-spikes.csv" "scenarios-soaktest.csv")
 
 show_help() {
     cat <<EOF
-Usage: $(basename "$0") [OPTION]... [SCENARIO]...
-Wrapper over benchmark.sh that supports multiple scenarios and suspends the system on completion.
+Usage: $(basename "$0") [OPTION]... [SCENARIO_FILE]...
+Wrapper over benchmark.sh that supports multiple scenario files and suspends the system on completion.
 
-SCENARIO:                Zero or more space-separated scenario names.
+SCENARIO_FILE:           Zero or more space-separated scenario configuration CSV files in src/main/resources/scenarios/.
                          Default: ${DEFAULT_SCENARIOS[*]}
 
 OPTION:
@@ -20,7 +20,7 @@ EOF
 
 DRY_RUN=false
 OPTIONS=""
-SCENARIOS=()
+SCENARIO_FILES=()
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -37,19 +37,19 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         *)
-            SCENARIOS+=("$1")
+            SCENARIO_FILES+=("$1")
             shift
             ;;
     esac
 done
 
-if [ ${#SCENARIOS[@]} -eq 0 ]; then
-    SCENARIOS=("${DEFAULT_SCENARIOS[@]}")
+if [ ${#SCENARIO_FILES[@]} -eq 0 ]; then
+    SCENARIO_FILES=("${DEFAULT_SCENARIOS[@]}")
 fi
 
-echo "Scenarios to be executed:"
-for scenario in "${SCENARIOS[@]}"; do
-    echo "  - $scenario"
+echo "Scenario files:"
+for scenario_file in "${SCENARIO_FILES[@]}"; do
+    echo "  - $scenario_file"
 done
 
 echo "Options passed to benchmark.sh: $OPTIONS"
@@ -67,15 +67,18 @@ perform_action() {
 }
 
 process_scenario() {
-    local scenario=$1
+    local scenario_file="$1"
+    local scenario
+    scenario=$(basename "$scenario_file" .csv)
+
     echo
-    echo "Executing $scenario"
+    echo "Executing benchmark using $scenario_file"
 
     perform_action "Removing 'build/results'"
     if ! $DRY_RUN; then rm -Rf build/results; fi
 
-    perform_action "Executing 'benchmark.sh $OPTIONS $scenario.csv'"
-    if ! $DRY_RUN; then ./src/main/bash/benchmark.sh $OPTIONS "$scenario.csv" 2>&1 | tee "results/benchmark-${scenario}.log"; fi
+    perform_action "Executing 'benchmark.sh $OPTIONS $scenario_file'"
+    if ! $DRY_RUN; then ./src/main/bash/benchmark.sh $OPTIONS "$scenario_file" 2>&1 | tee "results/benchmark-${scenario}.log"; fi
 
     perform_action "Clearing 'results/$scenario'"
     if ! $DRY_RUN; then rm -Rf "results/$scenario" && mkdir -p "results/$scenario"; fi
@@ -87,8 +90,8 @@ process_scenario() {
     if ! $DRY_RUN; then killall java; fi
 }
 
-for scenario in "${SCENARIOS[@]}"; do
-    process_scenario "$scenario"
+for scenario_file in "${SCENARIO_FILES[@]}"; do
+    process_scenario "$scenario_file"
 done
 
 end_time=$(date +%s)
