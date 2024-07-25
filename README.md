@@ -230,23 +230,54 @@ Log out and back in.
 
 ## Execution
 
-The following command runs the benchmark for each combination of approaches and scenarios. Results are stored in
-the `build/results` folder:
+### benchmark.sh
+
+Run a benchmark for each combination of approaches and scenarios defined in a scenario CSV file. Results are stored in
+`build/results/`:
 
 ```shell
 ./benchmark.sh 
 ```
 
-To see the available options, run `benchmark.sh -h`:
+Usage as per `benchmark.sh -h`:
 
 ```
-Usage: benchmark.sh [-h] [-a <approaches>] [-C] [FILE]
-  FILE: Scenario CSV file. Default: src/main/resources/scenarios/scenarios.csv
-  -a <approaches>: Comma-separated list of approaches to test. Default: loom-tomcat,loom-netty,webflux-netty
-                   Supported approaches: platform-tomcat,loom-tomcat,loom-netty,webflux-netty
+Usage: benchmark.sh [OPTION]... [SCENARIO_FILE]
+Runs benchmarks configured by a scenario file.
+
+SCENARIO_FILE:     Scenario configuration CSV file in src/main/resources/scenarios/. Default: scenarios.csv
+
+OPTION:
+  -a <approaches>  Comma-separated list of approaches to test. Default: loom-tomcat, loom-netty, webflux-netty
+                   Supported approaches: platform-tomcat, loom-tomcat, loom-netty, webflux-netty
   -C               Keep CSV files used to create chart. Default: false
   -h               Print this help
 ```
+
+### benchmarks.sh
+
+This is a wrapper over `benchmark.sh` and supports multiple scenario files:
+
+```shell
+./benchmarks.sh 
+```
+
+Usage as per `benchmarks.sh -h`:
+
+```
+Usage: benchmarks.sh [OPTION]... [SCENARIO_FILE]...
+Wrapper over benchmark.sh that supports multiple scenario files and suspends the system on completion.
+
+SCENARIO_FILE:           Zero or more space-separated scenario configuration CSV files in src/main/resources/scenarios/.
+                         Default: scenarios.csv scenarios-deep-call-stack.csv scenarios-postgres.csv scenarios-sharp-spikes.csv scenarios-soaktest.csv
+
+OPTION:
+  -d, --dry-run          Print what would be done without actually performing it.
+  -o, --options "<opts>" Pass additional options to the benchmark.sh script. Run "./benchmark.sh -h" for supported options.
+  -h, --help             Show this help message and exit.
+```
+
+Please note that the default configured scenarios may take several hours to complete.
 
 ### Approaches
 
