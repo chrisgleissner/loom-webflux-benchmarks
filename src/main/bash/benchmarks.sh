@@ -6,7 +6,7 @@ DEFAULT_SCENARIOS=("scenarios.csv" "scenarios-deep-call-stack.csv" "scenarios-po
 show_help() {
     cat <<EOF
 Usage: $(basename "$0") [OPTION]... [SCENARIO_FILE]...
-Wrapper over benchmark.sh that supports multiple scenario files and suspends the system on completion.
+Wrapper over benchmark.sh that supports multiple scenario files and optionally suspends the system on completion.
 
 SCENARIO_FILE:           Zero or more space-separated scenario configuration CSV files in src/main/resources/scenarios/.
                          Default: ${DEFAULT_SCENARIOS[*]}
@@ -14,11 +14,13 @@ SCENARIO_FILE:           Zero or more space-separated scenario configuration CSV
 OPTION:
   -d, --dry-run          Print what would be done without actually performing it.
   -o, --options "<opts>" Pass additional options to the benchmark.sh script. Run "./benchmark.sh -h" for supported options.
+  -s, --suspend          Suspend the system upon completion of the script.
   -h, --help             Show this help message and exit.
 EOF
 }
 
 DRY_RUN=false
+SUSPEND=false
 OPTIONS=""
 SCENARIO_FILES=()
 
@@ -26,6 +28,10 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         -d|--dry-run)
             DRY_RUN=true
+            shift
+            ;;
+        -s|--suspend)
+            SUSPEND=true
             shift
             ;;
         -h|--help)
@@ -54,6 +60,7 @@ done
 
 echo "Options passed to benchmark.sh: $OPTIONS"
 echo "Dry run mode: $DRY_RUN"
+echo "Suspend system after completion: $SUSPEND"
 
 start_time=$(date +%s)
 
@@ -98,5 +105,7 @@ end_time=$(date +%s)
 elapsed_time=$((end_time - start_time))
 printf "\nTotal duration: %02dh %02dm %02ds\n" $((elapsed_time / 3600)) $(((elapsed_time % 3600) / 60)) $((elapsed_time % 60))
 
-perform_action "Suspending the system"
-if ! $DRY_RUN; then systemctl suspend; fi
+if $SUSPEND; then
+    perform_action "Suspending the system"
+    if ! $DRY_RUN; then systemctl suspend; fi
+fi

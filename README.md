@@ -266,7 +266,7 @@ Usage as per `benchmarks.sh -h`:
 
 ```
 Usage: benchmarks.sh [OPTION]... [SCENARIO_FILE]...
-Wrapper over benchmark.sh that supports multiple scenario files and suspends the system on completion.
+Wrapper over benchmark.sh that supports multiple scenario files and optionally suspends the system on completion.
 
 SCENARIO_FILE:           Zero or more space-separated scenario configuration CSV files in src/main/resources/scenarios/.
                          Default: scenarios.csv scenarios-deep-call-stack.csv scenarios-postgres.csv scenarios-sharp-spikes.csv scenarios-soaktest.csv
@@ -274,6 +274,7 @@ SCENARIO_FILE:           Zero or more space-separated scenario configuration CSV
 OPTION:
   -d, --dry-run          Print what would be done without actually performing it.
   -o, --options "<opts>" Pass additional options to the benchmark.sh script. Run "./benchmark.sh -h" for supported options.
+  -s, --suspend          Suspend the system upon completion of the script. Default: false
   -h, --help             Show this help message and exit.
 ```
 
