@@ -8,7 +8,6 @@ resultsDir=build/results
 resultsCsvFile="$resultsDir/results.csv"
 resultsPngFile="$resultsDir/results.png"
 resultsNettyPngFile="$resultsDir/results-netty.png"
-resultsMdFile="$resultsDir/results.md"
 keep_csv=false
 
 log() {
@@ -90,7 +89,7 @@ tail -n +2 "$scenariosFile" | while IFS=',' read -r scenario k6Config serverProf
     for serverProfile in "${server_profile_array[@]}"; do
         composeFile="src/main/docker/docker-compose-$serverProfile.yaml"
         if [[ -f "$composeFile" ]]; then
-            log "Stopping Docker containers using $composeFile"
+            log "Stopping Docker container(s) using $composeFile"
             docker compose -f "$composeFile" down
         fi
     done
@@ -100,48 +99,7 @@ done
 ./src/main/python/results_chart.py -i "$resultsCsvFile" -o "$resultsNettyPngFile" -a "loom-netty,webflux-netty" || true
 
 endSeconds=$( date +%s )
+./src/main/bash/generate-results-markdown.sh "$scenariosFile" "$resultsDir" "$approaches" "$startSeconds" "$endSeconds"
+
 durationInSeconds=$(( endSeconds - startSeconds ))
-
-cat <<EOF > "$resultsMdFile"
-# $(basename "$scenariosFile" .csv)
-
-## Test Time
-
-| **Name**                | **Value** |
-|-------------------------|-----------|
-| **Start Time (UTC)** | $(date -u -d @$startSeconds +"%Y-%m-%d %H:%M:%S") |
-| **End Time (UTC)**   | $(date -u -d @$(( $(date +%s) )) +"%Y-%m-%d %H:%M:%S") |
-| **Duration (hh:mm:ss)** | $(printf '%02d:%02d:%02d' $((durationInSeconds/3600)) $(( (durationInSeconds%3600)/60 )) $((durationInSeconds%60))) |
-
-## System Specs
-
-| **Name**                | **Value** |
-|-------------------------|-----------|
-| **Java Version**        | $(java --version | grep "Server") |
-| **Python Version**      | $(python3 --version | awk '{print $2}') |
-| **OS Version**          | $(grep "PRETTY_NAME" /etc/os-release | cut -d '"' -f 2) |
-| **Kernel Version**      | $(uname -r) |
-| **CPU Model**           | $(lscpu | grep "Model name" | sed 's/Model name:\s*//') |
-| **CPU Cores**           | $(grep -c ^processor /proc/cpuinfo) |
-| **RAM**                 | $(free -h | awk '/^Mem:/ {print $2 " total, " $7 " available"}') |
-| **Disk**                | $(df -h --total | awk '/^total/ {print $2 " total, " $4 " available"}') |
-
-## Scenarios
-
-**Scenario file:** $scenariosFile
-
-EOF
-
-{
-  echo "| Scenario | k6 Config | Server Profiles | Delay Call Depth | Delay (ms) | Connections | Requests per Second | Warmup Duration (s) | Test Duration (s) |"
-  echo "|----------|-----------|-----------------|------------------|------------|-------------|---------------------|---------------------|------------------|"
-  tail -n +2 "$scenariosFile" | while IFS=',' read -r scenario k6Config serverProfiles delayCallDepth delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
-      if [[ -z "$scenario" || $scenario == "#"* ]]; then
-          continue
-      fi
-      echo "| $scenario | $k6Config | $serverProfiles | $delayCallDepth | $delayInMillis | $connections | $requestsPerSecond | $warmupDurationInSeconds | $testDurationInSeconds |"
-  done
-} >> "$resultsMdFile"
-log "Result description saved to $resultsMdFile"
-
 log "Completed Loom and WebFlux benchmark after ${durationInSeconds}s"

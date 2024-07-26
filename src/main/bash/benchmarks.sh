@@ -13,14 +13,16 @@ SCENARIO_FILE:           Zero or more space-separated scenario configuration CSV
 
 OPTION:
   -d, --dry-run          Print what would be done without actually performing it.
+  -k, --kill-java        Kill all Java processes after each benchmark. Default: false
   -o, --options "<opts>" Pass additional options to the benchmark.sh script. Run "./benchmark.sh -h" for supported options.
-  -s, --suspend          Suspend the system upon completion of the script.
+  -s, --suspend          Suspend the system upon completion of the script. Default: false
   -h, --help             Show this help message and exit.
 EOF
 }
 
 DRY_RUN=false
 SUSPEND=false
+KILL_JAVA=false
 OPTIONS=""
 SCENARIO_FILES=()
 
@@ -32,6 +34,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -s|--suspend)
             SUSPEND=true
+            shift
+            ;;
+        -k|--kill-java)
+            KILL_JAVA=true
             shift
             ;;
         -h|--help)
@@ -61,6 +67,7 @@ done
 echo "Options passed to benchmark.sh: $OPTIONS"
 echo "Dry run mode: $DRY_RUN"
 echo "Suspend system after completion: $SUSPEND"
+echo "Kill Java processes after benchmarks: $KILL_JAVA"
 
 start_time=$(date +%s)
 
@@ -93,8 +100,10 @@ process_scenario() {
     perform_action "Copying 'build/results/*' to 'results/$scenario'"
     if ! $DRY_RUN; then cp -R build/results/* "results/$scenario"; fi
 
-    perform_action "Killing all Java processes"
-    if ! $DRY_RUN; then killall java; fi
+    if $KILL_JAVA; then
+        perform_action "Killing all Java processes"
+        if ! $DRY_RUN; then killall java; fi
+    fi
 }
 
 for scenario_file in "${SCENARIO_FILES[@]}"; do

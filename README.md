@@ -273,6 +273,7 @@ SCENARIO_FILE:           Zero or more space-separated scenario configuration CSV
 
 OPTION:
   -d, --dry-run          Print what would be done without actually performing it.
+  -k, --kill-java        Kill all Java processes after each benchmark. Default: false
   -o, --options "<opts>" Pass additional options to the benchmark.sh script. Run "./benchmark.sh -h" for supported options.
   -s, --suspend          Suspend the system upon completion of the script. Default: false
   -h, --help             Show this help message and exit.
