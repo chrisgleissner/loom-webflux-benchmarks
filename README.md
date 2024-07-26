@@ -377,7 +377,7 @@ Virtual Threads, then for WebFlux.
 
 ## Results
 
-## Test Environment
+### Test Environment
 
 - Unless noted otherwise, all tests were conducted on this test environment.
 - **Preparation**: The system was rebooted before each test and quieted down as much as possible. The baseline total CPU
@@ -574,12 +574,12 @@ Like the previous scenario, but mimics call to upstream service as explained in 
 
 ![WebFlux](results/20k-vus-smooth-spike-get-post-movies-call-depth-1/webflux-netty.png)
 
-### 60k-vus-smooth-spike-get-post-movies
+## High Load Results
 
-Like [20k-vus-smooth-spike-get-post-movies](#20k-vus-smooth-spike-get-post-movies), but scaling up to 60k users and executed within a VirtualBox VM on more powerful hardware,
-using a different Linux Kernel version. The rest of the setup is identical.
+The following results are based on `scenarios-high-load.csv` which scales up to 60k users. They were executed in a VirtualBox VM on more powerful hardware and
+using a different Linux Kernel version.
 
-#### Hardware
+### Hardware
 
 - CPU: Intel Core i7-12700K at 5GHz with 12 cores (20 threads)
 - Motherboard: Asus ProArt Z690 Creator
@@ -587,17 +587,21 @@ using a different Linux Kernel version. The rest of the setup is identical.
 - Network: Loopback interface
 - Virtualization: VirtualBox 7.0.14 r161095 on bare metal desktop. All cores and 32GiB assigned to VM.
 
-#### Software
+### Software
 
 - Host OS: Windows 11 Pro (10.0.22631)
 - Client OS: Ubuntu 22.04.4 LTS
-- Client Kernel: 6.5.0-28-generic
-- Java: Amazon Corretto JDK 21.0.2+13-LTS
-- Spring Boot 3.2.5
+- Client Kernel: 6.5.0-45-generic
+- Java: Amazon Corretto JDK 21.0.4.7.1
+- Spring Boot 3.3.2
 
-#### Virtual Threads (Tomcat)
+### Summary
 
-![Loom](results/scenarios-high-load/60k-vus-smooth-spike-get-post-movies/loom-tomcat.png)
+![Summary](results/scenarios-high-load/results.png)
+
+### 60k-vus-smooth-spike-get-post-movies
+
+Like [20k-vus-smooth-spike-get-post-movies](#20k-vus-smooth-spike-get-post-movies), but scaling up to 60k users.
 
 #### Virtual Threads (Netty)
 
