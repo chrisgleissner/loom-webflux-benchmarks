@@ -3,7 +3,7 @@
 
 approaches="loom-tomcat,loom-netty,webflux-netty"
 scenariosDir="src/main/resources/scenarios"
-relativeScenariosPath="scenarios.csv"
+relativeScenariosPath="scenarios-default.csv"
 resultsDir=build/results
 resultsCsvFile="$resultsDir/results.csv"
 resultsPngFile="$resultsDir/results.png"
@@ -18,7 +18,7 @@ print_usage() {
   echo "Usage: $(basename "$0") [OPTION]... [SCENARIO_FILE]"
   echo "Runs benchmarks configured by a scenario file."
   echo
-  echo "SCENARIO_FILE:     Scenario configuration CSV file in src/main/resources/scenarios/. Default: scenarios.csv"
+  echo "SCENARIO_FILE:     Scenario configuration CSV file in src/main/resources/scenarios/. Default: scenarios-default.csv"
   echo
   echo "OPTION:"
   echo "  -a <approaches>  Comma-separated list of approaches to test. Default: loom-tomcat, loom-netty, webflux-netty"

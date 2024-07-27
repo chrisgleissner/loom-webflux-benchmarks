@@ -43,7 +43,7 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 
 ## Benchmark Winners
 
-Below are top-performing approaches across all scenarios and metrics, visualizing the contents of [results/results.csv](results/results.csv):
+Below are top-performing approaches across all scenarios and metrics, visualizing the contents of [results/scenarios-default/results.csv](results/scenarios-default/results.csv):
 
 - Each cell shows the metric values of best approach (on top) and runner-up.
     - What "best" is depends on the metric: A lower value is better for all metrics except for metrics starting with `requests_ok`, `requests_per_second`, or `sockets`.
@@ -57,13 +57,13 @@ Below are top-performing approaches across all scenarios and metrics, visualizin
 
 This chart compares Project Loom (on both Tomcat and Netty) with Project Reactor (on Netty).
 
-![Results](results/results.png)
+![All Results](results/scenarios-default/results.png)
 
 ### Netty-based Approaches
 
 This chart is based on same benchmark as before, but only considers Netty-based approaches.
 
-![Results](results/results-netty.png)
+![Netty Results](results/scenarios-default/results-netty.png)
 
 ## Benchmark Features
 
@@ -165,7 +165,7 @@ Supported requests:
 
 ### Hardware
 
-The hardware requirements depend purely on the scenarios configured in `src/main/resources/scenarios/scenarios.csv`. The following is
+The hardware requirements depend purely on the scenarios configured in `src/main/resources/scenarios/scenarios-default.csv`. The following is
 recommended to run the default scenarios committed to this repo:
 
 * CPU comparable to Intel 6700K or above
@@ -245,7 +245,7 @@ Usage as per `benchmark.sh -h`:
 Usage: benchmark.sh [OPTION]... [SCENARIO_FILE]
 Runs benchmarks configured by a scenario file.
 
-SCENARIO_FILE:     Scenario configuration CSV file in src/main/resources/scenarios/. Default: scenarios.csv
+SCENARIO_FILE:     Scenario configuration CSV file in src/main/resources/scenarios/. Default: scenarios-default.csv
 
 OPTION:
   -a <approaches>  Comma-separated list of approaches to test. Default: loom-tomcat, loom-netty, webflux-netty
@@ -269,7 +269,7 @@ Usage: benchmarks.sh [OPTION]... [SCENARIO_FILE]...
 Wrapper over benchmark.sh that supports multiple scenario files and optionally suspends the system on completion.
 
 SCENARIO_FILE:           Zero or more space-separated scenario configuration CSV files in src/main/resources/scenarios/.
-                         Default: scenarios.csv scenarios-deep-call-stack.csv scenarios-postgres.csv scenarios-sharp-spikes.csv scenarios-soaktest.csv
+                         Default: scenarios-default.csv scenarios-deep-call-stack.csv scenarios-postgres.csv scenarios-sharp-spikes.csv scenarios-soaktest.csv
 
 OPTION:
   -d, --dry-run          Print what would be done without actually performing it.
@@ -292,9 +292,9 @@ All approaches use the same Spring Boot 3.2 version.
 
 ### Scenarios
 
-#### Standard Scenarios
+#### Default Scenarios
 
-see [src/main/resources/scenarios/scenarios.csv](src/main/resources/scenarios/scenarios.csv)
+see [src/main/resources/scenarios/scenarios-default.csv](src/main/resources/scenarios/scenarios-default.csv)
 
 | Scenario                                                                                                | Domain | Description                           | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
 |---------------------------------------------------------------------------------------------------------|--------|---------------------------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
@@ -315,6 +315,13 @@ see [src/main/resources/scenarios/scenarios-high-load.csv](src/main/resources/sc
 | Scenario                                                                      | Domain | Description       | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
 |-------------------------------------------------------------------------------|--------|-------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
 | [60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies) | Movies | Smooth user spike | 0 - 60,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+
+#### Other Scenarios
+
+- [deep-call-stack](./results/scenarios-deep-call-stack/results.md): High delay call depths
+- [postgres](./results/scenarios-postgres/results.md): Use PostgreSQL (started via Docker) instead of H2
+- [sharp-spikes](./results/scenarios-sharp-spikes/results.md): Intermittent sharp load spikes from 0 to 10/20/30k users
+- [soaktest](./results/scenarios-soaktest/results.md): Slow ramp-uo to 10k users over 15 minutes, followed by ramp-down
 
 ### Steps
 
@@ -345,7 +352,7 @@ The benchmark run for each `$scenario` consists of the following phases and step
 
 ### Scenario-specific
 
-Each line in [src/main/resources/scenarios/scenarios.csv](src/main/resources/scenarios/scenarios.csv) configures a test scenario which is performed first for Java
+Each line in [src/main/resources/scenarios/scenarios-default.csv](src/main/resources/scenarios/scenarios-default.csv) configures a test scenario which is performed first for Java
 Virtual Threads, then for WebFlux.
 
 #### Example
@@ -401,7 +408,7 @@ Virtual Threads, then for WebFlux.
 ### Software
 
 - OS: Ubuntu 22.04.4 LTS
-- Kernel: 5.15.86-051586-generic
+- Kernel: 6.5.0-45-generic
 - Java: Amazon Corretto JDK 21.0.4.7.1
 - Spring Boot 3.3.2
 
@@ -432,15 +439,15 @@ per second (RPS) across all users for 3 minutes:
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/5k-vus-and-rps-get-time/loom-tomcat.png)
+![Loom](results/scenarios-default/5k-vus-and-rps-get-time/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![WebFlux](results/5k-vus-and-rps-get-time/loom-netty.png)
+![WebFlux](results/scenarios-default/5k-vus-and-rps-get-time/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/5k-vus-and-rps-get-time/webflux-netty.png)
+![WebFlux](results/scenarios-default/5k-vus-and-rps-get-time/webflux-netty.png)
 
 ### 5k-vus-and-rps-get-movies
 
@@ -450,15 +457,15 @@ For further details, please see the [movies](#movies) section.
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/5k-vus-and-rps-get-movies/loom-tomcat.png)
+![Loom](results/scenarios-default/5k-vus-and-rps-get-movies/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/5k-vus-and-rps-get-movies/loom-netty.png)
+![Loom](results/scenarios-default/5k-vus-and-rps-get-movies/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/5k-vus-and-rps-get-movies/webflux-netty.png)
+![WebFlux](results/scenarios-default/5k-vus-and-rps-get-movies/webflux-netty.png)
 
 ### 10k-vus-and-rps-get-movies
 
@@ -466,15 +473,15 @@ Like the previous scenario, but 10 virtual users and requests per second.
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/10k-vus-and-rps-get-movies/loom-tomcat.png)
+![Loom](results/scenarios-default/10k-vus-and-rps-get-movies/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/10k-vus-and-rps-get-movies/loom-netty.png)
+![Loom](results/scenarios-default/10k-vus-and-rps-get-movies/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/10k-vus-and-rps-get-movies/webflux-netty.png)
+![WebFlux](results/scenarios-default/10k-vus-and-rps-get-movies/webflux-netty.png)
 
 ### 10k-vus-and-rps-get-movies-call-depth-1
 
@@ -485,15 +492,15 @@ Like the previous scenario, but mimics a request to an upstream service.
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/10k-vus-and-rps-get-movies-call-depth-1/loom-tomcat.png)
+![Loom](results/scenarios-default/10k-vus-and-rps-get-movies-call-depth-1/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/10k-vus-and-rps-get-movies-call-depth-1/loom-netty.png)
+![Loom](results/scenarios-default/10k-vus-and-rps-get-movies-call-depth-1/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/10k-vus-and-rps-get-movies-call-depth-1/webflux-netty.png)
+![WebFlux](results/scenarios-default/10k-vus-and-rps-get-movies-call-depth-1/webflux-netty.png)
 
 ### 20k-vus-stepped-spike-get-movies
 
@@ -509,15 +516,15 @@ This scenario ramps up virtual users (and thus TCP connections) from 0 to 20k in
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/20k-vus-stepped-spike-get-movies/loom-tomcat.png)
+![Loom](results/scenarios-default/20k-vus-stepped-spike-get-movies/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/20k-vus-stepped-spike-get-movies/loom-netty.png)
+![Loom](results/scenarios-default/20k-vus-stepped-spike-get-movies/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/20k-vus-stepped-spike-get-movies/webflux-netty.png)
+![WebFlux](results/scenarios-default/20k-vus-stepped-spike-get-movies/webflux-netty.png)
 
 ### 20k-vus-smooth-spike-get-movies
 
@@ -525,15 +532,15 @@ Like the previous scenario, but linear ramp-up and down.
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/20k-vus-smooth-spike-get-movies/loom-tomcat.png)
+![Loom](results/scenarios-default/20k-vus-smooth-spike-get-movies/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/20k-vus-smooth-spike-get-movies/loom-netty.png)
+![Loom](results/scenarios-default/20k-vus-smooth-spike-get-movies/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/20k-vus-smooth-spike-get-movies/webflux-netty.png)
+![WebFlux](results/scenarios-default/20k-vus-smooth-spike-get-movies/webflux-netty.png)
 
 ### 20k-vus-smooth-spike-get-post-movies
 
@@ -546,15 +553,15 @@ For further details, please see the [movies](#movies) section.
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/20k-vus-smooth-spike-get-post-movies/loom-tomcat.png)
+![Loom](results/scenarios-default/20k-vus-smooth-spike-get-post-movies/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/20k-vus-smooth-spike-get-post-movies/loom-netty.png)
+![Loom](results/scenarios-default/20k-vus-smooth-spike-get-post-movies/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/20k-vus-smooth-spike-get-post-movies/webflux-netty.png)
+![WebFlux](results/scenarios-default/20k-vus-smooth-spike-get-post-movies/webflux-netty.png)
 
 ### 20k-vus-smooth-spike-get-post-movies-call-depth-1
 
@@ -566,15 +573,15 @@ Like the previous scenario, but mimics call to upstream service as explained in 
 
 #### Virtual Threads (Tomcat)
 
-![Loom](results/20k-vus-smooth-spike-get-post-movies-call-depth-1/loom-tomcat.png)
+![Loom](results/scenarios-default/20k-vus-smooth-spike-get-post-movies-call-depth-1/loom-tomcat.png)
 
 #### Virtual Threads (Netty)
 
-![Loom](results/20k-vus-smooth-spike-get-post-movies-call-depth-1/loom-netty.png)
+![Loom](results/scenarios-default/20k-vus-smooth-spike-get-post-movies-call-depth-1/loom-netty.png)
 
 #### WebFlux (Netty)
 
-![WebFlux](results/20k-vus-smooth-spike-get-post-movies-call-depth-1/webflux-netty.png)
+![WebFlux](results/scenarios-default/20k-vus-smooth-spike-get-post-movies-call-depth-1/webflux-netty.png)
 
 ## High Load Results
 
