@@ -157,7 +157,7 @@ Supported requests:
 
 ### Software
 
-* Unix-based OS; tested with Ubuntu 22.04
+* Unix-based OS; tested with Ubuntu 22.04 and 24.04
 * Java 21 or above
 * [k6](https://k6.io/docs/) and Python 3 with [Matplotlib](https://matplotlib.org/) to drive load and measure latency
 * [sar/sadf](https://linux.die.net/man/1/sar) to measure system resource use
@@ -173,7 +173,7 @@ recommended to run the default scenarios committed to this repo:
 
 ## Setup
 
-The following instructions assume you are using a Debian-based Linux such as Ubuntu 22.04.
+The following instructions assume you are using a Debian-based Linux such as Ubuntu 22.04 or 24.04.
 
 ### Java 21
 
@@ -407,10 +407,10 @@ Virtual Threads, then for WebFlux.
 
 ### Software
 
-- OS: Ubuntu 22.04.4 LTS
-- Kernel: 6.5.0-45-generic
+- OS: Ubuntu 24.04.1 LTS
+- Kernel: 6.8.0-41-generic
 - Java: Amazon Corretto JDK 21.0.4.7.1
-- Spring Boot 3.3.2
+- Spring Boot 3.3.3
 
 ## Charts
 
