@@ -1,8 +1,5 @@
 scenario,k6Config,serverProfiles,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
-10-vus-and-rps-get-movies-postgres-no-cache,get-movies.js,postgres|no-cache,0,100,10,10,0,120
-50-vus-and-rps-get-movies-postgres-no-cache,get-movies.js,postgres|no-cache,0,100,50,50,0,120
-100-vus-and-rps-get-movies-postgres-no-cache,get-movies.js,postgres|no-cache,0,100,100,100,0,120
-200-vus-and-rps-get-movies-postgres-no-cache,get-movies.js,postgres|no-cache,0,100,200,200,0,120
-300-vus-and-rps-get-movies-postgres-no-cache,get-movies.js,postgres|no-cache,0,100,300,300,0,120
-400-vus-and-rps-get-movies-postgres-no-cache,get-movies.js,postgres|no-cache,0,100,400,400,0,120
-500-vus-and-rps-get-movies-postgres-no-cache,get-movies.js,postgres|no-cache,0,100,500,500,0,120
+10-vus-and-rps-get-movies-postgres-no-cache,get-movies.js,postgres|no-cache,0,100,10,10,10,300
+20-vus-and-rps-get-movies-postgres-no-cache,get-movies.js,postgres|no-cache,0,100,20,20,10,300
+40-vus-and-rps-get-movies-postgres-no-cache,get-movies.js,postgres|no-cache,0,100,40,40,10,300
+80-vus-and-rps-get-movies-postgres-no-cache,get-movies.js,postgres|no-cache,0,100,80,80,10,300

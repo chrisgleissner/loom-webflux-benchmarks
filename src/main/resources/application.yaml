@@ -17,7 +17,6 @@ spring:
     hibernate:
       ddl-auto: update
   main:
-    banner-mode: off
     lazy-initialization: true
   threads:
     virtual:
