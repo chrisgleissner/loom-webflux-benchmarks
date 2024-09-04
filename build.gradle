@@ -19,7 +19,7 @@ dependencyManagement {
 
 dependencies {
     implementation "com.github.ben-manes.caffeine:caffeine"
-    implementation "com.google.guava:guava:33.2.+"
+    implementation "com.google.guava:guava:33.3.+"
     implementation "io.github.oshai:kotlin-logging-jvm:7.0.+"
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.0.+'
     implementation "org.springframework.boot:spring-boot-starter-actuator"
