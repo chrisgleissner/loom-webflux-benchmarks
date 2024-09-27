@@ -1,6 +1,6 @@
 scenario,k6Config,serverProfiles,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
-restclient-jdk-10k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,restclient|restclient-jdk,1,100,10000,,0,180
-restclient-jdk-10k-vus-smooth-spike-get-post-movies-call-depth-2,get-post-movies-smooth-vus-spike.js,restclient|restclient-jdk,2,100,10000,,0,180
+restclient-jdk-500-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,restclient|restclient-jdk,1,100,500,,0,180
+restclient-jdk-500-vus-smooth-spike-get-post-movies-call-depth-2,get-post-movies-smooth-vus-spike.js,restclient|restclient-jdk,2,100,500,,0,180
 restclient-apache5-10k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,restclient|restclient-apache5,1,100,10000,,0,180
 restclient-apache5-10k-vus-smooth-spike-get-post-movies-call-depth-2,get-post-movies-smooth-vus-spike.js,restclient|restclient-apache5,2,100,10000,,0,180
 webclient-netty-10k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,webclient|webclient-netty,1,100,10000,,0,180
