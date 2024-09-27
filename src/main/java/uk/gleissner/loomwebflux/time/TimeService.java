@@ -1,15 +1,16 @@
 package uk.gleissner.loomwebflux.time;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import uk.gleissner.loomwebflux.common.AbstractService;
+import uk.gleissner.loomwebflux.common.proxy.nonreactive.NonReactiveServiceProxy;
+import uk.gleissner.loomwebflux.common.proxy.reactive.ReactiveServiceProxy;
 
 @Service
 public class TimeService extends AbstractService {
 
-    TimeService(WebClient webClient) {
-        super(webClient);
+    TimeService(ReactiveServiceProxy reactiveClient, NonReactiveServiceProxy nonReactiveClient) {
+        super(reactiveClient, nonReactiveClient);
     }
 
     public Long epochMillis(Long delayInMillis, Integer delayCallDepth) throws InterruptedException {
