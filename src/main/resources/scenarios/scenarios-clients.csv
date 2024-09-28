@@ -1,0 +1,13 @@
+scenario,k6Config,serverProfiles,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
+rest-client-jdk-5k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,rest-client-jdk,1,100,5000,,0,180
+rest-client-jdk-5k-vus-smooth-spike-get-post-movies-call-depth-2,get-post-movies-smooth-vus-spike.js,rest-client-jdk,2,100,5000,,0,180
+rest-client-jdk-5k-vus-smooth-spike-get-post-movies-call-depth-5,get-post-movies-smooth-vus-spike.js,rest-client-jdk,5,100,5000,,0,180
+rest-client-apache5-5k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,rest-client-apache5,1,100,5000,,0,180
+rest-client-apache5-5k-vus-smooth-spike-get-post-movies-call-depth-2,get-post-movies-smooth-vus-spike.js,rest-client-apache5,2,100,5000,,0,180
+rest-client-apache5-5k-vus-smooth-spike-get-post-movies-call-depth-5,get-post-movies-smooth-vus-spike.js,rest-client-apache5,5,100,5000,,0,180
+rest-client-reactor-netty-5k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,rest-client-reactor-netty,1,100,5000,,0,180
+rest-client-reactor-netty-5k-vus-smooth-spike-get-post-movies-call-depth-2,get-post-movies-smooth-vus-spike.js,rest-client-reactor-netty,2,100,5000,,0,180
+rest-client-reactor-netty-5k-vus-smooth-spike-get-post-movies-call-depth-5,get-post-movies-smooth-vus-spike.js,rest-client-reactor-netty,5,100,5000,,0,180
+web-client-reactor-netty-5k-vus-smooth-spike-get-post-movies-call-depth-1,get-post-movies-smooth-vus-spike.js,,1,100,5000,,0,180
+web-client-reactor-netty-5k-vus-smooth-spike-get-post-movies-call-depth-2,get-post-movies-smooth-vus-spike.js,,2,100,5000,,0,180
+web-client-reactor-netty-5k-vus-smooth-spike-get-post-movies-call-depth-5,get-post-movies-smooth-vus-spike.js,,5,100,5000,,0,180

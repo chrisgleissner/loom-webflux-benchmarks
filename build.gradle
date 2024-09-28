@@ -17,10 +17,15 @@ dependencyManagement {
     }
 }
 
+ext['httpclient5.version'] = '5.4'
+ext['httpcore5.version'] = '5.3'
+
+
 dependencies {
     implementation "com.github.ben-manes.caffeine:caffeine"
     implementation "com.google.guava:guava:33.3.+"
     implementation "io.github.oshai:kotlin-logging-jvm:7.0.+"
+    implementation 'org.apache.httpcomponents.client5:httpclient5'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:2.0.+'
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.boot:spring-boot-starter-cache"

@@ -5,8 +5,9 @@ import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import uk.gleissner.loomwebflux.config.Profiles.POSTGRES
 
-@ActiveProfiles("postgres")
+@ActiveProfiles(POSTGRES)
 @Testcontainers
 internal open class MovieControllerPostgresIT : MovieControllerIT() {
 

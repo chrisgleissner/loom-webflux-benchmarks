@@ -6,7 +6,14 @@ import java.nio.file.Path;
 import java.time.Duration;
 
 @ConfigurationProperties("loom-webflux")
-public record AppProperties(boolean repoReadOnly, Path jvmMetricsCsvPath, WebClient webClient) {
-    public record WebClient(int maxConnections, int pendingAcquireMaxCount, Duration connectTimeout, Duration pendingAcquireTimeout, Duration responseTimeout) {
+public record AppProperties(boolean repoReadOnly,
+                            Path jvmMetricsCsvPath,
+                            Client client) {
+
+    public record Client(int maxConnections,
+                         int pendingAcquireMaxCount,
+                         Duration connectTimeout,
+                         Duration pendingAcquireTimeout,
+                         Duration responseTimeout) {
     }
 }

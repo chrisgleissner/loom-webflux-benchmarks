@@ -2,10 +2,11 @@ package uk.gleissner.loomwebflux.movie;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import uk.gleissner.loomwebflux.common.AbstractService;
+import uk.gleissner.loomwebflux.common.proxy.nonreactive.NonReactiveServiceProxy;
+import uk.gleissner.loomwebflux.common.proxy.reactive.ReactiveServiceProxy;
 import uk.gleissner.loomwebflux.movie.domain.Movie;
 import uk.gleissner.loomwebflux.movie.repo.CachedMovieRepo;
 
@@ -19,8 +20,8 @@ public class MovieService extends AbstractService {
 
     private final CachedMovieRepo movieRepo;
 
-    MovieService(WebClient webClient, CachedMovieRepo movieRepo) {
-        super(webClient);
+    MovieService(ReactiveServiceProxy reactiveClient, NonReactiveServiceProxy nonReactiveClient, CachedMovieRepo movieRepo) {
+        super(reactiveClient, nonReactiveClient);
         this.movieRepo = movieRepo;
     }
 

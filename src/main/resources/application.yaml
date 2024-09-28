@@ -25,6 +25,9 @@ spring:
 server:
   http2:
     enabled: true
+  tomcat:
+    threads:
+      max: ${loom-webflux.client.max-connections}
 
 management:
   endpoints:
@@ -38,11 +41,11 @@ management:
 loom-webflux:
   repo-read-only: true
   jvm-metrics-csv-path: bin/jvm.csv
-  web-client:
+  client:
     max-connections: 65000
     connect-timeout: 20s
     pending-acquire-timeout: 60s
-    pending-acquire-max-count: ${loom-webflux.web-client.max-connections}
-    response-timeout: ${loom-webflux.web-client.pending-acquire-timeout}
+    pending-acquire-max-count: ${loom-webflux.client.max-connections}
+    response-timeout: ${loom-webflux.client.pending-acquire-timeout}
 
 
