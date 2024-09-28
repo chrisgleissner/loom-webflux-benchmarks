@@ -5,9 +5,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import static uk.gleissner.loomwebflux.config.Profiles.ANY_REST_CLIENT_PROFILE_ACTIVE;
 import static uk.gleissner.loomwebflux.time.TimeController.NON_REACTIVE;
 
-@Profile("restclient")
+@Profile(ANY_REST_CLIENT_PROFILE_ACTIVE)
 @Component
 @RequiredArgsConstructor
 public class NonReactiveRestClientServiceProxy implements NonReactiveServiceProxy {

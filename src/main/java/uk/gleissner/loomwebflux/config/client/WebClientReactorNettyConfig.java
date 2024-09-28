@@ -9,37 +9,42 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.client.ReactorResourceFactory;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 import uk.gleissner.loomwebflux.config.AppProperties;
+
+import java.util.function.Function;
 
 import static io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS;
 
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-class ReactorNettyWebClientConfig {
+class WebClientReactorNettyConfig {
+
+    static final String REACTOR_NETTY_HTTP_CLIENT = "Reactor Netty HttpClient";
 
     private final Environment environment;
     private final AppProperties appProperties;
 
-    @Bean
-    WebClient webClient(WebClient.Builder builder, ReactorResourceFactory reactorResourceFactory) {
-        val baseUrl = "http://localhost:" + environment.getProperty("local.server.port");
-        log.info("Create WebClient based on Reactor Netty HttpClient for {}", baseUrl);
-
-        val clientProps = appProperties.client();
-        return builder
-            .baseUrl(baseUrl)
-            .clientConnector(new ReactorClientHttpConnector(reactorResourceFactory,
-                httpClient -> httpClient
-                    .responseTimeout(clientProps.responseTimeout())
-                    .option(CONNECT_TIMEOUT_MILLIS, (int) (clientProps.connectTimeout().toMillis()))
-            ))
-            .build();
+    static Function<HttpClient, HttpClient> reactorNettyHttpClientConfigurer(AppProperties appProperties) {
+        return httpClient -> httpClient
+            .responseTimeout(appProperties.client().responseTimeout())
+            .option(CONNECT_TIMEOUT_MILLIS, (int) (appProperties.client().connectTimeout().toMillis()));
     }
 
     @Bean
-    public ReactorResourceFactory reactorResourceFactory() {
+    WebClient webClient(WebClient.Builder builder) {
+        val baseUrl = "http://localhost:" + environment.getProperty("local.server.port");
+        log.info("Create WebClient based on " + REACTOR_NETTY_HTTP_CLIENT + " for {}", baseUrl);
+
+        return builder
+            .baseUrl(baseUrl)
+            .clientConnector(new ReactorClientHttpConnector(reactorResourceFactory(), reactorNettyHttpClientConfigurer(appProperties)))
+            .build();
+    }
+
+    private ReactorResourceFactory reactorResourceFactory() {
         val factory = new ReactorResourceFactory();
         factory.setUseGlobalResources(false);
 

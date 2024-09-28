@@ -13,25 +13,25 @@ import uk.gleissner.loomwebflux.config.AppProperties;
 
 import java.net.http.HttpClient;
 
-@Profile("restclient-jdk")
+import static java.net.http.HttpClient.Version.HTTP_2;
+import static uk.gleissner.loomwebflux.config.Profiles.REST_CLIENT_JDK;
+
+@Profile(REST_CLIENT_JDK)
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-class JdkHttpClientRestClientConfig {
+class RestClientJdkConfig extends AbstractRestClientConfig {
 
     private final Environment environment;
     private final AppProperties appProperties;
 
     @Bean
     RestClient restClient() {
-        val baseUrl = "http://localhost:" + environment.getProperty("local.server.port");
-        log.info("Create RestClient based on JDK HttpClient for {}", baseUrl);
-
-        return RestClient.builder()
-            .baseUrl(baseUrl)
-            .requestFactory(new JdkClientHttpRequestFactory(HttpClient.newBuilder()
-                .connectTimeout(appProperties.client().connectTimeout())
-                .build()))
-            .build();
+        val requestFactory = new JdkClientHttpRequestFactory(HttpClient.newBuilder()
+            .connectTimeout(appProperties.client().connectTimeout())
+            .version(HTTP_2)
+            .build());
+        requestFactory.setReadTimeout(appProperties.client().responseTimeout());
+        return restClient(environment, requestFactory, "JDK HttpClient");
     }
 }

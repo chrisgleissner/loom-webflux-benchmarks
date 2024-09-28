@@ -25,6 +25,9 @@ spring:
 server:
   http2:
     enabled: true
+  tomcat:
+    threads:
+      max: ${loom-webflux.client.max-connections}
 
 management:
   endpoints:

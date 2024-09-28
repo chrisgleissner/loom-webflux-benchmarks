@@ -25,5 +25,6 @@ abstract class AbstractIT {
                 .argumentsForFirstParameter(approaches())
                 .argumentsForNextParameter(0, 1, 2)
         }
+
     }
 }

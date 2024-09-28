@@ -16,42 +16,37 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 import uk.gleissner.loomwebflux.config.AppProperties;
 
-@Profile("restclient-apache5")
+import static uk.gleissner.loomwebflux.config.Profiles.REST_CLIENT_APACHE5;
+
+@Profile(REST_CLIENT_APACHE5)
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-class ApacheHttpClient5RestClientConfig {
+class RestClientApache5Config extends AbstractRestClientConfig {
 
     private final Environment environment;
     private final AppProperties appProperties;
 
     @Bean
     RestClient restClient() {
-        val baseUrl = "http://localhost:" + environment.getProperty("local.server.port");
-        log.info("Create RestClient based on Apache HttpClient 5 for {}", baseUrl);
-
-        val requestConfig = RequestConfig.custom()
-            .setConnectionRequestTimeout(Timeout.of(appProperties.client().connectTimeout()))
-            .setResponseTimeout(Timeout.of(appProperties.client().responseTimeout()))
-            .build();
-
-        val maxTotalConnections = 30_000;
-        val connectionManager = new PoolingHttpClientConnectionManager();
-        connectionManager.setMaxTotal(maxTotalConnections);
-        connectionManager.setDefaultMaxPerRoute(maxTotalConnections);
-
-        val httpClient = HttpClients.custom()
-            .setDefaultRequestConfig(requestConfig)
-            .setConnectionManager(connectionManager)
+        val requestFactory = new HttpComponentsClientHttpRequestFactory(HttpClients.custom()
+            .setDefaultRequestConfig(RequestConfig.custom()
+                .setConnectionRequestTimeout(Timeout.of(appProperties.client().connectTimeout()))
+                .setResponseTimeout(Timeout.of(appProperties.client().responseTimeout()))
+                .build())
+            .setConnectionManager(connectionManager())
             .setKeepAliveStrategy((response, context) -> TimeValue.ofSeconds(5))
             .evictIdleConnections(TimeValue.ofSeconds(5))
             .evictExpiredConnections()
-            .build();
-
-        return RestClient.builder()
-            .baseUrl(baseUrl)
-            .requestFactory(new HttpComponentsClientHttpRequestFactory(httpClient))
-            .build();
+            .build());
+        return restClient(environment, requestFactory, "Apache HttpClient 5");
     }
 
+    private PoolingHttpClientConnectionManager connectionManager() {
+        val connectionManager = new PoolingHttpClientConnectionManager();
+        val maxConnections = appProperties.client().maxConnections();
+        connectionManager.setMaxTotal(maxConnections);
+        connectionManager.setDefaultMaxPerRoute(maxConnections);
+        return connectionManager;
+    }
 }
