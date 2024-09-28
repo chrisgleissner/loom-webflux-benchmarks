@@ -4,9 +4,9 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2024-09-27 16:55:26 |
-| **End (UTC)** | 2024-09-27 17:00:52 |
-| **Duration (hh:mm:ss)** | 00:05:26 |
+| **Start (UTC)** | 2024-09-28 07:04:25 |
+| **End (UTC)** | 2024-09-28 07:10:03 |
+| **Duration (hh:mm:ss)** | 00:05:38 |
 
 ## System Specs
 
@@ -19,7 +19,7 @@
 | **Kernel** | 6.8.0-1014-azure |
 | **CPU** | AMD EPYC 7763 64-Core Processor |
 | **CPU Cores** | 4 |
-| **RAM** | 15Gi total, 12Gi available |
+| **RAM** | 15Gi total, 13Gi available |
 | **Disk** | 159G total, 105G available |
 
 ## Scenarios
