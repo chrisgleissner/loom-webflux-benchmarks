@@ -84,7 +84,10 @@ The benchmark is driven by [k6](https://k6.io/docs/) which repeatedly issues HTT
 The service exposes multiple REST endpoints. The implementation of each has the same 3 stages:
 
 1. **HTTP Call**: If `$delayCallDepth > 0`, call `GET /$approach/epoch-millis` recursively `$delayCallDepth` times to mimic calls to upstream service(s).
-    - All approaches use `Spring Boot`'s [WebFlux WebClient](https://docs.spring.io/spring-framework/reference/web/webflux-webclient.html) based on Netty.
+    - By default, all approaches use `Spring Boot`'s [WebFlux WebClient](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html#rest-webclient)
+      based on Netty.
+    - The scenarios in [scenarios-clients.csv](src/main/resources/scenarios/scenarios-clients) compare the `WebClient` with Spring Boot's
+      [RestClient](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html#rest-restclient) using various client implementations. For details see the [Multi-Client Scenarios](#multi-client-scenarios) chapter.
 2. **Wait**: If `$delayCallDepth = 0`, wait `$delayInMillis` (default: `100`) to mimic the delay incurred by a network call, filesystem access, or similar.
     - Whilst the request waits, its operating system thread can be reused by another request.
     - The imperative approaches (`platform-tomcat`, `loom-tomcat`, and `loom-netty`) use blocking wait whilst the reactive approach (`webflux-netty`) uses non-blocking wait.
@@ -310,11 +313,27 @@ see [src/main/resources/scenarios/scenarios-default.csv](src/main/resources/scen
 
 #### High-Load Scenarios
 
-see [src/main/resources/scenarios/scenarios-high-load.csv](src/main/resources/scenarios/scenarios-high-load.csv)
+The scenarios examine particularly high load.
 
-| Scenario                                                                      | Domain | Description       | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
-|-------------------------------------------------------------------------------|--------|-------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
-| [60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies) | Movies | Smooth user spike | 0 - 60,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
+- Config: [./src/main/resources/scenarios/scenarios-high-load.csv](./src/main/resources/scenarios/scenarios-high-load.csv)
+- Results: [./results/scenarios-high-load/results.png](./results/scenarios-high-load/results.png)
+
+#### Multi-Client Scenarios
+
+These scenarios compare both Spring Boot [RestClient](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html#rest-restclient) and
+[WebClient](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html#rest-webclient) implementations with each other.
+
+- Config: [./src/main/resources/scenarios/scenarios-clients.csv](./src/main/resources/scenarios/scenarios-clients.csv)
+- Results: [./results/scenarios-clients/results.md](./results/scenarios-clients/results.md)
+
+The following clients are compared:
+
+- Spring Boot `RestClient` based on:
+    - [JDK HttpClient](https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html)
+    - [Apache Commons HttpClient 5](https://hc.apache.org/httpcomponents-client-5.4.x/current/httpclient5/apidocs/)
+    - [Netty](https://projectreactor.io/docs/netty/1.1.21/api/reactor/netty/http/client/HttpClient.html)
+- Spring Boot `WebClient` based on:
+    - [Netty](https://projectreactor.io/docs/netty/1.1.21/api/reactor/netty/http/client/HttpClient.html)
 
 #### Other Scenarios
 

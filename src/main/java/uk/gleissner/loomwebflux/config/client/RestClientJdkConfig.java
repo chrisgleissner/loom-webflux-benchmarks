@@ -13,7 +13,7 @@ import uk.gleissner.loomwebflux.config.AppProperties;
 
 import java.net.http.HttpClient;
 
-import static java.net.http.HttpClient.Version.HTTP_2;
+import static java.net.http.HttpClient.Version.HTTP_1_1;
 import static uk.gleissner.loomwebflux.config.Profiles.REST_CLIENT_JDK;
 
 @Profile(REST_CLIENT_JDK)
@@ -29,7 +29,7 @@ class RestClientJdkConfig extends AbstractRestClientConfig {
     RestClient restClient() {
         val requestFactory = new JdkClientHttpRequestFactory(HttpClient.newBuilder()
             .connectTimeout(appProperties.client().connectTimeout())
-            .version(HTTP_2)
+            .version(HTTP_1_1) // due to errors with HTTP_2
             .build());
         requestFactory.setReadTimeout(appProperties.client().responseTimeout());
         return restClient(environment, requestFactory, "JDK HttpClient");
