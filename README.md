@@ -326,6 +326,9 @@ These scenarios compare both Spring Boot [RestClient](https://docs.spring.io/spr
 - Config: [./src/main/resources/scenarios/scenarios-clients.csv](./src/main/resources/scenarios/scenarios-clients.csv)
 - Results: [./results/scenarios-clients/results.md](./results/scenarios-clients/results.md)
 
+All scenarios except for those tested with a `webflux-netty` approach use the `WebClient` or `RestClient` implementation specified in the scenario name. However,
+the `webflux-netty` approach always uses a fully reactive approach and therefore always uses the non-blocking `WebClient`.
+
 The following clients are compared:
 
 - Spring Boot `RestClient` based on:
