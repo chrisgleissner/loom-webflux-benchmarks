@@ -50,7 +50,7 @@ jobs:
         run: python3 -m pytest
 
       - name: Build and Test Java
-        run: ./gradlew -q dependencies | grep spring-boot | head -n1 && ./gradlew build jacocoTestReport
+        run: ./gradlew dependencies build jacocoTestReport
 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
@@ -111,6 +111,7 @@ jobs:
           skip_dirty_check: true
 
       - name: Upload results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Results for Java ${{ matrix.java-version }} and ${{ matrix.os }}
