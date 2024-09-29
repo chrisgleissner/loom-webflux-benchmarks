@@ -4,15 +4,15 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2024-09-29 06:04:56 |
-| **End (UTC)** | 2024-09-29 06:10:27 |
-| **Duration (hh:mm:ss)** | 00:05:31 |
+| **Start (UTC)** | 2024-09-29 06:26:23 |
+| **End (UTC)** | 2024-09-29 06:31:52 |
+| **Duration (hh:mm:ss)** | 00:05:29 |
 
 ## System Specs
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Java** | OpenJDK 64-Bit Server VM Corretto-21.0.4.7.1 (build 21.0.4+7-LTS, mixed mode, sharing) |
+| **Java** | OpenJDK 64-Bit Server VM Corretto-23.0.0.37.1 (build 23+37-FR, mixed mode, sharing) |
 | **Spring Boot** | 3.3.4 |
 | **Python** | 3.12.3 |
 | **OS** | Ubuntu 24.04.1 LTS |

@@ -13,7 +13,7 @@ Test Config: [scenarios-ci.csv](../../src/main/resources/scenarios/scenarios-ci.
 
 ![Results](./scenarios-ci/Ubuntu-22.04/java-21/results-netty.png)
 
-### Ubuntu 22.04 + Java 22
+### Ubuntu 22.04 + Java 23
 
 ![Results](./scenarios-ci/Ubuntu-22.04/java-22/results-netty.png)
 
@@ -21,6 +21,6 @@ Test Config: [scenarios-ci.csv](../../src/main/resources/scenarios/scenarios-ci.
 
 ![Results](./scenarios-ci/ubuntu-24.04/java-21/results-netty.png)
 
-### Ubuntu 24.04 + Java 22
+### Ubuntu 24.04 + Java 23
 
 ![Results](./scenarios-ci/ubuntu-24.04/java-22/results-netty.png)
