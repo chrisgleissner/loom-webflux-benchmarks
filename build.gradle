@@ -53,7 +53,7 @@ dependencies {
     testImplementation "org.apache.commons:commons-compress:1.27.+"
     testImplementation "org.assertj:assertj-core"
     testImplementation "org.junit.jupiter:junit-jupiter"
-    testImplementation "org.junit-pioneer:junit-pioneer:2.2.+"
+    testImplementation "org.junit-pioneer:junit-pioneer:2.3.+"
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.+'
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.springframework.boot:spring-boot-testcontainers"
