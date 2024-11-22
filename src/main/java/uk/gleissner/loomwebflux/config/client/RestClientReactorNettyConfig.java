@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
-import org.springframework.http.client.ReactorNettyClientRequestFactory;
+import org.springframework.http.client.ReactorClientHttpRequestFactory;
 import org.springframework.http.client.ReactorResourceFactory;
 import org.springframework.web.client.RestClient;
 import uk.gleissner.loomwebflux.config.AppProperties;
@@ -27,7 +27,7 @@ class RestClientReactorNettyConfig extends AbstractRestClientConfig {
 
     @Bean
     RestClient restClient(ReactorResourceFactory reactorResourceFactory) {
-        val requestFactory = new ReactorNettyClientRequestFactory(reactorResourceFactory, reactorNettyHttpClientConfigurer(appProperties));
+        val requestFactory = new ReactorClientHttpRequestFactory(reactorResourceFactory, reactorNettyHttpClientConfigurer(appProperties));
         return restClient(environment, requestFactory, REACTOR_NETTY_HTTP_CLIENT);
     }
 }
