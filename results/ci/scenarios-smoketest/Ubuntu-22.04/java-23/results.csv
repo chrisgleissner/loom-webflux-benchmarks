@@ -1,0 +1,17 @@
+scenario,approach,requests_ok,requests_error,requests_per_second_p50,requests_per_second_p90,requests_per_second_max,latency_millis_min,latency_millis_p50,latency_millis_p90,latency_millis_p99,latency_millis_max,cpu_use_percent_avg,cpu_use_percent_max,ram_use_percent_avg,ram_use_percent_max,heap_use_percent_avg,heap_use_percent_max,garbage_collection_count,garbage_collection_time_millis,platform_threads_avg,platform_threads_max,sockets_avg,sockets_max,network_kib_per_req_avg,network_kib_per_req_max,network_packets_per_req_avg,network_packets_per_req_max
+smoketest-get-time,platform-tomcat,1301,0,200,200,201,0.32,0.41,0.55,1.04,4.86,4.98,9.88,19.2,19.3,3.93,5.52,117,526,60,60,70,104,0.82,1.05,8.04,10
+smoketest-get-time,loom-tomcat,1300,0,200,200,201,0.33,0.46,0.61,1.05,6.72,5.44,10.1,22.6,22.7,4.31,5.94,117,519,22,22,70,104,0.81,1.04,8.05,10
+smoketest-get-time,loom-netty,1299,0,200,200,201,0.43,0.52,0.74,1.48,18.2,5.15,6.84,22.9,22.9,3.81,5.00,105,494,18,18,70,104,0.58,0.73,5.03,6.19
+smoketest-get-time,webflux-netty,1300,0,200,200,201,0.39,0.50,0.73,1.41,12.1,4.41,6.60,23.1,23.2,3.71,5.63,102,476,21,21,70,104,0.58,0.74,5.03,6.19
+smoketest-get-movies-h2,platform-tomcat,69,0,10,11.8,16,104,106,109,583,651,5.22,6.66,23.3,23.3,5.61,5.87,105,483,28,29,10,14,4.38,5.90,19.5,30
+smoketest-get-movies-h2,loom-tomcat,69,0,10,11.8,16,104,106,121,599,676,5.54,8.63,23.4,23.5,4.88,5.63,108,481,22,23,10,14,4.37,5.89,19.5,30
+smoketest-get-movies-h2,loom-netty,69,0,10,11.2,14,104,106,108,369,437,4.08,4.99,23.5,23.6,4.82,5.18,105,476,18,19,10,14,3.97,5.28,13.6,22
+smoketest-get-movies-h2,webflux-netty,69,0,10,11.2,14,104,106,108,382,450,5.27,6.77,23.9,23.9,5.28,5.51,105,469,21,22,10,14,4.35,5.75,19.9,30
+smoketest-get-movies-postgres,platform-tomcat,69,0,10,11.8,16,104,106,109,617,686,12.9,16.3,14.7,15.2,6.28,8.11,106,509,29,30,355,460,11.4,13.4,78.2,94
+smoketest-get-movies-postgres,loom-tomcat,69,0,10,11.8,16,104,106,122,634,703,13.1,18.8,18.5,19.0,6.66,8.15,105,455,24,25,364,470,13.9,16.5,78.4,91.6
+smoketest-get-movies-postgres,loom-netty,69,0,10,11.5,15,104,106,109,446,511,13.3,17.1,18.7,19.2,5.95,7.68,106,550,20,21,366,470,16.0,19.2,72.4,84.4
+smoketest-get-movies-postgres,webflux-netty,69,0,10,11.2,14,104,107,111,434,501,12.8,13.9,19.0,19.5,6.42,7.87,120,576,24,25,368,472,19.2,23.0,79.7,88.4
+smoketest-get-movies-postgres-no-cache,platform-tomcat,69,0,10,12.1,17,118,122,145,694,765,17.4,20.4,19.3,19.8,5.51,7.54,111,509,29,29,330,434,47.8,61.1,271,346
+smoketest-get-movies-postgres-no-cache,loom-tomcat,69,0,10,12.1,17,124,128,178,707,776,19.6,24.6,19.4,19.9,4.63,7.47,115,594,24,24,351,454,55.4,70.7,307,386
+smoketest-get-movies-postgres-no-cache,loom-netty,69,0,10,11.5,15,128,132,141,480,549,20.3,24.6,19.7,20.2,4.67,7.44,107,532,20,20,373,474,63.4,79.9,339,422
+smoketest-get-movies-postgres-no-cache,webflux-netty,69,0,10,11.2,14,126,130,161,438,508,18.4,21.1,19.9,20.4,5.49,7.59,111,572,24,24,371,474,72.6,90.8,388,481
