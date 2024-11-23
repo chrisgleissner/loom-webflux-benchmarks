@@ -11,9 +11,6 @@ with [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webf
 
 All benchmark results below come from a dedicated bare metal test environment. The benchmark is also scheduled to run monthly on GitHub-hosted runners, using [all combinations](./results/ci/ci.md) of (Ubuntu 22.04, Ubuntu 24.04) and (Java 21, Java 23).
 
-(*) This project uses Spring Boot 3.4.+, but many benchmark results are currently based on 3.3.+. The top
-of each dedicated benchmark result Markdown page shows the Spring version that was used.
-
 ## Background
 
 Both Spring WebFlux and Virtual Threads are alternative technologies to create Java microservices that support a high
@@ -273,7 +270,7 @@ Usage: benchmarks.sh [OPTION]... [SCENARIO_FILE]...
 Wrapper over benchmark.sh that supports multiple scenario files and optionally suspends the system on completion.
 
 SCENARIO_FILE:           Zero or more space-separated scenario configuration CSV files in src/main/resources/scenarios/.
-                         Default: scenarios-default.csv scenarios-deep-call-stack.csv scenarios-postgres.csv scenarios-sharp-spikes.csv scenarios-soaktest.csv
+                         Default: Default: scenarios-default.csv scenarios-clients.csv scenarios-deep-call-stack.csv scenarios-postgres.csv scenarios-sharp-spikes.csv scenarios-soaktest.csv
 
 OPTION:
   -d, --dry-run          Print what would be done without actually performing it.
@@ -431,9 +428,12 @@ Virtual Threads, then for WebFlux.
 ### Software
 
 - OS: Ubuntu 24.04.1 LTS
-- Kernel: 6.8.0-41-generic
-- Java: Amazon Corretto JDK 21.0.4.7.1
-- Spring Boot 3.3.3
+- Kernel: 6.8.0-49-generic
+- Java: Amazon Corretto JDK 21.0.5.11.1
+- Spring Boot 3.4.0
+
+> [!NOTE]
+> The actual software versions used by a benchmark are automatically determined and shown at the beginning of each `results.md` file. If there are differences to the above, then the values in `results.md` are correct.
 
 ## Charts
 
