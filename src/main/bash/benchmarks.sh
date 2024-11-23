@@ -1,7 +1,7 @@
 #!/bin/bash
 # Wrapper over benchmark.sh
 
-DEFAULT_SCENARIOS=("scenarios-default.csv" "scenarios-deep-call-stack.csv" "scenarios-postgres.csv" "scenarios-sharp-spikes.csv" "scenarios-soaktest.csv")
+DEFAULT_SCENARIOS=("scenarios-default.csv" "scenarios-clients.csv" "scenarios-deep-call-stack.csv" "scenarios-postgres.csv" "scenarios-sharp-spikes.csv" "scenarios-soaktest.csv")
 
 show_help() {
     cat <<EOF
