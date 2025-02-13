@@ -315,7 +315,7 @@ see [src/main/resources/scenarios/scenarios-default.csv](src/main/resources/scen
 
 #### High-Load Scenarios
 
-These are ramp-up and steady state scenarios for 60k users. 
+These are steady-state scenarios for 40k users and ramp-up/down scenarios for 60k users.
 
 - Config: [./src/main/resources/scenarios/scenarios-high-load.csv](./src/main/resources/scenarios/scenarios-high-load.csv)
 - Results: [./results/scenarios-high-load/results.md](./results/scenarios-high-load/results.md)

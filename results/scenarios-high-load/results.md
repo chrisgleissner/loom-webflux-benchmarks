@@ -4,9 +4,9 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2025-02-10 02:18:30 |
-| **End (UTC)** | 2025-02-10 02:52:49 |
-| **Duration (hh:mm:ss)** | 00:34:19 |
+| **Start (UTC)** | 2025-02-13 09:08:17 |
+| **End (UTC)** | 2025-02-13 10:16:32 |
+| **Duration (hh:mm:ss)** | 01:08:15 |
 
 ## System Specs
 
@@ -19,7 +19,7 @@
 | **Kernel** | 6.8.0-52-generic |
 | **CPU** | Intel(R) Core(TM) i5-14600K |
 | **CPU Cores** | 20 |
-| **RAM** | 62Gi total, 53Gi available |
+| **RAM** | 62Gi total, 54Gi available |
 | **Disk** | 544G total, 309G available |
 
 ## Scenarios
@@ -28,8 +28,12 @@
 
 | Scenario | k6 Config | Server Profiles | Delay Call Depth | Delay (ms) | Connections | Requests per Second | Warmup Duration (s) | Test Duration (s) |
 |----------|-----------|-----------------|------------------|------------|-------------|---------------------|---------------------|------------------|
-| [60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies) | get-post-movies-smooth-vus-spike.js |  | 0 | 100 | 60000 |  | 0 | 300 |
-| [60k-vus-and-rps-get-movies](#60k-vus-and-rps-get-movies) | get-movies.js |  | 0 | 100 | 60000 | 60000 | 0 | 300 |
+| [40k-vus-and-rps-get-time-no-delay](#40k-vus-and-rps-get-time-no-delay) | get-time.js |  | 0 | 0 | 40000 | 40000 | 10 | 180 |
+| [40k-vus-and-rps-get-time](#40k-vus-and-rps-get-time) | get-time.js |  | 0 | 100 | 40000 | 40000 | 10 | 180 |
+| [40k-vus-and-rps-get-movies](#40k-vus-and-rps-get-movies) | get-movies.js |  | 0 | 100 | 40000 | 40000 | 10 | 180 |
+| [60k-vus-stepped-spike-get-movies](#60k-vus-stepped-spike-get-movies) | get-movies-stepped-vus-spike.js |  | 0 | 100 | 60000 |  | 0 | 180 |
+| [60k-vus-smooth-spike-get-movies](#60k-vus-smooth-spike-get-movies) | get-movies-smooth-vus-spike.js |  | 0 | 100 | 60000 |  | 0 | 180 |
+| [60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies) | get-post-movies-smooth-vus-spike.js |  | 0 | 100 | 60000 |  | 0 | 180 |
 
 ## Result Overview
 
@@ -41,6 +45,81 @@
 ![Netty Results](./results-netty.png)
 
 ## Result Details
+
+
+### 40k-vus-and-rps-get-time-no-delay
+
+#### loom-tomcat
+
+![loom-tomcat](./40k-vus-and-rps-get-time-no-delay/loom-tomcat.png)
+
+#### loom-netty
+
+![loom-netty](./40k-vus-and-rps-get-time-no-delay/loom-netty.png)
+
+#### webflux-netty
+
+![webflux-netty](./40k-vus-and-rps-get-time-no-delay/webflux-netty.png)
+
+
+### 40k-vus-and-rps-get-time
+
+#### loom-tomcat
+
+![loom-tomcat](./40k-vus-and-rps-get-time/loom-tomcat.png)
+
+#### loom-netty
+
+![loom-netty](./40k-vus-and-rps-get-time/loom-netty.png)
+
+#### webflux-netty
+
+![webflux-netty](./40k-vus-and-rps-get-time/webflux-netty.png)
+
+
+### 40k-vus-and-rps-get-movies
+
+#### loom-tomcat
+
+![loom-tomcat](./40k-vus-and-rps-get-movies/loom-tomcat.png)
+
+#### loom-netty
+
+![loom-netty](./40k-vus-and-rps-get-movies/loom-netty.png)
+
+#### webflux-netty
+
+![webflux-netty](./40k-vus-and-rps-get-movies/webflux-netty.png)
+
+
+### 60k-vus-stepped-spike-get-movies
+
+#### loom-tomcat
+
+![loom-tomcat](./60k-vus-stepped-spike-get-movies/loom-tomcat.png)
+
+#### loom-netty
+
+![loom-netty](./60k-vus-stepped-spike-get-movies/loom-netty.png)
+
+#### webflux-netty
+
+![webflux-netty](./60k-vus-stepped-spike-get-movies/webflux-netty.png)
+
+
+### 60k-vus-smooth-spike-get-movies
+
+#### loom-tomcat
+
+![loom-tomcat](./60k-vus-smooth-spike-get-movies/loom-tomcat.png)
+
+#### loom-netty
+
+![loom-netty](./60k-vus-smooth-spike-get-movies/loom-netty.png)
+
+#### webflux-netty
+
+![webflux-netty](./60k-vus-smooth-spike-get-movies/webflux-netty.png)
 
 
 ### 60k-vus-smooth-spike-get-post-movies
@@ -56,20 +135,5 @@
 #### webflux-netty
 
 ![webflux-netty](./60k-vus-smooth-spike-get-post-movies/webflux-netty.png)
-
-
-### 60k-vus-and-rps-get-movies
-
-#### loom-tomcat
-
-![loom-tomcat](./60k-vus-and-rps-get-movies/loom-tomcat.png)
-
-#### loom-netty
-
-![loom-netty](./60k-vus-and-rps-get-movies/loom-netty.png)
-
-#### webflux-netty
-
-![webflux-netty](./60k-vus-and-rps-get-movies/webflux-netty.png)
 
 

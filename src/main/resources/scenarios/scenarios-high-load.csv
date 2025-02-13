@@ -1,3 +1,7 @@
 scenario,k6Config,serverProfiles,delayCallDepth,delayInMillis,connections,requestsPerSecond,warmupDurationInSeconds,testDurationInSeconds
-60k-vus-smooth-spike-get-post-movies,get-post-movies-smooth-vus-spike.js,,0,100,60000,,0,300
-60k-vus-and-rps-get-movies,get-movies.js,,0,100,60000,60000,0,300
+40k-vus-and-rps-get-time-no-delay,get-time.js,,0,0,40000,40000,10,180
+40k-vus-and-rps-get-time,get-time.js,,0,100,40000,40000,10,180
+40k-vus-and-rps-get-movies,get-movies.js,,0,100,40000,40000,10,180
+60k-vus-stepped-spike-get-movies,get-movies-stepped-vus-spike.js,,0,100,60000,,0,180
+60k-vus-smooth-spike-get-movies,get-movies-smooth-vus-spike.js,,0,100,60000,,0,180
+60k-vus-smooth-spike-get-post-movies,get-post-movies-smooth-vus-spike.js,,0,100,60000,,0,180
