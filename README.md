@@ -315,7 +315,7 @@ see [src/main/resources/scenarios/scenarios-default.csv](src/main/resources/scen
 
 #### High-Load Scenarios
 
-The scenarios examine particularly high load.
+These are ramp-up and steady state scenarios for 60k users. 
 
 - Config: [./src/main/resources/scenarios/scenarios-high-load.csv](./src/main/resources/scenarios/scenarios-high-load.csv)
 - Results: [./results/scenarios-high-load/results.png](./results/scenarios-high-load/results.png)
@@ -346,7 +346,6 @@ The following clients are compared:
 - [postgres](./results/scenarios-postgres/results.md): Use PostgreSQL (started via Docker) instead of H2
 - [sharp-spikes](./results/scenarios-sharp-spikes/results.md): Intermittent sharp load spikes from 0 to 10/20/30k users
 - [soaktest](./results/scenarios-soaktest/results.md): Slow ramp-up to 10k users over 15 minutes, followed by ramp-down
-- [high-load](./results/scenarios-high-load/results.md): Ramp-up and steady state scenarios for 60k users
 
 ### Steps
 
