@@ -85,6 +85,7 @@ log() {
 start_service() {
   log "Starting service"
   rm -f "$serviceLogTmpFile"
+  rm -f "$jvmCsvTmpFile"
 
   local commaSeparatedServerProfiles="${serverProfiles//|/,}"
   SPRING_PROFILES_ACTIVE=$approach${commaSeparatedServerProfiles:+,$commaSeparatedServerProfiles} ./gradlew bootRun > >(tee "$serviceLogTmpFile") 2>&1 &
@@ -122,11 +123,18 @@ benchmark_service() {
   load_and_measure_system test "$testDurationInSeconds"
 }
 
+wait_for_system_csv_file() {
+  timeout=10
+  while [[ ! -s "$systemCsvFile" && $timeout -gt 0 ]]; do
+    sleep 1
+    ((timeout--))
+  done
+}
+
 load_and_measure_system() {
   phase=$1
   durationInSeconds=$2
   log "Starting $phase"
-  rm -f "$jvmCsvTmpFile"
 
   # Start system-measure.sh after some delay to give k6 time to initialize
   (sleep 2 && ./src/main/bash/system-measure.sh "$systemCsvFile" "$durationInSeconds") &
@@ -134,7 +142,7 @@ load_and_measure_system() {
 
   load "$durationInSeconds"
   mv "$jvmCsvTmpFile" "$jvmCsvFile" && log "Saved $jvmCsvFile"
-  sleep 2
+  wait_for_system_csv_file
 
   if [ "$phase" == "test" ]; then
     ./src/main/python/scenario_chart.py "$scenario" "$approach" "$latencyCsvFile" "$systemCsvFile" "$jvmCsvFile" "$chartFile" "$resultsCsvFile"

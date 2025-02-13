@@ -32,8 +32,8 @@ public class MetricCsvLogger {
     public void logMetrics() {
         val csvPath = appProperties.jvmMetricsCsvPath();
         try {
-            if (!Files.exists(csvPath)) {
-                Files.createDirectories(csvPath.getParent());
+            Files.createDirectories(csvPath.getParent());
+            if (Files.notExists(csvPath)) {
                 appendLine(HEADER_ROW);
             }
             appendLine(jvmMetrics().toCsv());

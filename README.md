@@ -166,11 +166,15 @@ Supported requests:
 
 ### Hardware
 
-The hardware requirements depend purely on the scenarios configured in `src/main/resources/scenarios/scenarios-default.csv`. The following is
-recommended to run the default scenarios committed to this repo:
+The hardware requirements depend on the scenarios you intend to run. If you run all scenarios (e.g. via `./benchmarks.sh`), then the following is recommended:
 
-* CPU comparable to Intel 6700K or above
-* 16 GiB RAM
+* CPU: Intel i5 12600K or similar
+* RAM: 32 GiB
+
+If you only run the default scenarios configured in `src/main/resources/scenarios/scenarios-default.csv`, the following is sufficient:
+
+* CPU: Intel 6700K or similar
+* RAM: 16 GiB
 
 ## Setup
 
@@ -341,7 +345,8 @@ The following clients are compared:
 - [deep-call-stack](./results/scenarios-deep-call-stack/results.md): High delay call depths
 - [postgres](./results/scenarios-postgres/results.md): Use PostgreSQL (started via Docker) instead of H2
 - [sharp-spikes](./results/scenarios-sharp-spikes/results.md): Intermittent sharp load spikes from 0 to 10/20/30k users
-- [soaktest](./results/scenarios-soaktest/results.md): Slow ramp-uo to 10k users over 15 minutes, followed by ramp-down
+- [soaktest](./results/scenarios-soaktest/results.md): Slow ramp-up to 10k users over 15 minutes, followed by ramp-down
+- [high-load](./results/scenarios-high-load/results.md): Ramp-up and steady state scenarios for 60k users
 
 ### Steps
 
@@ -419,18 +424,18 @@ Virtual Threads, then for WebFlux.
 
 ### Hardware
 
-- CPU: Intel Core i7-6700K at 4.00GHz with 4 cores (8 threads)
-- Motherboard: Asus Z170-A
-- RAM: 32 GiB DDR4 (2 x Corsair 16 GiB, 2133 MT/s)
+- CPU: [Intel Core i5-14600K](https://www.intel.com/content/www/us/en/products/sku/236799/intel-core-i5-processor-14600k-24m-cache-up-to-5-30-ghz/specifications.html) with 5.3GHz, 12 cores, 20 threads, and a base/turbo power of both 180W
+- Motherboard: [Asus ProArt Z690-Creator WIFI](https://www.asus.com/uk/motherboards-components/motherboards/proart/proart-z690-creator-wifi/)
+- RAM: 64 GiB DDR5 (2 x Corsair Vengeance 32 GiB 5600 MT/s CL40)
 - Network: Loopback interface
 - Virtualization: None; bare metal desktop
 
 ### Software
 
 - OS: Ubuntu 24.04.1 LTS
-- Kernel: 6.8.0-49-generic
-- Java: Amazon Corretto JDK 21.0.5.11.1
-- Spring Boot 3.4.0
+- Kernel: 6.8.0-52-generic
+- Java: Amazon Corretto JDK 21.0.6.7.1
+- Spring Boot 3.4.2
 
 > [!NOTE]
 > The actual software versions used by a benchmark are automatically determined and shown at the beginning of each `results.md` file. If there are differences to the above, then the values in `results.md` are correct.
@@ -608,24 +613,7 @@ Like the previous scenario, but mimics call to upstream service as explained in 
 
 ## High Load Results
 
-The following results are based on `scenarios-high-load.csv` which scales up to 60k users. They were executed in a VirtualBox VM on more powerful hardware and
-using a different Linux Kernel version.
-
-### Hardware
-
-- CPU: Intel Core i7-12700K at 5GHz with 12 cores (20 threads)
-- Motherboard: Asus ProArt Z690 Creator
-- RAM: 64 GiB DDR4 (2 x Corsair 32 GiB, 5600MT/s)
-- Network: Loopback interface
-- Virtualization: VirtualBox 7.0.14 r161095 on bare metal desktop. All cores and 32GiB assigned to VM.
-
-### Software
-
-- Host OS: Windows 11 Pro (10.0.22631)
-- Client OS: Ubuntu 22.04.4 LTS
-- Client Kernel: 6.5.0-45-generic
-- Java: Amazon Corretto JDK 21.0.4.7.1
-- Spring Boot 3.3.2
+The following results are based on `scenarios-high-load.csv` which scales up to 60k users.
 
 ### Summary
 
