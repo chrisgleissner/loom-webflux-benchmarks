@@ -431,10 +431,10 @@ Virtual Threads, then for WebFlux.
 
 ### Software
 
-- OS: Ubuntu 24.04.1 LTS
-- Kernel: 6.8.0-52-generic
+- OS: Ubuntu 24.04.2 LTS
+- Kernel: 6.11.0-19-generic
 - Java: Amazon Corretto JDK 21.0.6.7.1
-- Spring Boot 3.4.2
+- Spring Boot 3.4.3
 
 > [!NOTE]
 > The actual software versions used by a benchmark are automatically determined and shown at the beginning of each `results.md` file. If there are differences to the above, then the values in `results.md` are correct.
