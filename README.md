@@ -304,18 +304,6 @@ These scenarios cover a mixture of load patterns between 5k and 20k users.
 - Config: [./src/main/resources/scenarios/scenarios-default.csv](./src/main/resources/scenarios/scenarios-default.csv)
 - Results: [./results/scenarios-default/results.md](./results/scenarios-default/results.md)
 
-| Scenario                                                                                                | Domain | Description                           | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
-|---------------------------------------------------------------------------------------------------------|--------|---------------------------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
-| smoketest                                                                                               | Time   | Smoke test                            | 5                  | 5                           | 0                    | 100               | 0                |
-| [5k-vus-and-rps-get-time](#5k-vus-and-rps-get-time)                                                     | Time   | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
-| [5k-vus-and-rps-get-movies](#5k-vus-and-rps-get-movies)                                                 | Movies | Constant users, constant request rate | 5,000              | 5,000                       | 0                    | 100               | 0                |
-| [10k-vus-and-rps-get-movies](#10k-vus-and-rps-get-movies)                                               | Movies | Constant users, constant request rate | 10,000             | 10,000                      | 0                    | 100               | 0                |
-| [10k-vus-and-rps-get-movies-call-depth-1](#10k-vus-and-rps-get-movies-call-depth-1)                     | Movies | Constant users, constant request rate | 10,000             | 10,000                      | 0                    | 100               | 1                |
-| [20k-vus-stepped-spike-get-movies](#20k-vus-stepped-spike-get-movies)                                   | Movies | Stepped user spike                    | 0 - 20,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
-| [20k-vus-smooth-spike-get-movies](#20k-vus-smooth-spike-get-movies)                                     | Movies | Smooth user spike                     | 0 - 20,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
-| [20k-vus-smooth-spike-get-post-movies](#20k-vus-smooth-spike-get-post-movies)                           | Movies | Smooth user spike                     | 0 - 20,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 0                |
-| [20k-vus-smooth-spike-get-post-movies-call-depth-1](#20k-vus-smooth-spike-get-post-movies-call-depth-1) | Movies | Smooth user spike                     | 0 - 20,000         | Depends on users and delays | 1000 - 3000 (random) | 100               | 1                |
-
 #### High-Load Scenarios
 
 These are steady-state scenarios for 40k users and ramp-up/down scenarios for 60k users.
@@ -411,9 +399,7 @@ Virtual Threads, then for WebFlux.
 6. `warmUpDurationInSeconds`: Duration of the warm-up iteration before the actual test. Warm-up is skipped if `0`.
 7. `testDurationInSeconds`: Duration of the test iteration.
 
-## Results
-
-### Test Environment
+## Test Environment
 
 - Unless noted otherwise, all tests were conducted on this test environment.
 - **Preparation**: The system was rebooted before each test and quieted down as much as possible. The baseline total CPU
@@ -442,9 +428,9 @@ Virtual Threads, then for WebFlux.
 > [!NOTE]
 > The actual software versions used by a benchmark are automatically determined and shown at the beginning of each `results.md` file. If there are differences to the above, then the values in `results.md` are correct.
 
-## Charts
+## Results
 
-The following charts show the results of each scenario, sorted by ascending scenario load.
+This chapter shows the results of each default scenario, sorted by ascending scenario load. The results below can also be found in [./results/scenarios-default/results.md](./results/scenarios-default/results.md).
 
 ### Errors
 
@@ -615,7 +601,8 @@ Like the previous scenario, but mimics call to upstream service as explained in 
 
 ## High Load Results
 
-The following results are based on `scenarios-high-load.csv` which scales up to 60k users.
+This chapter highlights interesting results based on `scenarios-high-load.csv` which scales up to 60k users. For full
+results, see [results/scenarios-high-load/results.md](results/scenarios-high-load/results.md).
 
 ### Summary
 
