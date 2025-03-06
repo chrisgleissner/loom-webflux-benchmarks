@@ -299,7 +299,10 @@ All approaches use the same Spring Boot 3.2 version.
 
 #### Default Scenarios
 
-see [src/main/resources/scenarios/scenarios-default.csv](src/main/resources/scenarios/scenarios-default.csv)
+These scenarios cover a mixture of load patterns between 5k and 20k users.
+
+- Config: [./src/main/resources/scenarios/scenarios-default.csv](./src/main/resources/scenarios/scenarios-default.csv)
+- Results: [./results/scenarios-default/results.md](./results/scenarios-default/results.md)
 
 | Scenario                                                                                                | Domain | Description                           | Virtual Users (VU) | Requests per Second (RPS)   | Client delay (ms)    | Server delay (ms) | Delay Call Depth |
 |---------------------------------------------------------------------------------------------------------|--------|---------------------------------------|--------------------|-----------------------------|----------------------|-------------------|------------------|
