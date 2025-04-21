@@ -54,7 +54,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql:42.+")
-    testImplementation("io.github.hakky54:logcaptor:2.10.+")
+    testImplementation("io.github.hakky54:logcaptor:2.11.+")
     testImplementation("org.apache.commons:commons-compress:1.27.+")
     testImplementation("org.assertj:assertj-core")
     testImplementation("org.junit.jupiter:junit-jupiter")
