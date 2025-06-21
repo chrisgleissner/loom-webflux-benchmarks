@@ -1,3 +1,4 @@
+import org.gradle.api.JavaVersion.VERSION_24
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
@@ -8,7 +9,7 @@ plugins {
     id("io.freefair.lombok") version "8.+"
     id("io.spring.dependency-management") version "1.1.+"
     id("org.jetbrains.kotlin.jvm") version "2.1.+"
-    id("org.springframework.boot") version "3.4.+"
+    id("org.springframework.boot") version "3.5.+"
 }
 
 repositories {
@@ -16,7 +17,9 @@ repositories {
 }
 
 tasks.bootRun {
-    jvmArgs = listOf("-Xms2g", "-Xmx2g", "-XX:+ExitOnOutOfMemoryError", "-Djdk.tracePinnedThreads=full")
+    val defaultJvmArgs = listOf("-Xms2g", "-Xmx2g", "-XX:+ExitOnOutOfMemoryError", "-Djdk.tracePinnedThreads=full")
+    val experimentalArgs = listOf("-XX:+UnlockExperimentalVMOptions", "-XX:+UseCompactObjectHeaders")
+    jvmArgs = if (JavaVersion.current().isCompatibleWith(VERSION_24)) defaultJvmArgs + experimentalArgs else defaultJvmArgs
 }
 
 val javaBytecodeVersion = project.findProperty("java.bytecode.version")?.toString() ?: "21"
@@ -44,7 +47,7 @@ extra["httpcore5.version"] = "5.3"
 
 dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine")
-    implementation("com.google.guava:guava:33.3.+")
+    implementation("com.google.guava:guava:33.4.+")
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.+")
     implementation("org.apache.httpcomponents.client5:httpclient5")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.1.+")
@@ -54,7 +57,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql:42.+")
-    testImplementation("io.github.hakky54:logcaptor:2.10.+")
+    testImplementation("io.github.hakky54:logcaptor:2.11.+")
     testImplementation("org.apache.commons:commons-compress:1.27.+")
     testImplementation("org.assertj:assertj-core")
     testImplementation("org.junit.jupiter:junit-jupiter")
