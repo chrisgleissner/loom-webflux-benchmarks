@@ -160,7 +160,8 @@ Supported requests:
 
 * Unix-based OS; tested with Ubuntu 22.04 and 24.04
 * Java 21 or above
-* [k6](https://k6.io/docs/) and Python 3 with [Matplotlib](https://matplotlib.org/) to drive load and measure latency
+* [k6](https://k6.io/docs/) to drive load and measure latency as well as throughput.
+* Python 3 with [Matplotlib](https://matplotlib.org/), [pandas](https://pandas.pydata.org/), and [NumPy](https://numpy.org/) to drive load and generate benchmark comparison reports.
 * [sar/sadf](https://linux.die.net/man/1/sar) to measure system resource use
 * Python 3 and [Matplotlib](https://matplotlib.org/) to convert latency and system CSV measurements into a PNG image
 
@@ -206,7 +207,8 @@ Python 3 and `matplotlib` are used to convert the CSV output of `k6` and `sar`/`
 and `sadf` tools come as part of `sysstat` and are used to measure resource use. To install them run:
 
 ```shell
-sudo apt update && sudo apt install -y python3 python3-matplotlib sysstat
+sudo apt update && sudo apt install -y python3 python3-matplotlib python3-pandas python3-numpy sysstat
+
 ```
 
 ### Linux Optimizations
