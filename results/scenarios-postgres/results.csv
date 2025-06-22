@@ -1,0 +1,13 @@
+scenario,approach,requests_ok,requests_error,requests_per_second_p50,requests_per_second_p90,requests_per_second_max,latency_millis_min,latency_millis_p50,latency_millis_p90,latency_millis_p99,latency_millis_max,cpu_use_percent_avg,cpu_use_percent_max,ram_use_percent_avg,ram_use_percent_max,heap_use_percent_avg,heap_use_percent_max,garbage_collection_count,garbage_collection_time_millis,platform_threads_avg,platform_threads_max,sockets_avg,sockets_max,network_kib_per_req_avg,network_kib_per_req_max,network_packets_per_req_avg,network_packets_per_req_max
+10-vus-and-rps-get-movies-postgres-no-cache,loom-tomcat,3009,0,10,10,11,106,125,130,141,160,2.26,6.09,13.4,13.7,30.6,60.2,7566,22372,46,47,1012,1020,73.0,87.9,375,472
+10-vus-and-rps-get-movies-postgres-no-cache,loom-netty,3009,0,10,10,11,106,128,133,145,163,2.46,5.13,13.5,14.0,26.8,60.4,6589,20360,41,42,1012,1021,82.5,98.3,415,514
+10-vus-and-rps-get-movies-postgres-no-cache,webflux-netty,3009,0,10,11,11,109,128,132,148,163,2.16,5.66,13.0,13.8,25.6,56.2,7442,19697,60,61,1012,1020,93.6,111,473,580
+20-vus-and-rps-get-movies-postgres-no-cache,loom-tomcat,6018,0,20,21,21,107,130,135,144,161,4.82,7.76,13.6,13.8,30.7,60.6,8173,35123,51,52,1022,1030,103,112,511,567
+20-vus-and-rps-get-movies-postgres-no-cache,loom-netty,6018,0,20,20,21,108,133,137,147,170,5.19,8.62,14.0,14.1,31.5,60.5,8530,29851,42,43,1023,1030,112,118,546,580
+20-vus-and-rps-get-movies-postgres-no-cache,webflux-netty,6018,0,20,20,21,107,133,138,150,175,4.26,8.21,13.7,14.1,29.0,61.0,6601,20692,61,62,1023,1030,123,133,605,664
+40-vus-and-rps-get-movies-postgres-no-cache,loom-tomcat,12034,0,40,41,42,108,139,154,165,178,10.2,13.4,14.0,14.0,32.0,63.1,11691,64276,55,56,1043,1050,132,142,651,700
+40-vus-and-rps-get-movies-postgres-no-cache,loom-netty,12035,0,40,41,42,109,145,163,173,191,11.4,15.7,14.2,14.3,32.2,63.1,10627,63176,47,48,1043,1051,142,152,687,734
+40-vus-and-rps-get-movies-postgres-no-cache,webflux-netty,12036,0,40,41,42,108,134,148,159,185,7.86,11.4,14.1,14.2,30.2,60.4,8300,47080,61,62,1042,1050,153,164,745,796
+80-vus-and-rps-get-movies-postgres-no-cache,loom-tomcat,24065,0,80,84.9,87,109,196,203,207,215,39.6,47.4,14.0,14.1,33.0,63.1,16304,90652,58,59,1085,1090,163,188,797,910
+80-vus-and-rps-get-movies-postgres-no-cache,loom-netty,24064,0,80,84,88,109,195,203,207,221,39.9,47.5,14.3,14.4,32.3,62.7,16304,103853,54,55,1085,1090,172,194,828,927
+80-vus-and-rps-get-movies-postgres-no-cache,webflux-netty,24065,0,80,85,87,109,194,204,210,228,36.2,43.5,14.3,14.4,32.7,63.2,10269,81082,61,62,1085,1090,183,208,888,995
