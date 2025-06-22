@@ -28,16 +28,16 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 > **Virtual Threads on Netty** (using [blocking code](https://docs.oracle.com/javase/8/docs/api/java/lang/Thread.html#sleep-long-)) showed very similar and often superior performance characteristics (latency percentiles, requests per second,
 > system load) compared with **WebFlux on Netty** (using non-blocking code and relying on [Mono](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Mono.html)
 > and [Flux](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html) from Project Reactor):
-> - Virtual Threads on Netty was the [benchmark winner](#Netty-based-Approaches) for ca. 40% more combinations of metrics and benchmark scenarios than Project Reactor on Netty.
-> - For all high user count scenarios, it had the lowest latency as well as the largest number of requests for the entirety of each benchmark run.
-> - In many cases (e.g. [60k-vus-smooth-spike-get-post-movies](#60k-vus-smooth-spike-get-post-movies)), the 90th and 99th percentile latencies (P90 and P99)
+> - In about [45%](#Netty-based-Approaches) of all benchmark scenarios, Virtual Threads on Netty delivered the best performance, compared to about 30% for Project Reactor on Netty. The remaining cases showed no clear winner.
+> - For all [high user count scenarios](#60k-vus-smooth-spike-get-post-movies), Virtual Threads on Netty had the lowest latency as well as the largest number of requests for the entirety of each benchmark run.
+> - In [many cases](#60k-vus-smooth-spike-get-post-movies), the 90th and 99th percentile latencies (P90 and P99)
     were considerably lower for Virtual Threads on Netty when compared with WebFlux on Netty.
 > - For both approaches, we could scale up to the same number of virtual users (and thus TCP connections) before
     exhausting the CPU and running into time-outs due to rejected TCP connection requests.
 >
-> **Virtual Threads on Tomcat** are not recommended for high load:
+> **Virtual Threads on Tomcat** are not recommended for high user count scenarios:
 > - We saw considerably higher resource use compared with the two Netty-based approaches.
-> - There were many time-out errors as visualized by red dots in the charts, even when the CPU use was far below 100%. In contrast, none the Netty-based scenarios experienced any errors, even with a CPU use of 100%.
+> - There were many [time-out errors](#10k-vus-and-rps-get-movies-call-depth-1) as visualized by red dots in the charts, even when the CPU use was far below 100%. In contrast, none the Netty-based scenarios experienced any errors, even with a CPU use of 100%.
 
 ## Benchmark Winners
 
