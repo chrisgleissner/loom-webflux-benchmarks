@@ -38,7 +38,7 @@ tasks.withType<KotlinJvmCompile> {
 
 dependencyManagement {
     imports {
-        mavenBom("org.testcontainers:testcontainers-bom:1.20.+")
+        mavenBom("org.testcontainers:testcontainers-bom:1.21.+")
     }
 }
 
