@@ -8,7 +8,7 @@ plugins {
     id("com.adarshr.test-logger") version "4.0.+"
     id("io.freefair.lombok") version "8.+"
     id("io.spring.dependency-management") version "1.1.+"
-    id("org.jetbrains.kotlin.jvm") version "2.1.+"
+    id("org.jetbrains.kotlin.jvm") version "2.2.+"
     id("org.springframework.boot") version "3.5.+"
 }
 
@@ -38,7 +38,7 @@ tasks.withType<KotlinJvmCompile> {
 
 dependencyManagement {
     imports {
-        mavenBom("org.testcontainers:testcontainers-bom:1.20.+")
+        mavenBom("org.testcontainers:testcontainers-bom:1.21.+")
     }
 }
 
@@ -50,7 +50,7 @@ dependencies {
     implementation("com.google.guava:guava:33.4.+")
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.+")
     implementation("org.apache.httpcomponents.client5:httpclient5")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.1.+")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.+")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
