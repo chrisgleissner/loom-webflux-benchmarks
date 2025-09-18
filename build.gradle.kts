@@ -1,4 +1,4 @@
-import org.gradle.api.JavaVersion.VERSION_24
+import org.gradle.api.JavaVersion.VERSION_25
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
@@ -18,8 +18,8 @@ repositories {
 
 tasks.bootRun {
     val defaultJvmArgs = listOf("-Xms2g", "-Xmx2g", "-XX:+ExitOnOutOfMemoryError", "-Djdk.tracePinnedThreads=full")
-    val experimentalArgs = listOf("-XX:+UnlockExperimentalVMOptions", "-XX:+UseCompactObjectHeaders")
-    jvmArgs = if (JavaVersion.current().isCompatibleWith(VERSION_24)) defaultJvmArgs + experimentalArgs else defaultJvmArgs
+    val extendedArgs = listOf("-XX:+UseCompactObjectHeaders")
+    jvmArgs = if (JavaVersion.current().isCompatibleWith(VERSION_25)) defaultJvmArgs + extendedArgs else defaultJvmArgs
 }
 
 val javaBytecodeVersion = project.findProperty("java.bytecode.version")?.toString() ?: "21"
