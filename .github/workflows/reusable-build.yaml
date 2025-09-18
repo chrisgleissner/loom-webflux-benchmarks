@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [ 21, 24 ]
+        java-version: [ 21, 25 ]
         os: [ Ubuntu-22.04, ubuntu-24.04 ]
 
     runs-on: ${{ matrix.os }}

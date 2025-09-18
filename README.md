@@ -5,11 +5,11 @@
 [![soaktest](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/soaktest.yaml/badge.svg)](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/soaktest.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/chrisgleissner/loom-webflux-benchmarks/badge.svg)](https://coveralls.io/github/chrisgleissner/loom-webflux-benchmarks)
 
-This Java 21 project benchmarks a simple [Spring Boot 3.4](https://spring.io/projects/spring-boot) microservice using
+This Java 21 project benchmarks a simple [Spring Boot 3.5](https://spring.io/projects/spring-boot) microservice using
 configurable scenarios, comparing Java Virtual Threads (introduced by [Project Loom, JEP 444](https://openjdk.org/jeps/444)) using Tomcat and Netty
 with [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html) (relying on [Project Reactor](https://projectreactor.io/)) using Netty.
 
-All benchmark results below come from a dedicated bare metal test environment. The benchmark is also scheduled to run monthly on GitHub-hosted runners, using [all combinations](./results/ci/ci.md) of (Ubuntu 22.04, Ubuntu 24.04) and (Java 21, Java 24).
+All benchmark results below come from a dedicated bare metal test environment. The benchmark is also scheduled to run monthly on GitHub-hosted runners, using [all combinations](./results/ci/ci.md) of (Ubuntu 22.04, Ubuntu 24.04) and (Java 21, Java 25).
 
 ## Background
 
