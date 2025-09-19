@@ -5,11 +5,11 @@
 [![soaktest](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/soaktest.yaml/badge.svg)](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/soaktest.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/chrisgleissner/loom-webflux-benchmarks/badge.svg)](https://coveralls.io/github/chrisgleissner/loom-webflux-benchmarks)
 
-This Java 21 project benchmarks a simple [Spring Boot 3.5](https://spring.io/projects/spring-boot) microservice using
+This Java project benchmarks a simple [Spring Boot 3.5](https://spring.io/projects/spring-boot) microservice using
 configurable scenarios, comparing Java Virtual Threads (introduced by [Project Loom, JEP 444](https://openjdk.org/jeps/444)) using Tomcat and Netty
 with [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html) (relying on [Project Reactor](https://projectreactor.io/)) using Netty.
 
-All benchmark results below come from a dedicated bare metal test environment. The benchmark is also scheduled to run monthly on GitHub-hosted runners, using [all combinations](./results/ci/ci.md) of (Ubuntu 22.04, Ubuntu 24.04) and (Java 21, Java 25).
+All benchmark results below come from a dedicated bare metal Ubuntu 24.04 test environment using Java 25 unless specified otherwise. The benchmark also runs monthly on GitHub-hosted runners, using [all combinations](./results/ci/ci.md) of (Ubuntu 22.04, Ubuntu 24.04) and (Java 21, Java 25).
 
 ## Background
 
@@ -422,10 +422,10 @@ Virtual Threads, then for WebFlux.
 
 ### Software
 
-- OS: Ubuntu 24.04.2 LTS
-- Kernel: 6.11.0-26-generic
-- Java: Amazon Corretto JDK 21.0.7.6.1
-- Spring Boot 3.5.3
+- OS: Ubuntu 24.04.3 LTS
+- Kernel: 6.14.0-29-generic
+- Java: Amazon Corretto JDK 25.0.0.36.2
+- Spring Boot 3.5.5
 
 > [!NOTE]
 > The actual software versions used by a benchmark are automatically determined and shown at the beginning of each `results.md` file. If there are differences to the above, then the values in `results.md` are correct.
