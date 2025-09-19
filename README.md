@@ -416,7 +416,8 @@ Virtual Threads, then for WebFlux.
 
 - CPU: [Intel Core i5-14600K](https://www.intel.com/content/www/us/en/products/sku/236799/intel-core-i5-processor-14600k-24m-cache-up-to-5-30-ghz/specifications.html) with 5.3GHz, 12 cores, 20 threads, and a base/turbo power of both 180W
 - Motherboard: [Asus ProArt Z690-Creator WIFI](https://www.asus.com/uk/motherboards-components/motherboards/proart/proart-z690-creator-wifi/)
-- RAM: 64 GiB DDR5 (2 x Corsair Vengeance 32 GiB 5600 MT/s CL40)
+- RAM: 64GiB DDR5 (2 x [Corsair Vengeance 32 GiB 5600 MT/s CL40](https://www.corsair.com/uk/en/p/memory/cmk64gx5m2b5600c40/vengeancea-64gb-2x32gb-ddr5-dram-5600mhz-c40-memory-kit-a-black-cmk64gx5m2b5600c40))
+- Disk: [Samsung 980 Pro NVMe 1TB](https://www.samsung.com/uk/memory-storage/nvme-ssd/980-pro-pcle-4-0-nvme-m-2-ssd-1tb-mz-v8p1t0bw/)
 - Network: Loopback interface
 - Virtualization: None; bare metal desktop
 
