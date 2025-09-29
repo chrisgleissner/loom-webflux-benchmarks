@@ -6,7 +6,7 @@ plugins {
     java
     jacoco
     id("com.adarshr.test-logger") version "4.0.+"
-    id("io.freefair.lombok") version "8.+"
+    id("io.freefair.lombok") version "9.+"
     id("io.spring.dependency-management") version "1.1.+"
     id("org.jetbrains.kotlin.jvm") version "2.2.+"
     id("org.springframework.boot") version "3.5.+"
