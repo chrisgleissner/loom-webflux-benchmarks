@@ -6,7 +6,7 @@ plugins {
     java
     jacoco
     id("com.adarshr.test-logger") version "4.0.+"
-    id("io.freefair.lombok") version "8.+"
+    id("io.freefair.lombok") version "9.+"
     id("io.spring.dependency-management") version "1.1.+"
     id("org.jetbrains.kotlin.jvm") version "2.2.+"
     id("org.springframework.boot") version "3.5.+"
@@ -38,7 +38,7 @@ tasks.withType<KotlinJvmCompile> {
 
 dependencyManagement {
     imports {
-        mavenBom("org.testcontainers:testcontainers-bom:1.21.+")
+        mavenBom("org.testcontainers:testcontainers-bom:2.0.+")
     }
 }
 
@@ -62,7 +62,7 @@ dependencies {
     testImplementation("org.assertj:assertj-core")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.junit-pioneer:junit-pioneer:2.3.+")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:6.0.+")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:6.1.+")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
