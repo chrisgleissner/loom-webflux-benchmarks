@@ -84,6 +84,13 @@ jobs:
               else 
                 echo "Chart $chartFilename exists"
               fi
+              htmlReportFilename=$scenarioPath$approach.html
+              if [ ! -f "$htmlReportFilename" ]; then
+                echo "Verification error: k6 HTML report $htmlReportFilename missing"
+                exit 1
+              else 
+                echo "k6 HTML report $htmlReportFilename exists"
+              fi
             done
           done        
           resultsCsvFilename=build/results/results.csv
