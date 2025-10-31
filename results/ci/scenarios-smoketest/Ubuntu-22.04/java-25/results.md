@@ -4,9 +4,9 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2025-10-31 14:31:37 |
-| **End (UTC)** | 2025-10-31 14:37:09 |
-| **Duration (hh:mm:ss)** | 00:05:32 |
+| **Start (UTC)** | 2025-10-31 15:05:34 |
+| **End (UTC)** | 2025-10-31 15:10:58 |
+| **Duration (hh:mm:ss)** | 00:05:24 |
 
 ## System Specs
 
@@ -19,8 +19,8 @@
 | **Kernel** | 6.8.0-1036-azure |
 | **CPU** | AMD EPYC 7763 64-Core Processor |
 | **CPU Cores** | 4 |
-| **RAM** | 15Gi total, 13Gi available |
-| **Disk** | 159G total, 92G available |
+| **RAM** | 15Gi total, 12Gi available |
+| **Disk** | 159G total, 85G available |
 
 ## Scenarios
 
