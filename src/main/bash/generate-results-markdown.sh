@@ -80,8 +80,12 @@ while IFS=',' read -r scenario k6Config serverProfiles delayCallDepth delayInMil
     IFS=',' read -ra approach_array <<< "$approaches"
     for approach in "${approach_array[@]}"; do
         image_path="$results_dir/$scenario/$approach.png"
+        html_report_path="$results_dir/$scenario/$approach.html"
         if [[ -f "$image_path" ]]; then
             markdown+="#### $approach\n\n"
+            if [[ -f "$html_report_path" ]]; then
+                markdown+="[k6 Report](./$scenario/$approach.html)\n\n"
+            fi
             markdown+="![$approach](./$scenario/$approach.png)\n\n"
         else
             markdown+="#### $approach (No image available)\n\n"
