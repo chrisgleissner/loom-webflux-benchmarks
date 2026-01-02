@@ -4,23 +4,23 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2025-12-02 17:31:18 |
-| **End (UTC)** | 2025-12-02 18:25:53 |
-| **Duration (hh:mm:ss)** | 00:54:35 |
+| **Start (UTC)** | 2026-01-02 17:09:45 |
+| **End (UTC)** | 2026-01-02 18:04:13 |
+| **Duration (hh:mm:ss)** | 00:54:28 |
 
 ## System Specs
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
 | **Java** | OpenJDK 64-Bit Server VM Corretto-21.0.9.11.1 (build 21.0.9+11-LTS, mixed mode, sharing) |
-| **Spring Boot** | 3.5.8 |
+| **Spring Boot** | 3.5.9 |
 | **Python** | 3.10.12 |
 | **OS** | Ubuntu 22.04.5 LTS |
-| **Kernel** | 6.8.0-1041-azure |
+| **Kernel** | 6.8.0-1044-azure |
 | **CPU** | AMD EPYC 7763 64-Core Processor |
 | **CPU Cores** | 4 |
 | **RAM** | 15Gi total, 12Gi available |
-| **Disk** | 159G total, 92G available |
+| **Disk** | 159G total, 91G available |
 
 ## Scenarios
 
