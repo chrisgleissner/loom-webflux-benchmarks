@@ -68,6 +68,7 @@ jvmCsvFile="$resultDir/$approach"-jvm.csv
 latencyCsvFile="$resultDir/$approach"-latency.csv
 systemCsvFile="$resultDir/$approach"-system.csv
 chartFile="$resultDir/$approach".png
+htmlReportFile="$resultDir/$approach".html
 resultsCsvFile="$resultsDir/results.csv"
 clientErrorLogFile="$resultDir/$approach"-client-error.log
 serviceErrorLogFile="$resultDir/$approach"-service-error.log
@@ -140,7 +141,7 @@ load_and_measure_system() {
   (sleep 2 && ./src/main/bash/system-measure.sh "$systemCsvFile" "$durationInSeconds") &
   systemMeasurePid=$!
 
-  load "$durationInSeconds"
+  load "$phase" "$durationInSeconds"
   mv "$jvmCsvTmpFile" "$jvmCsvFile" && log "Saved $jvmCsvFile"
   wait_for_system_csv_file
 
@@ -174,14 +175,44 @@ verify_chart_results() {
     log "Results file $resultsCsvFile does not exist; terminating"
     exit 1
   fi
+  if [ ! -f "$htmlReportFile" ]; then
+    log "k6 HTML report file $htmlReportFile does not exist; terminating"
+    exit 1
+  fi
 }
 
 load() {
-  _durationInSeconds=$1
+  phase=$1
+  _durationInSeconds=$2
   k6ConfigFile=src/main/resources/scenarios/"$k6Config"
 
   log "Issuing requests for ${_durationInSeconds}s using ${k6ConfigFile}..."
-  k6 run --env DURATION_IN_SECONDS="${_durationInSeconds}" --out csv="$k6OutputTmpFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env DELAY_CALL_DEPTH="$delayCallDepth" --env DELAY_IN_MILLIS="$delayInMillis" --env SERVICE_API_BASE_URL="$serviceApiBaseUrl" --env VUS="$connections" --env RPS="$requestsPerSecond" "$k6ConfigFile" 2>&1 | tee "$k6LogTmpFile"
+  
+  # Only generate HTML report during test phase, not during warmup
+  if [ "$phase" == "test" ]; then
+    K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_EXPORT="$htmlReportFile" \
+      k6 run \
+        --env DURATION_IN_SECONDS="${_durationInSeconds}" \
+        --out csv="$k6OutputTmpFile" \
+        --env K6_CSV_TIME_FORMAT="unix_milli" \
+        --env DELAY_CALL_DEPTH="$delayCallDepth" \
+        --env DELAY_IN_MILLIS="$delayInMillis" \
+        --env SERVICE_API_BASE_URL="$serviceApiBaseUrl" \
+        --env VUS="$connections" \
+        --env RPS="$requestsPerSecond" \
+        "$k6ConfigFile" 2>&1 | tee "$k6LogTmpFile"
+  else
+    k6 run \
+      --env DURATION_IN_SECONDS="${_durationInSeconds}" \
+      --out csv="$k6OutputTmpFile" \
+      --env K6_CSV_TIME_FORMAT="unix_milli" \
+      --env DELAY_CALL_DEPTH="$delayCallDepth" \
+      --env DELAY_IN_MILLIS="$delayInMillis" \
+      --env SERVICE_API_BASE_URL="$serviceApiBaseUrl" \
+      --env VUS="$connections" \
+      --env RPS="$requestsPerSecond" \
+      "$k6ConfigFile" 2>&1 | tee "$k6LogTmpFile"
+  fi
 
   # csv: metric_name,timestamp,metric_value,check,error,error_code,expected_response,group,method,name,proto,scenario,service,status
   # shellcheck disable=SC2002
