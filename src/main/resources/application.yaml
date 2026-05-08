@@ -26,6 +26,8 @@ server:
   http2:
     enabled: true
   tomcat:
+    accept-count: 2000 # see https://github.com/chrisgleissner/loom-webflux-benchmarks/issues/49
+    max-connections: ${loom-webflux.client.max-connections}
     threads:
       max: ${loom-webflux.client.max-connections}
 
