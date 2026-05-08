@@ -4,9 +4,9 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2026-05-08 22:08:18 |
-| **End (UTC)** | 2026-05-08 22:13:52 |
-| **Duration (hh:mm:ss)** | 00:05:34 |
+| **Start (UTC)** | 2026-05-08 22:21:31 |
+| **End (UTC)** | 2026-05-08 22:26:41 |
+| **Duration (hh:mm:ss)** | 00:05:10 |
 
 ## System Specs
 
@@ -17,9 +17,9 @@
 | **Python** | 3.10.12 |
 | **OS** | Ubuntu 22.04.5 LTS |
 | **Kernel** | 6.8.0-1044-azure |
-| **CPU** | AMD EPYC 7763 64-Core Processor |
+| **CPU** | Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz |
 | **CPU Cores** | 4 |
-| **RAM** | 15Gi total, 13Gi available |
+| **RAM** | 15Gi total, 11Gi available |
 | **Disk** | 158G total, 99G available |
 
 ## Scenarios
