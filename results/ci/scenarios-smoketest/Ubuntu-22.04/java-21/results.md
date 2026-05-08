@@ -4,9 +4,9 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2026-05-08 22:03:00 |
-| **End (UTC)** | 2026-05-08 22:08:24 |
-| **Duration (hh:mm:ss)** | 00:05:24 |
+| **Start (UTC)** | 2026-05-08 22:21:59 |
+| **End (UTC)** | 2026-05-08 22:27:39 |
+| **Duration (hh:mm:ss)** | 00:05:40 |
 
 ## System Specs
 
@@ -17,9 +17,9 @@
 | **Python** | 3.10.12 |
 | **OS** | Ubuntu 22.04.5 LTS |
 | **Kernel** | 6.8.0-1044-azure |
-| **CPU** | AMD EPYC 9V74 80-Core Processor |
+| **CPU** | AMD EPYC 7763 64-Core Processor |
 | **CPU Cores** | 4 |
-| **RAM** | 15Gi total, 12Gi available |
+| **RAM** | 15Gi total, 13Gi available |
 | **Disk** | 158G total, 99G available |
 
 ## Scenarios
