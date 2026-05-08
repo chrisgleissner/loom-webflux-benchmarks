@@ -29,7 +29,7 @@ server:
     accept-count: 2000
     threads:
       max: ${loom-webflux.client.max-connections}
-    max-connections: 40000 
+    max-connections: 40000
 
 management:
   endpoints:
