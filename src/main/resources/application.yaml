@@ -26,8 +26,10 @@ server:
   http2:
     enabled: true
   tomcat:
+    accept-count: 2000  
     threads:
       max: ${loom-webflux.client.max-connections}
+    max-connections: 40000 
 
 management:
   endpoints:
