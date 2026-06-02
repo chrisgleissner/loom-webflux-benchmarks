@@ -4,9 +4,9 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2026-05-02 17:24:38 |
-| **End (UTC)** | 2026-05-02 18:18:58 |
-| **Duration (hh:mm:ss)** | 00:54:20 |
+| **Start (UTC)** | 2026-06-02 18:22:05 |
+| **End (UTC)** | 2026-06-02 19:15:57 |
+| **Duration (hh:mm:ss)** | 00:53:52 |
 
 ## System Specs
 
@@ -16,10 +16,10 @@
 | **Spring Boot** | 3.5.14 |
 | **Python** | 3.10.12 |
 | **OS** | Ubuntu 22.04.5 LTS |
-| **Kernel** | 6.8.0-1044-azure |
-| **CPU** | AMD EPYC 7763 64-Core Processor |
+| **Kernel** | 6.8.0-1052-azure |
+| **CPU** | AMD EPYC 9V74 80-Core Processor |
 | **CPU Cores** | 4 |
-| **RAM** | 15Gi total, 13Gi available |
+| **RAM** | 15Gi total, 12Gi available |
 | **Disk** | 158G total, 99G available |
 
 ## Scenarios
