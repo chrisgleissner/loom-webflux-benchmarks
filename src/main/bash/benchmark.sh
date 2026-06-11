@@ -22,10 +22,24 @@ log() {
 build_app_jar() {
   local activeProfile=$1
   local targetJar=$2
+  local marker
+  local -a builtJars
 
   log "Building application jar for $activeProfile"
-  DEBUG=false GRADLE_USER_HOME="$gradleUserHome" SPRING_PROFILES_ACTIVE="$activeProfile" ./gradlew --gradle-user-home "$gradleUserHome" bootJar --rerun-tasks || exit 1
-  cp build/libs/loom-webflux.jar "$targetJar"
+  marker=$(mktemp)
+  if ! DEBUG=false GRADLE_USER_HOME="$gradleUserHome" SPRING_PROFILES_ACTIVE="$activeProfile" ./gradlew --gradle-user-home "$gradleUserHome" bootJar --rerun-tasks; then
+    rm -f "$marker"
+    exit 1
+  fi
+
+  mapfile -t builtJars < <(find "$repoRoot/build/libs" -maxdepth 1 -type f -name "*.jar" ! -name "*-plain.jar" -newer "$marker" -print | sort)
+  rm -f "$marker"
+  if (( ${#builtJars[@]} != 1 )); then
+    log "Expected one bootJar output for $activeProfile, found ${#builtJars[@]}; terminating"
+    printf '%s\n' "${builtJars[@]}"
+    exit 1
+  fi
+  cp "${builtJars[0]}" "$targetJar"
 }
 
 print_usage() {

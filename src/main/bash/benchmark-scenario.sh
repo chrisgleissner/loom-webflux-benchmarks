@@ -89,6 +89,29 @@ log() {
   echo "$( date +"%H:%M:%S" )" "$1"
 }
 
+build_app_jar() {
+  local activeProfile=$1
+  local targetJar=$2
+  local marker
+  local -a builtJars
+
+  log "Building application jar for $activeProfile"
+  marker=$(mktemp)
+  if ! DEBUG=false GRADLE_USER_HOME="$gradleUserHome" SPRING_PROFILES_ACTIVE="$activeProfile" ./gradlew --gradle-user-home "$gradleUserHome" bootJar --rerun-tasks; then
+    rm -f "$marker"
+    exit 1
+  fi
+
+  mapfile -t builtJars < <(find "$repoRoot/build/libs" -maxdepth 1 -type f -name "*.jar" ! -name "*-plain.jar" -newer "$marker" -print | sort)
+  rm -f "$marker"
+  if (( ${#builtJars[@]} != 1 )); then
+    log "Expected one bootJar output for $activeProfile, found ${#builtJars[@]}; terminating"
+    printf '%s\n' "${builtJars[@]}"
+    exit 1
+  fi
+  cp "${builtJars[0]}" "$targetJar"
+}
+
 cleanup_service() {
   if [[ -n "$systemMeasurePid" ]] && ps -p "$systemMeasurePid" > /dev/null; then
     kill "$systemMeasurePid" >/dev/null 2>&1 || true
@@ -117,8 +140,7 @@ start_service() {
 
   if [[ ! -s "$appJar" ]]; then
     log "Application jar $appJar does not exist; building it"
-    DEBUG=false GRADLE_USER_HOME="$gradleUserHome" SPRING_PROFILES_ACTIVE="$approach" ./gradlew --gradle-user-home "$gradleUserHome" bootJar --rerun-tasks || exit 1
-    cp "$repoRoot/build/libs/loom-webflux.jar" "$appJar"
+    build_app_jar "$approach" "$appJar"
   fi
 
   local commaSeparatedServerProfiles="${serverProfiles//|/,}"
@@ -257,9 +279,9 @@ load() {
     log "k6 failed with exit code $k6ExitCode; terminating"
     exit "$k6ExitCode"
   fi
-  failedRequestCount=$(awk -F, '$1 == "http_req_failed" && $3 != 0 { failed++ } END { print failed + 0 }' "$k6OutputTmpFile")
-  if (( failedRequestCount > 0 )); then
-    log "k6 recorded $failedRequestCount failed HTTP request(s); terminating"
+  hasFailedRequests=$(awk -F, '$1 == "http_req_failed" && $3 != 0 { found = 1 } END { print found + 0 }' "$k6OutputTmpFile")
+  if (( hasFailedRequests > 0 )); then
+    log "k6 recorded at least one non-zero http_req_failed sample; terminating"
     exit 1
   fi
   if ! ps -p "$servicePid" > /dev/null; then
