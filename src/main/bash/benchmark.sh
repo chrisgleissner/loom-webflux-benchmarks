@@ -9,9 +9,23 @@ resultsCsvFile="$resultsDir/results.csv"
 resultsPngFile="$resultsDir/results.png"
 resultsNettyPngFile="$resultsDir/results-netty.png"
 keep_csv=false
+scriptDir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+repoRoot="$(cd -- "$scriptDir/../../.." && pwd)"
+gradleUserHome="${GRADLE_USER_HOME:-$repoRoot/build/gradle-user-home}"
+webfluxAppJar="$repoRoot/build/libs/loom-webflux-webflux.jar"
+tomcatAppJar="$repoRoot/build/libs/loom-webflux-tomcat.jar"
 
 log() {
   echo "$( date +"%H:%M:%S" )" "$1"
+}
+
+build_app_jar() {
+  local activeProfile=$1
+  local targetJar=$2
+
+  log "Building application jar for $activeProfile"
+  DEBUG=false GRADLE_USER_HOME="$gradleUserHome" SPRING_PROFILES_ACTIVE="$activeProfile" ./gradlew --gradle-user-home "$gradleUserHome" bootJar --rerun-tasks || exit 1
+  cp build/libs/loom-webflux.jar "$targetJar"
 }
 
 print_usage() {
@@ -48,6 +62,8 @@ if [ -n "$1" ]; then
   relativeScenariosPath="$1"
 fi
 
+cd "$repoRoot" || exit 1
+
 scenariosFile="$scenariosDir/$relativeScenariosPath"
 
 if [ ! -f "$scenariosFile" ]; then
@@ -62,12 +78,17 @@ log "- Scenarios file: $scenariosFile"
 log "- Approaches: $approaches"
 echo
 
+log "Building application jars"
+mkdir -p "$gradleUserHome"
+build_app_jar webflux-netty "$webfluxAppJar"
+build_app_jar loom-tomcat "$tomcatAppJar"
+
 ./src/main/bash/log-system-specs.sh
 
 log "Contents of $scenariosFile:"
 cat "$scenariosFile"
 
-tail -n +2 "$scenariosFile" | while IFS=',' read -r scenario k6Config serverProfiles delayCallDepth delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
+while IFS=',' read -r scenario k6Config serverProfiles delayCallDepth delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do
     if [[ -z "$scenario" || $scenario == "#"* ]]; then
         continue
     fi
@@ -83,7 +104,16 @@ tail -n +2 "$scenariosFile" | while IFS=',' read -r scenario k6Config serverProf
 
     IFS=',' read -ra approach_array <<< "$approaches"
     for approach in "${approach_array[@]}"; do
-      ./src/main/bash/benchmark-scenario.sh -a "$approach" -s "$scenario" -k "$k6Config" -p "$serverProfiles" -d "$delayCallDepth" -m "$delayInMillis" -c "$connections" -r "$requestsPerSecond" -w "$warmupDurationInSeconds" -t "$testDurationInSeconds" -C "$keep_csv"
+      if ! ./src/main/bash/benchmark-scenario.sh -a "$approach" -s "$scenario" -k "$k6Config" -p "$serverProfiles" -d "$delayCallDepth" -m "$delayInMillis" -c "$connections" -r "$requestsPerSecond" -w "$warmupDurationInSeconds" -t "$testDurationInSeconds" -C "$keep_csv"; then
+        for serverProfile in "${server_profile_array[@]}"; do
+            composeFile="src/main/docker/docker-compose-$serverProfile.yaml"
+            if [[ -f "$composeFile" ]]; then
+                log "Stopping Docker container(s) using $composeFile"
+                docker compose -f "$composeFile" down
+            fi
+        done
+        exit 1
+      fi
     done
 
     for serverProfile in "${server_profile_array[@]}"; do
@@ -93,7 +123,7 @@ tail -n +2 "$scenariosFile" | while IFS=',' read -r scenario k6Config serverProf
             docker compose -f "$composeFile" down
         fi
     done
-done
+done < <(tail -n +2 "$scenariosFile")
 
 ./src/main/python/results_chart.py -i "$resultsCsvFile" -o "$resultsPngFile"
 ./src/main/python/results_chart.py -i "$resultsCsvFile" -o "$resultsNettyPngFile" -a "loom-netty,webflux-netty" || true

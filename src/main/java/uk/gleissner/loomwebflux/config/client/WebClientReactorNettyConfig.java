@@ -34,6 +34,11 @@ class WebClientReactorNettyConfig {
     }
 
     @Bean
+    WebClient.Builder webClientBuilder() {
+        return WebClient.builder();
+    }
+
+    @Bean
     WebClient webClient(WebClient.Builder builder, ReactorResourceFactory reactorResourceFactory) {
         val baseUrl = "http://localhost:" + environment.getProperty("local.server.port");
         log.info("Create WebClient based on " + REACTOR_NETTY_HTTP_CLIENT + " for {}", baseUrl);

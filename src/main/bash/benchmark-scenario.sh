@@ -61,6 +61,13 @@ servicePort=8080
 serviceHealthUrl="http://$serviceHost:$servicePort/actuator/health"
 serviceShutdownUrl="http://$serviceHost:$servicePort/actuator/shutdown"
 serviceApiBaseUrl="http://$serviceHost:$servicePort/$approach"
+scriptDir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+repoRoot="$(cd -- "$scriptDir/../../.." && pwd)"
+gradleUserHome="${GRADLE_USER_HOME:-$repoRoot/build/gradle-user-home}"
+webfluxAppJar="$repoRoot/build/libs/loom-webflux-webflux.jar"
+tomcatAppJar="$repoRoot/build/libs/loom-webflux-tomcat.jar"
+servicePid=
+systemMeasurePid=
 
 resultsDir=build/results
 resultDir="$resultsDir"/"$scenario"
@@ -82,29 +89,84 @@ log() {
   echo "$( date +"%H:%M:%S" )" "$1"
 }
 
+cleanup_service() {
+  if [[ -n "$systemMeasurePid" ]] && ps -p "$systemMeasurePid" > /dev/null; then
+    kill "$systemMeasurePid" >/dev/null 2>&1 || true
+    wait "$systemMeasurePid" 2>/dev/null || true
+  fi
+  if [[ -n "$servicePid" ]] && ps -p "$servicePid" > /dev/null; then
+    curl -fsS -X POST "$serviceShutdownUrl" >/dev/null 2>&1 || true
+    kill "$servicePid" >/dev/null 2>&1 || true
+    wait "$servicePid" 2>/dev/null || true
+  fi
+}
+
+trap cleanup_service EXIT
+
 start_service() {
   log "Starting service"
   rm -f "$serviceLogTmpFile"
   rm -f "$jvmCsvTmpFile"
+  mkdir -p "$gradleUserHome"
+
+  if [[ "$approach" == "platform-tomcat" || "$approach" == "loom-tomcat" ]]; then
+    appJar="$tomcatAppJar"
+  else
+    appJar="$webfluxAppJar"
+  fi
+
+  if [[ ! -s "$appJar" ]]; then
+    log "Application jar $appJar does not exist; building it"
+    DEBUG=false GRADLE_USER_HOME="$gradleUserHome" SPRING_PROFILES_ACTIVE="$approach" ./gradlew --gradle-user-home "$gradleUserHome" bootJar --rerun-tasks || exit 1
+    cp "$repoRoot/build/libs/loom-webflux.jar" "$appJar"
+  fi
 
   local commaSeparatedServerProfiles="${serverProfiles//|/,}"
-  SPRING_PROFILES_ACTIVE=$approach${commaSeparatedServerProfiles:+,$commaSeparatedServerProfiles} ./gradlew bootRun > >(tee "$serviceLogTmpFile") 2>&1 &
-  until curl --output /dev/null --silent --head --fail "$serviceHealthUrl"; do printf '.'; sleep 1; done
-  log "Started service"
+  local javaMajorVersion
+  javaMajorVersion=$(java -version 2>&1 | awk -F '[\".]' '/version/ { print $2; exit }')
+  local javaArgs=("--enable-native-access=ALL-UNNAMED" "-Xms2g" "-Xmx2g" "-XX:+ExitOnOutOfMemoryError" "-Djdk.tracePinnedThreads=full")
+  if (( javaMajorVersion >= 25 )); then
+    javaArgs+=("-XX:+UseCompactObjectHeaders")
+  fi
+
+  DEBUG=false SPRING_PROFILES_ACTIVE=$approach${commaSeparatedServerProfiles:+,$commaSeparatedServerProfiles} java "${javaArgs[@]}" -jar "$appJar" > >(tee "$serviceLogTmpFile") 2>&1 &
+  servicePid=$!
+
+  startupTimeoutInSeconds=120
+  while (( startupTimeoutInSeconds > 0 )); do
+    if curl --output /dev/null --silent --head --fail "$serviceHealthUrl"; then
+      log "Started service"
+      return
+    fi
+    if ! ps -p "$servicePid" > /dev/null; then
+      log "Service process exited before becoming healthy"
+      tail -n 50 "$serviceLogTmpFile"
+      exit 1
+    fi
+    printf '.'
+    sleep 1
+    ((startupTimeoutInSeconds--))
+  done
+  log "Service did not become healthy within 120s"
+  tail -n 50 "$serviceLogTmpFile"
+  exit 1
 }
 
 stop_service() {
   log "Stopping service"
-  curl -X POST "$serviceShutdownUrl"
-  while curl --output /dev/null --silent --head --fail "$serviceHealthUrl"; do printf '.'; sleep 1; done
+  if ps -p "$servicePid" > /dev/null; then
+    curl -fsS -X POST "$serviceShutdownUrl" >/dev/null || true
+    while curl --output /dev/null --silent --head --fail "$serviceHealthUrl"; do printf '.'; sleep 1; done
+    wait "$servicePid" || true
+  fi
   log "Stopped service"
 }
 
 capture_log_errors() {
   rm -f "$clientErrorLogFile" "$serviceErrorLogFile"
 
-  grep -i -A 2 -e "\bERROR\b" "$k6LogTmpFile" | grep -vie "no error" >> "$clientErrorLogFile"
-  grep -i -A 2 -e "\bERROR\b" -e "ThreadContinuation.onPinned" "$serviceLogTmpFile" | grep -vie "no error" >> "$serviceErrorLogFile"
+  grep -Ei -A 2 -e '(^|[[:space:]])(ERROR|ERRO)([[:space:]]|:|$)' "$k6LogTmpFile" | grep -vie "no error" >> "$clientErrorLogFile"
+  grep -E -A 2 -e '(^|[[:space:]])ERROR([[:space:]]|:|$)' -e "ThreadContinuation.onPinned" "$serviceLogTmpFile" | grep -vie "no error" >> "$serviceErrorLogFile"
 
   # Check and remove empty log files
   for logFile in "$serviceErrorLogFile" "$clientErrorLogFile"; do
@@ -129,6 +191,10 @@ wait_for_system_csv_file() {
     sleep 1
     ((timeout--))
   done
+  if [[ ! -s "$systemCsvFile" ]]; then
+    log "System metrics file $systemCsvFile does not exist or is empty; terminating"
+    exit 1
+  fi
 }
 
 load_and_measure_system() {
@@ -141,7 +207,11 @@ load_and_measure_system() {
   systemMeasurePid=$!
 
   load "$durationInSeconds"
-  mv "$jvmCsvTmpFile" "$jvmCsvFile" && log "Saved $jvmCsvFile"
+  if ! mv "$jvmCsvTmpFile" "$jvmCsvFile"; then
+    log "JVM metrics file $jvmCsvTmpFile does not exist; terminating"
+    exit 1
+  fi
+  log "Saved $jvmCsvFile"
   wait_for_system_csv_file
 
   if [ "$phase" == "test" ]; then
@@ -182,6 +252,21 @@ load() {
 
   log "Issuing requests for ${_durationInSeconds}s using ${k6ConfigFile}..."
   k6 run --env DURATION_IN_SECONDS="${_durationInSeconds}" --out csv="$k6OutputTmpFile" --env K6_CSV_TIME_FORMAT="unix_milli" --env DELAY_CALL_DEPTH="$delayCallDepth" --env DELAY_IN_MILLIS="$delayInMillis" --env SERVICE_API_BASE_URL="$serviceApiBaseUrl" --env VUS="$connections" --env RPS="$requestsPerSecond" "$k6ConfigFile" 2>&1 | tee "$k6LogTmpFile"
+  k6ExitCode=${PIPESTATUS[0]}
+  if (( k6ExitCode != 0 )); then
+    log "k6 failed with exit code $k6ExitCode; terminating"
+    exit "$k6ExitCode"
+  fi
+  failedRequestCount=$(awk -F, '$1 == "http_req_failed" && $3 != 0 { failed++ } END { print failed + 0 }' "$k6OutputTmpFile")
+  if (( failedRequestCount > 0 )); then
+    log "k6 recorded $failedRequestCount failed HTTP request(s); terminating"
+    exit 1
+  fi
+  if ! ps -p "$servicePid" > /dev/null; then
+    log "Service process exited during load; terminating"
+    tail -n 50 "$serviceLogTmpFile"
+    exit 1
+  fi
 
   # csv: metric_name,timestamp,metric_value,check,error,error_code,expected_response,group,method,name,proto,scenario,service,status
   # shellcheck disable=SC2002

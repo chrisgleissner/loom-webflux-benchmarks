@@ -2,9 +2,9 @@
 
 ## Repository Overview
 
-**Java Spring Boot 3.5 benchmarking project** comparing Java Virtual Threads (Loom) vs Spring WebFlux (Reactor) for microservices. ~310MB repo (mostly results), ~1MB source (29 Java, 15 Kotlin test files).
+**Java Spring Boot 4.1 benchmarking project** comparing Java Virtual Threads (Loom) vs Spring WebFlux (Reactor) for microservices. ~310MB repo (mostly results), ~1MB source (29 Java, 15 Kotlin test files).
 
-**Stack**: Java 21+, Gradle 9.1, Spring Boot 3.5.7, WebFlux, Netty, Tomcat, H2/PostgreSQL, k6, Python 3 (matplotlib, pandas, numpy), sysstat
+**Stack**: Java 21+, Gradle, Spring Boot, WebFlux, Netty, Tomcat, H2/PostgreSQL, k6, Python 3 (matplotlib, pandas, numpy), sysstat
 
 **Approaches tested**: platform-tomcat, loom-tomcat, loom-netty, webflux-netty
 
