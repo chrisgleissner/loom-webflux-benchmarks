@@ -62,10 +62,12 @@ jobs:
         run: |
           echo "Optimized system for benchmark"
           sudo sysctl -w net.ipv4.ip_local_port_range="1024 65535"
-          sudo sysctl -w net.ipv4.tcp_tw_reuse=1          
+          sudo sysctl -w net.ipv4.tcp_tw_reuse=1
+          sudo sysctl -w net.ipv4.tcp_max_syn_backlog=65535
+          sudo sysctl -w net.core.somaxconn=65535
           sudo sysctl -w fs.file-max=1048576
           sudo sysctl -p
-          sysctl net.ipv4.ip_local_port_range net.ipv4.tcp_tw_reuse fs.file-max
+          sysctl net.ipv4.ip_local_port_range net.ipv4.tcp_tw_reuse net.ipv4.tcp_max_syn_backlog net.core.somaxconn fs.file-max
           echo "Starting benchmark using scenarios file ${{ inputs.scenarios-path }} and approaches ${{ inputs.approaches }}"
           ./benchmark.sh -a ${{ inputs.approaches }} ${{ inputs.scenarios-path }}
 
