@@ -4,9 +4,9 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2026-06-11 17:00:24 |
-| **End (UTC)** | 2026-06-11 17:08:49 |
-| **Duration (hh:mm:ss)** | 00:08:25 |
+| **Start (UTC)** | 2026-06-11 17:21:18 |
+| **End (UTC)** | 2026-06-11 17:28:34 |
+| **Duration (hh:mm:ss)** | 00:07:16 |
 
 ## System Specs
 
@@ -20,7 +20,7 @@
 | **CPU** | AMD EPYC 7763 64-Core Processor |
 | **CPU Cores** | 4 |
 | **RAM** | 15Gi total, 11Gi available |
-| **Disk** | 158G total, 99G available |
+| **Disk** | 159G total, 95G available |
 
 ## Scenarios
 
