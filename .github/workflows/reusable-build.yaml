@@ -26,10 +26,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Install Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java-version }}
           distribution: corretto
@@ -60,12 +60,7 @@ jobs:
 
       - name: Benchmark using ${{ inputs.scenarios-path }}
         run: |
-          echo "Optimized system for benchmark"
-          sudo sysctl -w net.ipv4.ip_local_port_range="1024 65535"
-          sudo sysctl -w net.ipv4.tcp_tw_reuse=1          
-          sudo sysctl -w fs.file-max=1048576
-          sudo sysctl -p
-          sysctl net.ipv4.ip_local_port_range net.ipv4.tcp_tw_reuse fs.file-max
+          sudo ./src/main/bash/tune-benchmark-host.sh
           echo "Starting benchmark using scenarios file ${{ inputs.scenarios-path }} and approaches ${{ inputs.approaches }}"
           ./benchmark.sh -a ${{ inputs.approaches }} ${{ inputs.scenarios-path }}
 
@@ -106,13 +101,13 @@ jobs:
 
       - name: Commit results
         continue-on-error: true
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           skip_dirty_check: true
 
       - name: Upload results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Results for Java ${{ matrix.java-version }} and ${{ matrix.os }}
           path: build/results/

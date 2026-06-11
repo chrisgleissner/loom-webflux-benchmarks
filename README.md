@@ -5,7 +5,7 @@
 [![soaktest](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/soaktest.yaml/badge.svg)](https://github.com/chrisgleissner/loom-webflux-benchmarks/actions/workflows/soaktest.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/chrisgleissner/loom-webflux-benchmarks/badge.svg)](https://coveralls.io/github/chrisgleissner/loom-webflux-benchmarks)
 
-This Java project benchmarks a simple [Spring Boot 3.5](https://spring.io/projects/spring-boot) microservice using
+This Java project benchmarks a simple [Spring Boot 4.1](https://spring.io/projects/spring-boot) microservice using
 configurable scenarios, comparing Java Virtual Threads (introduced by [Project Loom, JEP 444](https://openjdk.org/jeps/444)) using Tomcat and Netty
 with [Spring WebFlux](https://docs.spring.io/spring-framework/reference/web/webflux.html) (relying on [Project Reactor](https://projectreactor.io/)) using Netty.
 
@@ -213,22 +213,31 @@ sudo apt update && sudo apt install -y python3 python3-matplotlib python3-pandas
 
 ### Linux Optimizations
 
-The following adjustments optimize Linux for HTTP load tests.
-
-#### Increase Open File Limit
-
-Ensure your system can handle a large number of concurrent connections:
+The benchmark uses high numbers of direct HTTP client connections, so the host must be tuned consistently with the
+server connection limits used by the application. The CI workflow applies the runtime sysctl settings through
+`src/main/bash/tune-benchmark-host.sh`; run the same script locally before benchmarks:
 
 ```shell
-printf '* soft nofile 1048576\n* hard nofile 1048576\n' | sudo tee -a /etc/security/limits.conf 
+sudo ./src/main/bash/tune-benchmark-host.sh
 ```
 
-#### Increase Port Range and Allow Fast Connection Reuse
-
-Increase the port range for outgoing TCP connections and allow quick connection reuse:
+For persistent local setup, ensure your system can handle a large number of concurrent connections:
 
 ```shell
-printf 'net.ipv4.ip_local_port_range=1024 65535\nnet.ipv4.tcp_tw_reuse = 1\n' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+printf '* soft nofile 1048576\n* hard nofile 1048576\n' | sudo tee -a /etc/security/limits.conf
+```
+
+Persist the same sysctl values used by CI:
+
+```shell
+sudo tee -a /etc/sysctl.conf <<'EOF'
+net.ipv4.ip_local_port_range=1024 65535
+net.ipv4.tcp_tw_reuse=1
+net.ipv4.tcp_max_syn_backlog=65535
+net.core.somaxconn=65535
+fs.file-max=1048576
+EOF
+sudo sysctl -p
 ```
 
 #### Activate Changes
@@ -295,7 +304,7 @@ Please note that the default configured scenarios may take several hours to comp
 - **loom-netty**: Virtual Threads on [Netty](https://netty.io/) server
 - **webflux-netty**: WebFlux on Netty server
 
-All approaches use the same Spring Boot 3.2 version.
+All approaches use the same Spring Boot 4.1.0 version.
 
 ### Scenarios
 
@@ -328,7 +337,7 @@ The following clients are compared:
 
 - Spring Boot `RestClient` based on:
     - [JDK HttpClient](https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html)
-    - [Apache Commons HttpClient 5](https://hc.apache.org/httpcomponents-client-5.4.x/current/httpclient5/apidocs/)
+    - [Apache Commons HttpClient 5](https://hc.apache.org/httpcomponents-client-5.6.x/current/httpclient5/apidocs/)
     - [Netty](https://projectreactor.io/docs/netty/1.1.21/api/reactor/netty/http/client/HttpClient.html)
 - Spring Boot `WebClient` based on:
     - [Netty](https://projectreactor.io/docs/netty/1.1.21/api/reactor/netty/http/client/HttpClient.html)
@@ -426,7 +435,7 @@ Virtual Threads, then for WebFlux.
 - OS: Ubuntu 24.04.3 LTS
 - Kernel: 6.14.0-29-generic
 - Java: Amazon Corretto JDK 25.0.0.36.2
-- Spring Boot 3.5.5
+- Spring Boot 4.1.0
 
 > [!NOTE]
 > The actual software versions used by a benchmark are automatically determined and shown at the beginning of each `results.md` file. If there are differences to the above, then the values in `results.md` are correct.

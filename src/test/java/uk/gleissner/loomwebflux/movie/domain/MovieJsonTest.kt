@@ -4,12 +4,25 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.autoconfigure.json.JsonTest
 import org.springframework.boot.test.json.JacksonTester
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.cache.CacheManager
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
 import uk.gleissner.loomwebflux.movie.domain.Genre.ROMANCE
 import java.time.LocalDate
 
 
 @JsonTest
+@Import(MovieJsonTest.TestConfig::class)
 class MovieJsonTest(private val jacksonTester: JacksonTester<List<Movie>>) {
+
+    @TestConfiguration(proxyBeanMethods = false)
+    open class TestConfig {
+
+        @Bean
+        fun cacheManager(): CacheManager = ConcurrentMapCacheManager()
+    }
 
     @Test
     fun `can deserialize movies json`() {
