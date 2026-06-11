@@ -213,22 +213,31 @@ sudo apt update && sudo apt install -y python3 python3-matplotlib python3-pandas
 
 ### Linux Optimizations
 
-The following adjustments optimize Linux for HTTP load tests.
-
-#### Increase Open File Limit
-
-Ensure your system can handle a large number of concurrent connections:
+The benchmark uses high numbers of direct HTTP client connections, so the host must be tuned consistently with the
+server connection limits used by the application. The CI workflow applies the runtime sysctl settings through
+`src/main/bash/tune-benchmark-host.sh`; run the same script locally before benchmarks:
 
 ```shell
-printf '* soft nofile 1048576\n* hard nofile 1048576\n' | sudo tee -a /etc/security/limits.conf 
+sudo ./src/main/bash/tune-benchmark-host.sh
 ```
 
-#### Increase Port Range and Allow Fast Connection Reuse
-
-Increase the port range for outgoing TCP connections and allow quick connection reuse:
+For persistent local setup, ensure your system can handle a large number of concurrent connections:
 
 ```shell
-printf 'net.ipv4.ip_local_port_range=1024 65535\nnet.ipv4.tcp_tw_reuse = 1\n' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+printf '* soft nofile 1048576\n* hard nofile 1048576\n' | sudo tee -a /etc/security/limits.conf
+```
+
+Persist the same sysctl values used by CI:
+
+```shell
+sudo tee -a /etc/sysctl.conf <<'EOF'
+net.ipv4.ip_local_port_range=1024 65535
+net.ipv4.tcp_tw_reuse=1
+net.ipv4.tcp_max_syn_backlog=65535
+net.core.somaxconn=65535
+fs.file-max=1048576
+EOF
+sudo sysctl -p
 ```
 
 #### Activate Changes
