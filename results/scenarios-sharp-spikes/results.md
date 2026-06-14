@@ -4,23 +4,23 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2025-09-18 17:32:00 |
-| **End (UTC)** | 2025-09-18 19:05:45 |
-| **Duration (hh:mm:ss)** | 01:33:45 |
+| **Start (UTC)** | 2026-06-14 08:51:34 |
+| **End (UTC)** | 2026-06-14 09:01:13 |
+| **Duration (hh:mm:ss)** | 00:09:39 |
 
 ## System Specs
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Java** | OpenJDK 64-Bit Server VM Corretto-25.0.0.36.2 (build 25+36-LTS, mixed mode, sharing) |
-| **Spring Boot** | 3.5.5 |
+| **Java** | OpenJDK 64-Bit Server VM Corretto-25.0.3.9.1 (build 25.0.3+9-LTS, mixed mode, sharing) |
+| **Spring Boot** | 4.1.0 |
 | **Python** | 3.12.3 |
-| **OS** | Ubuntu 24.04.3 LTS |
-| **Kernel** | 6.14.0-29-generic |
+| **OS** | Ubuntu 24.04.4 LTS |
+| **Kernel** | 6.17.0-35-generic |
 | **CPU** | Intel(R) Core(TM) i5-14600K |
 | **CPU Cores** | 20 |
-| **RAM** | 62Gi total, 52Gi available |
-| **Disk** | 1023G total, 613G available |
+| **RAM** | 62Gi total, 41Gi available |
+| **Disk** | 2.8T total, 1.5T available |
 
 ## Scenarios
 
@@ -124,9 +124,7 @@
 
 ### 30k-vus-sharp-spikes-get-post-movies-call-depth-1
 
-#### loom-tomcat
-
-![loom-tomcat](./30k-vus-sharp-spikes-get-post-movies-call-depth-1/loom-tomcat.png)
+#### loom-tomcat (No image available)
 
 #### loom-netty
 

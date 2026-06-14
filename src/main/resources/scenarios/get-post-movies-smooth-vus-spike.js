@@ -47,7 +47,7 @@ export const options = {
             startVUs: 0,
             gracefulStop: '2s',
             stages: [
-                {target: __ENV.VUS / 4, duration: rampUpTime},
+                {target: Math.floor(__ENV.VUS / 4), duration: rampUpTime},
                 {target: 0, duration: rampDownTime},
             ],
         },
@@ -57,7 +57,7 @@ export const options = {
             startVUs: 0,
             gracefulStop: '2s',
             stages: [
-                {target: __ENV.VUS / 4, duration: rampUpTime},
+                {target: Math.floor(__ENV.VUS / 4), duration: rampUpTime},
                 {target: 0, duration: rampDownTime},
             ],
         },
@@ -67,7 +67,7 @@ export const options = {
             startVUs: 0,
             gracefulStop: '2s',
             stages: [
-                {target: __ENV.VUS / 4, duration: rampUpTime},
+                {target: Math.floor(__ENV.VUS / 4), duration: rampUpTime},
                 {target: 0, duration: rampDownTime},
             ],
         },
@@ -77,7 +77,7 @@ export const options = {
             startVUs: 0,
             gracefulStop: '2s',
             stages: [
-                {target: __ENV.VUS / 4, duration: rampUpTime},
+                {target: Math.floor(__ENV.VUS / 4), duration: rampUpTime},
                 {target: 0, duration: rampDownTime},
             ],
 

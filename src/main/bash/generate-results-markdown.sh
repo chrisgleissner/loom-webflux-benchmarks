@@ -1,8 +1,8 @@
 #!/bin/bash
 # Generate results Markdown file with benchmark setup and results.
 
-if [ "$#" -ne 5 ]; then
-    echo "Usage: $0 <scenarios_file> <results_dir> <approaches> <start_seconds> <end_seconds>"
+if [ "$#" -ne 5 ] && [ "$#" -ne 7 ]; then
+    echo "Usage: $0 <scenarios_file> <results_dir> <approaches> <start_seconds> <end_seconds> [<warmup_override> <test_override>]"
     exit 1
 fi
 
@@ -11,6 +11,8 @@ results_dir="$2"
 approaches="$3"
 start_seconds="$4"
 end_seconds="$5"
+warmupDurationInSecondsOverride="${6:-}"
+testDurationInSecondsOverride="${7:-}"
 results_md_file="$results_dir/results.md"
 duration=$((end_seconds - start_seconds))
 
@@ -43,7 +45,7 @@ markdown+="\n## System Specs\n\n"
 markdown+="| **Name**                | **Value** |\n"
 markdown+="|-------------------------|-----------|\n"
 markdown+="$(table_row "Java" "$(java --version | grep 'Server')")\n"
-markdown+="$(table_row "Spring Boot" "$(./gradlew dependencyInsight --dependency spring-boot-starter --configuration compileClasspath | grep -m 1 -oP 'org.springframework.boot:spring-boot-starter:\K[^\s]+')")\n"
+markdown+="$(table_row "Spring Boot" "$(./gradlew --no-daemon dependencyInsight --dependency spring-boot-starter --configuration compileClasspath | grep -m 1 -oP 'org.springframework.boot:spring-boot-starter:\K[^\s]+')")\n"
 markdown+="$(table_row "Python" "$(python3 --version | awk '{print $2}')")\n"
 markdown+="$(table_row "OS" "$(grep 'PRETTY_NAME' /etc/os-release | cut -d '"' -f 2)")\n"
 markdown+="$(table_row "Kernel" "$(uname -r)")\n"
@@ -54,6 +56,16 @@ markdown+="$(table_row "Disk" "$(df -h --total | awk '/^total/ {print $2 " total
 
 markdown+="\n## Scenarios\n\n"
 markdown+="**Scenario file:** $scenarios_file\n\n"
+if [ -n "$warmupDurationInSecondsOverride" ] || [ -n "$testDurationInSecondsOverride" ]; then
+    markdown+="**Overrides applied to the Warmup Duration and Test Duration columns below:**"
+    if [ -n "$warmupDurationInSecondsOverride" ]; then
+        markdown+=" Warmup Duration = ${warmupDurationInSecondsOverride}s"
+    fi
+    if [ -n "$testDurationInSecondsOverride" ]; then
+        markdown+=" Test Duration = ${testDurationInSecondsOverride}s"
+    fi
+    markdown+=" (values from the scenario CSV were ignored)\n\n"
+fi
 markdown+="| Scenario | k6 Config | Server Profiles | Delay Call Depth | Delay (ms) | Connections | Requests per Second | Warmup Duration (s) | Test Duration (s) |\n"
 markdown+="|----------|-----------|-----------------|------------------|------------|-------------|---------------------|---------------------|------------------|\n"
 while IFS=',' read -r scenario k6Config serverProfiles delayCallDepth delayInMillis connections requestsPerSecond warmupDurationInSeconds testDurationInSeconds; do

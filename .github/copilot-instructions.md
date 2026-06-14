@@ -92,7 +92,7 @@ Health: `http://localhost:8080/actuator/health`
 **System optimization**:
 ```bash
 printf '* soft nofile 1048576\n* hard nofile 1048576\n' | sudo tee -a /etc/security/limits.conf
-printf 'net.ipv4.ip_local_port_range=1024 65535\nnet.ipv4.tcp_tw_reuse = 1\n' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+./src/main/bash/tune-benchmark-host.sh
 ```
 
 **Run**:

@@ -60,7 +60,7 @@ jobs:
 
       - name: Benchmark using ${{ inputs.scenarios-path }}
         run: |
-          sudo ./src/main/bash/tune-benchmark-host.sh
+          sudo -n ./src/main/bash/tune-benchmark-host.sh
           echo "Starting benchmark using scenarios file ${{ inputs.scenarios-path }} and approaches ${{ inputs.approaches }}"
           ./benchmark.sh -a ${{ inputs.approaches }} ${{ inputs.scenarios-path }}
 

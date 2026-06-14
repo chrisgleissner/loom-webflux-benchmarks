@@ -26,10 +26,9 @@ server:
   http2:
     enabled: true
   tomcat:
-    accept-count: ${loom-webflux.client.max-connections} # see https://github.com/chrisgleissner/loom-webflux-benchmarks/issues/49
-    connection-timeout: ${loom-webflux.client.connect-timeout}
-    keep-alive-timeout: ${loom-webflux.client.response-timeout}
-    max-keep-alive-requests: -1
+    accept-count: 2000 # see https://github.com/chrisgleissner/loom-webflux-benchmarks/issues/49
+    keep-alive-timeout: 1s
+    max-keep-alive-requests: 1
     max-connections: ${loom-webflux.client.max-connections}
     threads:
       max: ${loom-webflux.client.max-connections}
@@ -52,4 +51,3 @@ loom-webflux:
     pending-acquire-timeout: 60s
     pending-acquire-max-count: ${loom-webflux.client.max-connections}
     response-timeout: ${loom-webflux.client.pending-acquire-timeout}
-

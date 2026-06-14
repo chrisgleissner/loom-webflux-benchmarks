@@ -38,6 +38,7 @@ Java 19 and were fully rolled out with Java 21 in September 2023.
 > **Virtual Threads on Tomcat** are not recommended for high user count scenarios:
 > - We saw considerably higher resource use compared with the two Netty-based approaches.
 > - There were many [time-out errors](#10k-vus-and-rps-get-movies-call-depth-1) as visualized by red dots in the charts, even when the CPU use was far below 100%. In contrast, none the Netty-based scenarios experienced any errors, even with a CPU use of 100%.
+> - Tomcat does serve high *user* counts when the load is paced (it passes the [60k scenarios](#reading-the-40k-and-60k-results) without errors), but its connection acceptor cannot absorb a large *simultaneous*-connection burst: it fails the [40k fixed-rate scenarios](#reading-the-40k-and-60k-results) with `connection refused` where both Netty-based approaches succeed. See [High Load Results](#high-load-results).
 
 ## Benchmark Winners
 
@@ -211,45 +212,79 @@ sudo apt update && sudo apt install -y python3 python3-matplotlib python3-pandas
 
 ```
 
-### Linux Optimizations
+### Linux Host Tuning
 
 The benchmark uses high numbers of direct HTTP client connections, so the host must be tuned consistently with the
-server connection limits used by the application. The CI workflow applies the runtime sysctl settings through
-`src/main/bash/tune-benchmark-host.sh`; run the same script locally before benchmarks:
+server connection limits used by the application. These settings are intended for benchmark hosts, not as general
+production-server guidance.
+
+The executable source of truth is `src/main/bash/tune-benchmark-host.sh`. Local `./benchmark.sh` executions check these
+values before building and request `sudo` only when a setting needs to be changed:
 
 ```shell
-sudo ./src/main/bash/tune-benchmark-host.sh
+./src/main/bash/tune-benchmark-host.sh
 ```
 
-For persistent local setup, ensure your system can handle a large number of concurrent connections:
+Use `--check` to verify the current runtime values without applying changes:
+
+```shell
+./src/main/bash/tune-benchmark-host.sh --check
+```
+
+The benchmark sysctl baseline is:
+
+```shell
+sudo tee -a /etc/sysctl.conf <<'EOF'
+net.ipv4.ip_local_port_range = 1024 65535
+net.ipv4.tcp_timestamps = 1
+net.ipv4.tcp_tw_reuse = 2
+net.ipv4.tcp_max_syn_backlog = 65535
+net.core.somaxconn = 65535
+fs.file-max = 1048576
+EOF
+sudo sysctl -p
+```
+
+`ip_local_port_range` supports high local k6 concurrency, `tcp_timestamps` is required for TCP TIME-WAIT reuse semantics,
+and `tcp_tw_reuse = 2` limits reuse to loopback-focused benchmark traffic on modern Linux. `tcp_max_syn_backlog` and
+`somaxconn` avoid measuring connection queue limits during ramp-up. The effective server accept backlog is still the
+lower of the application's listen backlog and `net.core.somaxconn`.
+
+CI benchmark runs use non-interactive sudo:
+
+```shell
+sudo -n ./src/main/bash/tune-benchmark-host.sh
+```
+
+CI hosts must either provide non-interactive sudo for these sysctl writes or preconfigure the same runtime values before
+running the benchmark. CI must not wait for a sudo password prompt.
+
+### File Descriptor Limits
+
+`fs.file-max` is a system-wide ceiling. It does not replace per-process open-file limits, so both `k6` and the JVM
+process need a sufficient `nofile` limit:
 
 ```shell
 printf '* soft nofile 1048576\n* hard nofile 1048576\n' | sudo tee -a /etc/security/limits.conf
 ```
 
-Persist the same sysctl values used by CI:
+If the benchmark service is launched through systemd, configure an equivalent `LimitNOFILE`. To verify active limits:
 
 ```shell
-sudo tee -a /etc/sysctl.conf <<'EOF'
-net.ipv4.ip_local_port_range=1024 65535
-net.ipv4.tcp_tw_reuse=1
-net.ipv4.tcp_max_syn_backlog=65535
-net.core.somaxconn=65535
-fs.file-max=1048576
-EOF
-sudo sysctl -p
+ulimit -n
+cat /proc/$(pgrep -n k6)/limits | grep "Max open files"
+cat /proc/$(pgrep -n java)/limits | grep "Max open files"
 ```
 
-#### Activate Changes
-
-Log out and back in.
+Log out and back in after changing persistent login limits.
 
 ## Execution
 
 ### benchmark.sh
 
 Run a benchmark for each combination of approaches and scenarios defined in a scenario CSV file. Results are stored in
-`build/results/`:
+`build/results/`. The script checks benchmark host tuning before the run and may request `sudo` locally if runtime sysctl
+values need to be applied:
 
 ```shell
 ./benchmark.sh 
@@ -317,7 +352,12 @@ These scenarios cover a mixture of load patterns between 5k and 20k users.
 
 #### High-Load Scenarios
 
-These are steady-state scenarios for 40k users and ramp-up/down scenarios for 60k users.
+These use two deliberately different load shapes — do not read them as one continuous user-count scale:
+
+- **Fixed-rate** scenarios (`*-vus-and-rps-*`) set `connections = requestsPerSecond` with **no client think-time**, so all *N* virtual users open and continuously drive their connections at once (~*N* simultaneous connections from the first second). They are swept across **10k → 20k → 40k → 60k** users to locate each endpoint's connection-acceptance threshold.
+- **Paced** scenarios (`*-spike-*`) ramp the virtual-user count up and down with **1–3s of think-time** between requests and no fixed request rate, so connections are established gradually and, because each user spends most of its time sleeping, only a few thousand are ever in flight at once. They run at **60k** users.
+
+As a result, a paced 60k scenario imposes far less instantaneous connection-establishment pressure than a fixed-rate scenario at the same — or even a much lower — user count. See [High Load Results](#high-load-results) for why this matters.
 
 - Config: [./src/main/resources/scenarios/scenarios-high-load.csv](./src/main/resources/scenarios/scenarios-high-load.csv)
 - Results: [./results/scenarios-high-load/results.md](./results/scenarios-high-load/results.md)
@@ -619,6 +659,55 @@ results, see [results/scenarios-high-load/results.md](results/scenarios-high-loa
 ### Summary
 
 ![Summary](results/scenarios-high-load/results.png)
+
+### Reading the 40k and 60k Results
+
+A result that surprises many readers is that `loom-tomcat` records almost no successful requests for the higher **fixed-rate** scenarios with a server-side delay (e.g. 40k), yet passes the **paced** 60k scenarios cleanly — even though those use *more* users. This is a consequence of the [two load shapes](#high-load-scenarios), not of "60k being easier than 40k":
+
+- A fixed-rate scenario presents its full user count as ~simultaneous connections (closed-loop, no think-time). The paced scenarios ramp up gradually and keep only a few thousand connections in flight at any instant, because each virtual user sleeps 1–3s between requests. The `sockets` row in [results.csv](results/scenarios-high-load/results.csv) confirms this: Tomcat holds ~3k concurrent sockets in the paced 60k scenarios versus tens of thousands in the failing fixed-rate scenarios.
+- `loom-tomcat` also passes the **no-delay** fixed-rate scenario at 60k users, with no errors: with no delay each connection is served in microseconds and cycles immediately, so the number of *simultaneously open* connections stays low. The failures only appear once a 100ms delay keeps the connections open at the same time.
+- The fixed-rate failures are **TCP connection-acceptance** failures (`connection refused`), not request-processing failures. The server does not return error responses; its connection acceptor simply cannot drain the accept queue as fast as the connection burst fills it. Latency and CPU during these runs reflect the few requests that did get accepted, not a saturated server.
+- The two Netty-based approaches accept the *identical* fixed-rate bursts (including at 40k and 60k) with **zero errors**. The difference therefore lies in how each server's connection acceptor copes with a large simultaneous-connection burst (Tomcat's thread-based acceptor versus Netty's event-loop acceptor), not in the host or the load generator.
+
+> [!NOTE]
+> In short, the fixed-rate `loom-tomcat` failures are a connection-burst acceptance limit specific to the no-think-time shape — **not** a general inability to serve high user counts (it serves the paced 60k scenarios without errors). The fixed-rate rows are best read as a connection-acceptance stress test; the paced rows are closer to a typical production traffic shape.
+
+All three approaches run near-vanilla server configuration and share the *same* OS-level tuning ([Linux Host Tuning](#linux-host-tuning) via `tune-benchmark-host.sh`), which raises connection limits for every contender equally. This result is not an artefact of under-tuning: the 40k `loom-tomcat` failure persists unchanged (~97% `connection refused`) even with the host fully tuned (`net.core.somaxconn` and `net.ipv4.tcp_max_syn_backlog` at 65535), Tomcat's `accept-count` raised to 65,000, and HTTP keep-alive enabled — while Netty serves the same burst with zero errors on the same host. The limiting factor is the rate at which Tomcat's thread-based acceptor admits new connections, not the OS accept-queue depth or any single Tomcat setting.
+
+### Where Tomcat Breaks, and How to Push It Further
+
+To make the breaking point explicit and reproducible, `scenarios-high-load.csv` includes a round-number `get-movies` ladder of fixed-rate scenarios (each with `connections = requestsPerSecond`, no client think-time) that brackets it for `loom-tomcat` with this project's configuration:
+
+| Scenario | Simultaneous users (= requests/s) | `loom-tomcat` result |
+|----------|-----------------------------------|----------------------|
+| [`10k-vus-and-rps-get-movies`](results/scenarios-high-load/results.md#10k-vus-and-rps-get-movies) | 10,000 | passes (0 errors) |
+| [`20k-vus-and-rps-get-movies`](results/scenarios-high-load/results.md#20k-vus-and-rps-get-movies) | 20,000 | fails (~96% `connection refused`) |
+| [`40k-vus-and-rps-get-movies`](results/scenarios-high-load/results.md#40k-vus-and-rps-get-movies) | 40,000 | fails (~97% `connection refused`) |
+| [`60k-vus-and-rps-get-movies`](results/scenarios-high-load/results.md#60k-vus-and-rps-get-movies) | 60,000 | fails (~96% `connection refused`) |
+
+The breaking point sits between 10k and 20k simultaneous users (in our probes the cliff is sharp, near ~13k); past it, more users simply means more refused connections. (The lighter `get-time` endpoint breaks higher, around 20k–25k, because its tiny response lets each connection cycle faster; the ~7&nbsp;KB `get-movies` response keeps connections busy longer and lowers the threshold.) Both Netty-based approaches pass every one of these fixed-rate points without errors.
+
+The separate [`60k-vus-*-spike`](results/scenarios-high-load/results.md#60k-vus-smooth-spike-get-movies) scenarios use the **same 60,000 users but ramped with 1–3s of think-time**, so they are a different workload type — not the next rung of the ladder above — and Tomcat **passes** them, because pacing keeps only a few thousand connections concurrent (see [Reading the 40k and 60k Results](#reading-the-40k-and-60k-results)).
+
+**How to push the threshold higher.** This project intentionally runs Tomcat with HTTP keep-alive effectively disabled (`server.tomcat.max-keep-alive-requests: 1`, `keep-alive-timeout: 1s`), so every request opens a fresh TCP connection. Re-enabling keep-alive lets clients reuse connections instead of reconnecting on every request, which relieves the acceptor:
+
+```yaml
+server:
+  tomcat:
+    max-keep-alive-requests: -1   # unlimited (Tomcat's own default is 100); current project value is 1
+    keep-alive-timeout: 60s       # keep idle connections open for reuse; current project value is 1s
+    accept-count: 65000           # deeper listen backlog to buffer connection bursts
+```
+
+We verified this experimentally (via runtime overrides, reverted afterwards — the committed configuration is unchanged): enabling keep-alive moves the threshold from ~13k to ~18–19k simultaneous users (a load that otherwise fails at ~90% then completes with **zero errors**). It is a real but limited gain: it is still short of the 20k scenario, which continues to fail under both settings.
+
+**The downsides, and why this is not the default.**
+
+- **It does not remove the ceiling.** Even with keep-alive enabled, the 20k and 40k scenarios still fail (~97%). The bottleneck is the *rate at which Tomcat's acceptor admits new connections*, not connection reuse, so keep-alive only shifts the threshold — it does not fix the burst case. A deeper `accept-count` / host `somaxconn` alone made no measurable difference in our tests.
+- **Higher steady-state resource use.** Keep-alive pins one open connection (and, under Virtual Threads, one carrier-bound socket and file descriptor) per idle client for the duration of `keep-alive-timeout`. With many slow or idle clients and a high `max-connections`, Tomcat holds far more concurrent connections, threads, and memory than the connection-per-request model — the opposite of the lean profile this benchmark otherwise measures.
+- **Comparability.** Changing the connection model alters Tomcat's connection-churn characteristics, breaking direct comparison with the historical results in this repository.
+
+For these reasons the benchmark keeps the current, deliberately lean Tomcat setting (a level playing field with near-vanilla per-contender configuration), documents the breaking point above, and leaves the keep-alive trade-off as an informed choice for a developer tuning a real service.
 
 ### 60k-vus-smooth-spike-get-post-movies
 

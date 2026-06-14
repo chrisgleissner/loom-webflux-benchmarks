@@ -1,0 +1,15 @@
+2026-06-14T11:06:57.856+01:00 ERROR 523527 --- [loom-webflux] [ux-http-epoll-5] b.w.a.e.AbstractErrorWebExceptionHandler : [b2307af4-78620]  500 Server Error for HTTP POST "/webflux-netty/movies?delayCallDepth=0&delayInMillis=100"
+
+reactor.core.Exceptions$ReactorRejectedExecutionException: Scheduler unavailable
+--
+2026-06-14T11:06:57.856+01:00 ERROR 523527 --- [loom-webflux] [ux-http-epoll-7] b.w.a.e.AbstractErrorWebExceptionHandler : [d33b8da5-77270]  500 Server Error for HTTP POST "/webflux-netty/movies?delayCallDepth=0&delayInMillis=100"
+
+reactor.core.Exceptions$ReactorRejectedExecutionException: Scheduler unavailable
+--
+2026-06-14T11:06:57.858+01:00 ERROR 523527 --- [loom-webflux] [x-http-epoll-13] b.w.a.e.AbstractErrorWebExceptionHandler : [45def401-78361]  500 Server Error for HTTP POST "/webflux-netty/movies?delayCallDepth=0&delayInMillis=100"
+
+reactor.core.Exceptions$ReactorRejectedExecutionException: Scheduler unavailable
+--
+2026-06-14T11:06:57.888+01:00 ERROR 523527 --- [loom-webflux] [x-http-epoll-17] b.w.a.e.AbstractErrorWebExceptionHandler : [94f4490d-77552]  500 Server Error for HTTP POST "/webflux-netty/movies?delayCallDepth=0&delayInMillis=100"
+
+reactor.core.Exceptions$ReactorRejectedExecutionException: Scheduler unavailable
