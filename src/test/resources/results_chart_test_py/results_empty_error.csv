@@ -1,0 +1,3 @@
+scenario,approach,requests_per_second,latency_avg,requests_error
+s1,loom-netty,10,5,
+s1,webflux-netty,8,7,2

@@ -1,6 +1,8 @@
 #!/bin/bash
 # Wrapper over benchmark.sh
 
+set -o pipefail
+
 DEFAULT_SCENARIOS=("scenarios-default.csv" "scenarios-clients.csv" "scenarios-deep-call-stack.csv" "scenarios-postgres.csv" "scenarios-sharp-spikes.csv" "scenarios-soaktest.csv" "scenarios-high-load.csv")
 
 show_help() {
@@ -92,7 +94,12 @@ process_scenario() {
     if ! $DRY_RUN; then rm -Rf build/results; fi
 
     perform_action "Executing 'benchmark.sh $OPTIONS $scenario_file'"
-    if ! $DRY_RUN; then ./src/main/bash/benchmark.sh $OPTIONS "$scenario_file" 2>&1 | tee "results/benchmark-${scenario}.log"; fi
+    if ! $DRY_RUN; then
+        if ! ./src/main/bash/benchmark.sh $OPTIONS "$scenario_file" 2>&1 | tee "results/benchmark-${scenario}.log"; then
+            echo "Benchmark failed for $scenario_file; leaving existing results/$scenario untouched"
+            return 1
+        fi
+    fi
 
     perform_action "Clearing 'results/$scenario'"
     if ! $DRY_RUN; then rm -Rf "results/$scenario" && mkdir -p "results/$scenario"; fi
@@ -107,7 +114,7 @@ process_scenario() {
 }
 
 for scenario_file in "${SCENARIO_FILES[@]}"; do
-    process_scenario "$scenario_file"
+    process_scenario "$scenario_file" || exit $?
 done
 
 end_time=$(date +%s)

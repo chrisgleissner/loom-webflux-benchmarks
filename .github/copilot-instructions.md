@@ -2,9 +2,9 @@
 
 ## Repository Overview
 
-**Java Spring Boot 3.5 benchmarking project** comparing Java Virtual Threads (Loom) vs Spring WebFlux (Reactor) for microservices. ~310MB repo (mostly results), ~1MB source (29 Java, 15 Kotlin test files).
+**Java Spring Boot 4.1 benchmarking project** comparing Java Virtual Threads (Loom) vs Spring WebFlux (Reactor) for microservices. ~310MB repo (mostly results), ~1MB source (29 Java, 15 Kotlin test files).
 
-**Stack**: Java 21+, Gradle 9.1, Spring Boot 3.5.7, WebFlux, Netty, Tomcat, H2/PostgreSQL, k6, Python 3 (matplotlib, pandas, numpy), sysstat
+**Stack**: Java 21+, Gradle, Spring Boot, WebFlux, Netty, Tomcat, H2/PostgreSQL, k6, Python 3 (matplotlib, pandas, numpy), sysstat
 
 **Approaches tested**: platform-tomcat, loom-tomcat, loom-netty, webflux-netty
 
@@ -92,7 +92,7 @@ Health: `http://localhost:8080/actuator/health`
 **System optimization**:
 ```bash
 printf '* soft nofile 1048576\n* hard nofile 1048576\n' | sudo tee -a /etc/security/limits.conf
-printf 'net.ipv4.ip_local_port_range=1024 65535\nnet.ipv4.tcp_tw_reuse = 1\n' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+./src/main/bash/tune-benchmark-host.sh
 ```
 
 **Run**:

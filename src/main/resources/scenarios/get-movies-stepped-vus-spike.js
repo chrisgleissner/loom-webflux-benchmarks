@@ -8,7 +8,7 @@ const rampUpStepSeconds = (0.8 * __ENV.DURATION_IN_SECONDS / rampUpStepCount)
 const rampUpRiserTime = rampUpStepSeconds * 0.3 + 's'
 const rampUpTreadTime = rampUpStepSeconds * 0.7 + 's'
 const rampDownTime = 0.2 * __ENV.DURATION_IN_SECONDS + 's'
-const vuStep = __ENV.VUS / rampUpStepCount
+const vuStep = Math.floor(__ENV.VUS / rampUpStepCount)
 
 export function setup() {
     console.info("K6 config: rampUpRiserTime=" + rampUpRiserTime + ", rampUpTreadTime=" + rampUpTreadTime + ", rampDownTime=" + rampDownTime)

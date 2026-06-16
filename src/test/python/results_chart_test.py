@@ -1682,3 +1682,21 @@ def create_sut(csv_filename, approaches):
     if os.path.exists(png_file):
         os.remove(png_file)
     return png_file, CSVRenderer(csv_file, png_file, approaches)
+
+
+# --- P5: an empty requests_error cell must not crash get_color_rows (matches sort_approaches' guard) ---
+
+def test_get_color_rows_tolerates_empty_requests_error():
+    _, sut = create_sut("results_empty_error.csv", [])
+    color_rows = sut.get_color_rows()  # must not raise on int("") or float("")
+    # The approach with the empty cell is treated as error-free; the one with "2" is flagged.
+    errors_by_approach = {result.approach: result.errors
+                          for color_row in color_rows for color in color_row for result in color.results}
+    assert errors_by_approach["loom-netty"] is False
+    assert errors_by_approach["webflux-netty"] is True
+
+
+def test_render_png_tolerates_empty_requests_error():
+    png_file, sut = create_sut("results_empty_error.csv", [])
+    sut.render_png()  # must not raise
+    assert os.path.exists(png_file) and os.path.getsize(png_file) > 0

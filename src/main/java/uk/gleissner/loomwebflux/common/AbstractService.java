@@ -25,11 +25,14 @@ public abstract class AbstractService {
     }
 
     protected Mono<Long> waitOrFetchEpochMillisReactive(int delayCallDepth, long delayInMillis) {
-        return Mono
-            .delay(Duration.ofMillis(delayCallDepth == 0 ? delayInMillis : 0))
-            .flatMap(d -> delayCallDepth > 0
-                ? reactiveClient.fetchEpochMillis(delayCallDepth - 1, delayInMillis)
-                : Mono.just(System.currentTimeMillis()));
+        // Mirror the non-reactive path's structure: only the leaf (depth 0) introduces the delay, while
+        // intermediate levels recurse straight into the next call. The previous implementation issued a
+        // Mono.delay(0) at every non-leaf level, adding a parallel-scheduler hop with no counterpart in
+        // the blocking path and skewing the deep-call-stack comparison against the reactive approach.
+        if (delayCallDepth > 0) {
+            return reactiveClient.fetchEpochMillis(delayCallDepth - 1, delayInMillis);
+        }
+        return Mono.delay(Duration.ofMillis(delayInMillis)).map(ignored -> System.currentTimeMillis());
     }
 
     protected void log(String methodName) {

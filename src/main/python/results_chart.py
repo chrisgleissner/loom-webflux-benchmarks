@@ -41,6 +41,17 @@ def metric_prefix(s: str) -> str:
     return s.split('_', 1)[0].lower()
 
 
+def metric_value(row, metric):
+    # Tolerate empty/missing numeric cells (e.g. a partially written or hand-edited results row)
+    # rather than crashing chart generation with float("").
+    raw = row.get(metric, "")
+    return float(raw) if raw not in (None, "") else 0.0
+
+
+def has_errors(row):
+    return int(row.get("requests_error", 0) or 0) > 0
+
+
 def calculate_winning_result_delta_perc(winning_result, runner_up_result):
     winning_result_delta = abs(winning_result - runner_up_result)
     if winning_result_delta == 0 and runner_up_result == 0:
@@ -103,8 +114,8 @@ class CSVRenderer:
             sys.exit(1)
 
     def sort_approaches(self, metric: str, scenario: str) -> Tuple[List[str], Dict[str, float], Dict[str, bool]]:
-        result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
-        errors_by_approach = {row[APPROACH]: int(row.get("requests_error", 0) or 0) > 0 for row in self.csv_rows if row[SCENARIO] == scenario}
+        result_by_approach = {row[APPROACH]: metric_value(row, metric) for row in self.csv_rows if row[SCENARIO] == scenario}
+        errors_by_approach = {row[APPROACH]: has_errors(row) for row in self.csv_rows if row[SCENARIO] == scenario}
         more_is_better = self.more_is_better_by_metric_name.get(metric_prefix(metric), False) if "error" not in metric else False
 
         # Sort primarily by whether there are errors (False < True), and secondarily by the metric value (reversed if more_is_better)
@@ -142,8 +153,8 @@ class CSVRenderer:
         for metric in self.metrics:
             color_row = []
             for scenario in self.scenarios:
-                result_by_approach = {row[APPROACH]: float(row[metric]) for row in self.csv_rows if row[SCENARIO] == scenario}
-                errors_by_approach = {row[APPROACH]: int(row.get("requests_error", 0)) > 0 for row in self.csv_rows if row[SCENARIO] == scenario}
+                result_by_approach = {row[APPROACH]: metric_value(row, metric) for row in self.csv_rows if row[SCENARIO] == scenario}
+                errors_by_approach = {row[APPROACH]: has_errors(row) for row in self.csv_rows if row[SCENARIO] == scenario}
 
                 ranked_approaches = self.sort_approaches(metric, scenario)[0]  # only need the ranked approaches here
                 ranked_results = [Result(approach, result_by_approach[approach], errors_by_approach[approach]) for approach in ranked_approaches]
