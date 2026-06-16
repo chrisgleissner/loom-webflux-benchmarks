@@ -4,9 +4,9 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2026-06-14 07:58:26 |
-| **End (UTC)** | 2026-06-14 08:14:50 |
-| **Duration (hh:mm:ss)** | 00:16:24 |
+| **Start (UTC)** | 2026-06-15 18:15:55 |
+| **End (UTC)** | 2026-06-15 20:17:56 |
+| **Duration (hh:mm:ss)** | 02:02:01 |
 
 ## System Specs
 
@@ -19,7 +19,7 @@
 | **Kernel** | 6.17.0-35-generic |
 | **CPU** | Intel(R) Core(TM) i5-14600K |
 | **CPU Cores** | 20 |
-| **RAM** | 62Gi total, 42Gi available |
+| **RAM** | 62Gi total, 57Gi available |
 | **Disk** | 2.8T total, 1.5T available |
 
 ## Scenarios
@@ -204,7 +204,9 @@
 
 ### 20k-vus-smooth-spike-get-post-movies-call-depth-2
 
-#### loom-tomcat (No image available)
+#### loom-tomcat
+
+![loom-tomcat](./20k-vus-smooth-spike-get-post-movies-call-depth-2/loom-tomcat.png)
 
 #### loom-netty
 

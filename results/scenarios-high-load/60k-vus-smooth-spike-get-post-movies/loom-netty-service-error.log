@@ -1,3 +1,0 @@
-2026-06-14T11:06:20.745+01:00 ERROR 522236 --- [loom-webflux] [    task-144523] o.s.w.s.adapter.HttpWebHandlerAdapter    : [9a389e6b-72260] 500 Server Error for HTTP POST "/loom-netty/movies?delayCallDepth=0&delayInMillis=100"
-
-reactor.netty.channel.AbortedException: Connection has been closed

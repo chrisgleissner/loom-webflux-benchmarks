@@ -4,9 +4,9 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2026-06-14 09:46:58 |
-| **End (UTC)** | 2026-06-14 10:07:22 |
-| **Duration (hh:mm:ss)** | 00:20:24 |
+| **Start (UTC)** | 2026-06-16 04:28:27 |
+| **End (UTC)** | 2026-06-16 07:12:31 |
+| **Duration (hh:mm:ss)** | 02:44:04 |
 
 ## System Specs
 
@@ -19,14 +19,12 @@
 | **Kernel** | 6.17.0-35-generic |
 | **CPU** | Intel(R) Core(TM) i5-14600K |
 | **CPU Cores** | 20 |
-| **RAM** | 62Gi total, 37Gi available |
+| **RAM** | 62Gi total, 57Gi available |
 | **Disk** | 2.8T total, 1.5T available |
 
 ## Scenarios
 
 **Scenario file:** src/main/resources/scenarios/scenarios-high-load.csv
-
-**Overrides applied to the Warmup Duration and Test Duration columns below:** Warmup Duration = 5s Test Duration = 10s (values from the scenario CSV were ignored)
 
 | Scenario | k6 Config | Server Profiles | Delay Call Depth | Delay (ms) | Connections | Requests per Second | Warmup Duration (s) | Test Duration (s) |
 |----------|-----------|-----------------|------------------|------------|-------------|---------------------|---------------------|------------------|

@@ -107,6 +107,14 @@ service_health_check() {
   curl --output /dev/null --silent --head --fail --connect-timeout "$curlConnectTimeoutInSeconds" --max-time "$curlMaxTimeInSeconds" "$serviceHealthUrl"
 }
 
+# True when the just-launched JVM died because the port was already taken. This
+# is the recoverable startup failure (reclaim + wait for the port, then retry),
+# as opposed to a build error or an OOME at startup, where retrying is pointless.
+service_log_reports_port_conflict() {
+  [[ -s "$serviceLogTmpFile" ]] && \
+    grep -qiE 'Port [0-9]+ was already in use|Address already in use|BindException' "$serviceLogTmpFile"
+}
+
 post_shutdown() {
   curl -fsS -X POST --connect-timeout "$curlConnectTimeoutInSeconds" --max-time "$curlMaxTimeInSeconds" "$serviceShutdownUrl" >/dev/null 2>&1
 }
@@ -145,6 +153,62 @@ is_service_port_in_use() {
   nonTimeWaitSockets=$(ss -H -tan "sport = :$servicePort" 2>/dev/null \
     | awk 'toupper($1) != "TIME-WAIT" { count++ } END { print count + 0 }')
   (( nonTimeWaitSockets > 0 ))
+}
+
+# Returns 0 (true) only if a fresh server could actually bind the service port
+# right now. This is the authoritative readiness check; ss-based heuristics are
+# NOT, because is_service_port_in_use deliberately ignores TIME-WAIT sockets yet
+# a server that does not reuse the address still fails to bind() while they
+# linger. An OOME victim under tens of thousands of connections leaves thousands
+# of such TIME-WAIT sockets behind, so the port reads "free" via ss while the
+# next JVM dies with "Port 8080 was already in use" -- the exact failure that
+# aborted the suite. We probe by attempting a real bind WITHOUT SO_REUSEADDR
+# (the strictest case): if even that succeeds the embedded server will bind too,
+# whatever its socket options. The probe creates only listening sockets and
+# never accepts a connection, so it leaves no TIME-WAIT residue of its own.
+port_is_bindable() {
+  python3 - "$servicePort" <<'PY' >/dev/null 2>&1
+import socket, sys
+
+port = int(sys.argv[1])
+families = [(socket.AF_INET, "0.0.0.0")]
+if socket.has_ipv6:
+    families.append((socket.AF_INET6, "::"))
+
+for family, addr in families:
+    try:
+        sock = socket.socket(family, socket.SOCK_STREAM)
+    except OSError:
+        # Address family unsupported on this host: it cannot block a bind, skip.
+        continue
+    try:
+        # Intentionally NOT setting SO_REUSEADDR: mirror the strictest server so
+        # that a TIME-WAIT-blocked port is reported as not-yet-bindable.
+        sock.bind((addr, port))
+    except OSError:
+        sock.close()
+        sys.exit(1)
+    sock.close()
+
+sys.exit(0)
+PY
+}
+
+# Polls until the service port is actually bindable, up to timeoutInSeconds.
+# This is how we wait out the TIME-WAIT sockets a crashed JVM leaves behind:
+# killing processes cannot clear them (they have no owner), only time can.
+wait_for_port_bindable() {
+  local timeoutInSeconds=$1
+  local waited=0
+
+  if ! port_is_bindable; then
+    log "Waiting up to ${timeoutInSeconds}s for port $servicePort to become bindable"
+  fi
+  while ! port_is_bindable && (( waited < timeoutInSeconds )); do
+    sleep 1
+    ((waited++))
+  done
+  port_is_bindable
 }
 
 # Returns 0 (true) if the given PID exists AND is in D state (uninterruptible
@@ -226,6 +290,32 @@ reclaim_service_port() {
   return 1
 }
 
+# Makes the service port truly bindable before we launch a JVM on it, recovering
+# from both ways a crashed predecessor can poison the port:
+#   * a still-live rogue/orphaned JVM holding the LISTEN socket -- killed by
+#     reclaim_service_port (keyed off the port owner, so it works across
+#     scenarios regardless of any -k/--kill-java flag), and
+#   * thousands of TIME-WAIT sockets left by an OOME under load, which no process
+#     owns and which only time can drain -- waited out via wait_for_port_bindable.
+# Returns 0 once a real bind would succeed, 1 if the port cannot be freed within
+# the timeout (e.g. a JVM wedged in uninterruptible D-state).
+ensure_port_available() {
+  local timeoutInSeconds=${1:-90}
+
+  if port_is_bindable; then
+    return 0
+  fi
+
+  if is_service_port_in_use; then
+    log "Port $servicePort is held by a live process before start; reclaiming"
+    reclaim_service_port || true
+  else
+    log "Port $servicePort is not bindable but owned by no live process; TIME-WAIT sockets from a crashed JVM are draining"
+  fi
+
+  wait_for_port_bindable "$timeoutInSeconds"
+}
+
 terminate_service() {
   if [[ -z "$servicePid" ]]; then
     return
@@ -302,30 +392,17 @@ on_signal() {
 trap cleanup_service EXIT
 trap on_signal INT TERM HUP
 
-start_service() {
-  log "Starting service"
+# Launches the JVM once and waits up to 120s for it to become healthy.
+# Return codes:
+#   0  service is healthy
+#   2  process exited during startup because the port was already in use
+#      (EADDRINUSE) -- recoverable: the caller reclaims/waits for the port and
+#      retries
+#   1  any other failure (exited for another reason, or never became healthy)
+launch_service_once() {
+  local appJar=$1
+
   rm -f "$serviceLogTmpFile"
-  rm -f "$jvmCsvTmpFile"
-  mkdir -p "$gradleUserHome"
-
-  if is_service_port_in_use; then
-    log "Port $servicePort is already in use before starting service; a previous scenario may have left a rogue JVM behind"
-    if ! reclaim_service_port; then
-      log "Unable to free port $servicePort; aborting start"
-      return 1
-    fi
-  fi
-
-  if [[ "$approach" == "platform-tomcat" || "$approach" == "loom-tomcat" ]]; then
-    appJar="$tomcatAppJar"
-  else
-    appJar="$webfluxAppJar"
-  fi
-
-  if [[ ! -s "$appJar" ]]; then
-    log "Application jar $appJar does not exist; building it"
-    build_app_jar "$approach" "$appJar"
-  fi
 
   local commaSeparatedServerProfiles="${serverProfiles//|/,}"
   local javaMajorVersion
@@ -338,13 +415,17 @@ start_service() {
   DEBUG=false SPRING_PROFILES_ACTIVE=$approach${commaSeparatedServerProfiles:+,$commaSeparatedServerProfiles} java "${javaArgs[@]}" -jar "$appJar" > >(tee "$serviceLogTmpFile") 2>&1 &
   servicePid=$!
 
-  startupTimeoutInSeconds=120
+  local startupTimeoutInSeconds=120
   while (( startupTimeoutInSeconds > 0 )); do
     if service_health_check; then
       log "Started service"
-      return
+      return 0
     fi
     if ! ps -p "$servicePid" > /dev/null; then
+      if service_log_reports_port_conflict; then
+        log "Service process exited during startup because port $servicePort was already in use"
+        return 2
+      fi
       log "Service process exited before becoming healthy"
       tail -n 50 "$serviceLogTmpFile"
       return 1
@@ -355,6 +436,59 @@ start_service() {
   done
   log "Service did not become healthy within 120s"
   tail -n 50 "$serviceLogTmpFile"
+  return 1
+}
+
+# Starts the service, recovering from a port poisoned by a crashed predecessor.
+# Before each launch it makes the port genuinely bindable (kill any live owner,
+# then wait out TIME-WAIT sockets); a launch that still loses a race for the port
+# is retried rather than aborting the whole benchmark suite. Only a port conflict
+# is retried -- a build error or an OOME at startup fails fast.
+start_service() {
+  log "Starting service"
+  rm -f "$jvmCsvTmpFile"
+  mkdir -p "$gradleUserHome"
+  mkdir -p "$tmpDir"
+
+  if [[ "$approach" == "platform-tomcat" || "$approach" == "loom-tomcat" ]]; then
+    appJar="$tomcatAppJar"
+  else
+    appJar="$webfluxAppJar"
+  fi
+
+  if [[ ! -s "$appJar" ]]; then
+    log "Application jar $appJar does not exist; building it"
+    build_app_jar "$approach" "$appJar"
+  fi
+
+  local maxStartAttempts=3
+  local attempt
+  for (( attempt = 1; attempt <= maxStartAttempts; attempt++ )); do
+    if ! ensure_port_available 90; then
+      log "Port $servicePort could not be made available before start attempt $attempt/$maxStartAttempts"
+      log_port_owner
+      if (( attempt == maxStartAttempts )); then
+        return 1
+      fi
+      reclaim_service_port || true
+      continue
+    fi
+
+    launch_service_once "$appJar"
+    case $? in
+      0) return 0 ;;
+      2)
+        log "Start attempt $attempt/$maxStartAttempts lost a race for port $servicePort; reclaiming and retrying"
+        reclaim_service_port || true
+        ;;
+      *)
+        return 1
+        ;;
+    esac
+  done
+
+  log "Service could not claim port $servicePort after $maxStartAttempts attempts"
+  log_port_owner
   return 1
 }
 
@@ -572,7 +706,16 @@ printf "\n\n"
 log "==> Benchmark of $scenario scenario for $approach approach <=="
 log "k6Config=$k6Config, serverProfiles=$serverProfiles, delayCallDepth=$delayCallDepth, delayInMillis=$delayInMillis, connections=$connections, requestsPerSecond=$requestsPerSecond, warmupDurationInSeconds=$warmupDurationInSeconds, testDurationInSeconds=$testDurationInSeconds"
 
-start_service || exit 1
-benchmark_service
-stop_service
+# A service that cannot start (e.g. its port is still poisoned by a crashed
+# predecessor after all reclaim/wait/retry attempts) must NOT abort the whole
+# suite: record a failed data point for this approach and let the next approach
+# and scenario run. Otherwise a single OOME would forfeit every remaining test.
+if start_service; then
+  benchmark_service
+  stop_service
+else
+  benchmarkFailureReason=${benchmarkFailureReason:-"service failed to start (port $servicePort could not be claimed)"}
+  log "Recording failed result and continuing: $benchmarkFailureReason"
+  record_failed_result
+fi
 capture_log_errors

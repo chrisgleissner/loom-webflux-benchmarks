@@ -4,9 +4,9 @@
 
 | **Name**                | **Value** |
 |-------------------------|-----------|
-| **Start (UTC)** | 2026-06-14 08:14:54 |
-| **End (UTC)** | 2026-06-14 08:32:16 |
-| **Duration (hh:mm:ss)** | 00:17:22 |
+| **Start (UTC)** | 2026-06-15 20:18:02 |
+| **End (UTC)** | 2026-06-15 22:47:56 |
+| **Duration (hh:mm:ss)** | 02:29:54 |
 
 ## System Specs
 
@@ -19,7 +19,7 @@
 | **Kernel** | 6.17.0-35-generic |
 | **CPU** | Intel(R) Core(TM) i5-14600K |
 | **CPU Cores** | 20 |
-| **RAM** | 62Gi total, 42Gi available |
+| **RAM** | 62Gi total, 57Gi available |
 | **Disk** | 2.8T total, 1.5T available |
 
 ## Scenarios
