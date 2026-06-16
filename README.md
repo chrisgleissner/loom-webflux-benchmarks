@@ -57,8 +57,8 @@ default scenarios (286 per-cell contests), the win-count ranking is **Virtual Th
 on Tomcat (22%)**, **WebFlux on Netty (17%)**, with the remaining 22% undecided. Virtual Threads on Tomcat edges out
 WebFlux on Netty here on win count despite its catastrophic failure in
 [10k-vus-and-rps-get-movies-call-depth-1](#10k-vus-and-rps-get-movies-call-depth-1) (where the error-derank rule costs it
-every metric), largely because it records the lowest GC counts of the three and fewer platform threads than WebFlux on
-Netty across the lighter scenarios. Note that this win-count ranking weights all 26 metrics equally; on the
+every metric), largely because it records the lowest GC counts of the three - winning both GC columns (count and time)
+in 8 of the 11 scenarios - and the lowest P99 latency in all five 20k spike scenarios. Note that this win-count ranking weights all 26 metrics equally; on the
 latency/throughput metrics that matter most for a service, the two Netty approaches lead.
 
 ![All Results](results/scenarios-default/results.png)
@@ -154,9 +154,9 @@ Supported requests:
 - `GET /$approach/movies?directorLastName={director}`:
     - Returns movies by the specified director.
     - Supported `{director}` values and their respective response body size in bytes, based on the default movies:
-        - `Allen`: 1597 bytes (unindented)
-        - `Hitchcock`: 1579 bytes (unindented)
-        - `Kubrick`: 1198 bytes (unindented)
+        - `Allen`: 1664 bytes (unindented)
+        - `Hitchcock`: 1622 bytes (unindented)
+        - `Kubrick`: 1235 bytes (unindented)
 - `POST /$approach/movies`:
     - Saves one or more movies.
     - The request body is the [sample movies](src/main/resources/scenarios/movies.json) file (7,010 bytes on disk). Before POSTing, k6 re-serialises it to compact JSON via `JSON.stringify(JSON.parse(...))`, so the body actually sent over the wire is ~4.1 KB.
@@ -424,7 +424,7 @@ The benchmark run for each `$scenario` consists of the following phases and step
 
 - The `build.gradle.kts` file fixes the heap to 2 GiB (`-Xms2g -Xmx2g`) for the benchmarked service.
 - The `src/main/resources/application.yaml` file enables HTTP/2.
-- Time-out is 60s for both client and server.
+- Time-outs are 60s: the WebClient `response-timeout` (used for the service's upstream calls) and the Hikari DB `connectionTimeout`.
 
 ### Scenario-specific
 
@@ -464,7 +464,7 @@ Virtual Threads, then for WebFlux.
 
 - Unless noted otherwise, all tests were conducted on this test environment.
 - **Preparation**: The system was rebooted before each test and quieted down as much as possible. The baseline total CPU
-  use before test start was 0.3%.
+  use before test start was reduced to a negligible level.
 - **Co-location**: Test driver (k6) and server under test (Spring Boot microservice) were co-located on the same
   physical machine. The aim of this benchmark is not to achieve maximum absolute performance, but rather to compare
   different server-side approaches with each other. Considering that the test driver and the load it produced was
@@ -473,10 +473,10 @@ Virtual Threads, then for WebFlux.
 
 ### Hardware
 
-- CPU: [Intel Core i5-14600K](https://www.intel.com/content/www/us/en/products/sku/236799/intel-core-i5-processor-14600k-24m-cache-up-to-5-30-ghz/specifications.html) with 5.3GHz, 12 cores, 20 threads, and a base/turbo power of both 180W
+- CPU: [Intel Core i5-14600K](https://www.intel.com/content/www/us/en/products/sku/236799/intel-core-i5-processor-14600k-24m-cache-up-to-5-30-ghz/specifications.html) with 14 cores (6 P + 8 E), 20 threads, up to 5.3 GHz, and 125 W base / 181 W turbo power
 - Motherboard: [Asus ProArt Z690-Creator WIFI](https://www.asus.com/uk/motherboards-components/motherboards/proart/proart-z690-creator-wifi/)
 - RAM: 64GiB DDR5 (2 x [Corsair Vengeance 32 GiB 5600 MT/s CL40](https://www.corsair.com/uk/en/p/memory/cmk64gx5m2b5600c40/vengeancea-64gb-2x32gb-ddr5-dram-5600mhz-c40-memory-kit-a-black-cmk64gx5m2b5600c40))
-- Disk: [Samsung 980 Pro NVMe 1TB](https://www.samsung.com/uk/memory-storage/nvme-ssd/980-pro-pcle-4-0-nvme-m-2-ssd-1tb-mz-v8p1t0bw/)
+- Disk: local NVMe SSD (not on the benchmark hot path: networking is loopback and the database is in-memory H2)
 - Network: Loopback interface
 - Virtualization: None; bare metal desktop
 
@@ -499,16 +499,17 @@ This chapter shows the results of each default scenario, sorted by ascending sce
 During a run, any lines in the client-side or server-side log files which contain the term `error` (case-insensitive)
 are preserved in error log files written to the results folder alongside the generated PNG files. (This committed
 repository keeps only the PNG charts and the aggregated `results.csv`/`results.md`; the verbose per-scenario error logs
-are not committed.) In the latest run, every error originated from `loom-tomcat`, and the dominant error type was
-`connection refused` (37.7&nbsp;million occurrences across the high-load run alone); the two Netty approaches produced
-zero errors on this environment.
+are not committed.) In the latest run, every error originated from `loom-tomcat`: the committed high-load `results.csv`
+records ~37.3&nbsp;million failed `loom-tomcat` requests (concentrated in the fixed-rate `get-time`/`get-movies` bursts at
+20k–60k), almost all of them `connection refused` as recorded in the verbose, non-committed error logs. The two Netty
+approaches produced zero errors on this environment.
 
 Any failed requests appear both in the latency chart as red dots, as well as in the RPS chart as part of a continuous orange
 line. Additionally, they leave a trace in the `$approach-latency.csv` file, if preserved by running the benchmark with the `-C` option:
 
 - A very small latency below 3ms indicates that the client failed to establish a TCP connection. Example from the latency CSV file: `1715728866471,0.000000,0,dial: i/o timeout,1211`. Such requests are not considered when reporting minimum latency since this could obscure the minimum latency of
   successful requests.
-- A very large latency above 60s indicates a server-side time-out. Example from the latency CSV file: `1715728861008,60001.327066,0,request timeout,1050`.
+- A very large latency at ~60s reflects a request time-out (the server did not respond within the 60s time-out). Example from the latency CSV file: `1715728861008,60001.327066,0,request timeout,1050`.
 
 ### 1k-vus-and-rps-get-time-no-delay
 
@@ -678,8 +679,8 @@ For further details, please see the [movies](#movies) section.
 Like the previous scenario, but mimics call to upstream service as explained in [10k-vus-and-rps-get-movies-call-depth-1](#10k-vus-and-rps-get-movies-call-depth-1).
 
 > [!NOTE]
-> For `loom-netty` and `webflux-netty`, this scenario was CPU-contended on the test environment upon reaching ca. 5,000 RPS.
-> Whilst causing no errors, it drastically increased latencies.
+> For `loom-netty` and `webflux-netty`, this scenario became CPU-contended at peak load (CPU max ~90% for both approaches).
+> This raised tail latencies (P99 ~118-119&nbsp;ms, max ~371-398&nbsp;ms) but caused no errors.
 
 #### Virtual Threads (Tomcat)
 
@@ -760,7 +761,7 @@ A result that surprises many readers is that `loom-tomcat` records almost no suc
 > [!NOTE]
 > In short, the fixed-rate `loom-tomcat` failures are a connection-burst acceptance limit specific to the no-think-time shape - **not** a general inability to serve high user counts (it serves the paced 60k scenarios without errors). The fixed-rate rows are best read as a connection-acceptance stress test; the paced rows are closer to a typical production traffic shape.
 
-All three approaches run near-vanilla server configuration and share the *same* OS-level tuning ([Linux Host Tuning](#linux-host-tuning) via `tune-benchmark-host.sh`), which raises connection limits for every contender equally. This result is not an artefact of under-tuning: in separate experiments (runtime overrides, not part of the committed dataset) the 40k `loom-tomcat` failure persisted at well over 90% `connection refused` even with the host fully tuned (`net.core.somaxconn` and `net.ipv4.tcp_max_syn_backlog` at 65535), Tomcat's `accept-count` raised to 65,000, and HTTP keep-alive enabled - while Netty serves the same burst with zero errors on the same host. The limiting factor is the rate at which Tomcat's thread-based acceptor admits new connections, not the OS accept-queue depth or any single Tomcat setting.
+All three approaches run near-vanilla server configuration and share the *same* OS-level tuning ([Linux Host Tuning](#linux-host-tuning) via `tune-benchmark-host.sh`), which raises connection limits for every contender equally. This result is not an artefact of under-tuning: in separate experiments (runtime overrides, not part of the committed dataset) the 40k `loom-tomcat` failure persisted - the large majority of connections still refused - even with the host fully tuned (`net.core.somaxconn` and `net.ipv4.tcp_max_syn_backlog` at 65535), Tomcat's `accept-count` raised to 65,000, and HTTP keep-alive enabled, while Netty served the same burst without errors on the same host. The limiting factor is the rate at which Tomcat's thread-based acceptor admits new connections, not the OS accept-queue depth or any single Tomcat setting.
 
 ### Where Tomcat Breaks, and How to Push It Further
 
@@ -793,11 +794,11 @@ server:
     accept-count: 65000           # deeper listen backlog to buffer connection bursts
 ```
 
-We verified this experimentally with finer-grained probes (runtime overrides, reverted afterwards - the committed configuration is unchanged, and these probe points are not part of the committed dataset): enabling keep-alive moves the threshold from roughly ~13k to ~18–19k simultaneous users (a load that otherwise fails then completes with **zero errors**). It is a real but limited gain: it is still short of the committed 20k scenario, which continues to fail under both settings.
+We verified this experimentally with finer-grained probes (runtime overrides, reverted afterwards - the committed configuration is unchanged, and these probe points are not part of the committed dataset): enabling keep-alive raised the failure threshold by a few thousand simultaneous users - a real but limited gain, still short of the committed 20k scenario, which continues to fail under both settings.
 
 **The downsides, and why this is not the default.**
 
-- **It does not remove the ceiling.** Even with keep-alive enabled, the 20k and 40k scenarios still fail (~97%). The bottleneck is the *rate at which Tomcat's acceptor admits new connections*, not connection reuse, so keep-alive only shifts the threshold - it does not fix the burst case. A deeper `accept-count` / host `somaxconn` alone made no measurable difference in our tests.
+- **It does not remove the ceiling.** Even with keep-alive enabled, the committed 20k and 40k scenarios still fail. The bottleneck is the *rate at which Tomcat's acceptor admits new connections*, not connection reuse, so keep-alive only shifts the threshold - it does not fix the burst case. A deeper `accept-count` / host `somaxconn` alone made no measurable difference in our tests.
 - **Higher steady-state resource use.** Keep-alive pins one open connection (and, under Virtual Threads, one carrier-bound socket and file descriptor) per idle client for the duration of `keep-alive-timeout`. With many slow or idle clients and a high `max-connections`, Tomcat holds far more concurrent connections, threads, and memory than the connection-per-request model - the opposite of the lean profile this benchmark otherwise measures.
 - **Comparability.** Changing the connection model alters Tomcat's connection-churn characteristics, breaking direct comparison with the historical results in this repository.
 
