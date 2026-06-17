@@ -54,7 +54,9 @@ Below are top-performing approaches across all scenarios and metrics, visualizin
 
 This chart compares Project Loom (on both Tomcat and Netty) with Project Reactor (on Netty). Across the 26 metrics × 11
 default scenarios (286 per-cell contests), the win-count ranking is **Virtual Threads on Netty (38%)**, **Virtual Threads
-on Tomcat (22%)**, **WebFlux on Netty (17%)**, with the remaining 22% undecided. Virtual Threads on Tomcat edges out
+on Tomcat (22%)**, **WebFlux on Netty (17%)**, with the remaining 22% undecided. 
+
+Virtual Threads on Tomcat edges out
 WebFlux on Netty here on win count despite its catastrophic failure in
 [10k-vus-and-rps-get-movies-call-depth-1](#10k-vus-and-rps-get-movies-call-depth-1) (where the error-derank rule costs it
 every metric), largely because it records the lowest GC counts of the three - winning both GC columns (count and time)
