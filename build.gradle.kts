@@ -47,7 +47,7 @@ extra["httpcore5.version"] = "5.4.+"
 
 dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine")
-    implementation("com.google.guava:guava:33.6.0-jre")
+    implementation("com.google.guava:guava:33.7.1-jre")
     implementation("io.github.oshai:kotlin-logging-jvm:8.0.+")
     implementation("org.apache.httpcomponents.client5:httpclient5")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.4.+")
